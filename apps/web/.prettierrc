@@ -1,0 +1,3 @@
+{
+  "extends": "@isnow/config/src/.prettierrc"
+}
