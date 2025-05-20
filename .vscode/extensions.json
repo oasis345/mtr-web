@@ -12,6 +12,6 @@
     "bradlc.vscode-tailwindcss",
     "ms-vsliveshare.vsliveshare",
     "hancel.google-translate",
-    "esbenp.prettier-vscode"
-  ]
+    "esbenp.prettier-vscode",
+  ],
 }

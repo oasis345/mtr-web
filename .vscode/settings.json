@@ -13,5 +13,9 @@
   "prettier.requireConfig": true,
   "prettier.useEditorConfig": false,
   "prettier.configPath": ".prettierrc",
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "liveshare.featureSet": "stable",
+  "liveshare.presence": true,
+  "liveshare.shareExternalPorts": true,
+  "liveshare.allowGuestDebugControl": true  
 }
