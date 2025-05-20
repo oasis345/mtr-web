@@ -13,10 +13,10 @@
   "aliases": {
     "utils": "@/lib/utils",
     "components": "@/components",
-    "ui": "@isnow/ui",
+    "ui": "@/components/ui",
     "lib": "@/lib",
-    "hooks": "@isnow/ui/hooks",
-    "styles": "@isnow/ui/styles"
+    "hooks": "@/hooks",
+    "styles": "@/styles"
   },
   "iconLibrary": "lucide"
 }
