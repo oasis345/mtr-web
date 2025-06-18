@@ -1,5 +1,5 @@
 import './globals.css';
-import { LandingLayout } from '@mtr/ui';
+import { AppLayout } from '@mtr/ui';
 
 export default function RootLayout({
   children,
@@ -9,9 +9,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <LandingLayout nav={<div>nav</div>} logo={<div>logo</div>}>
+        <AppLayout
+          nav={<div>nav</div>}
+          logo={<div>logo</div>}
+          height="screen" // min-h-screen (기본값과 동일)
+          spacing="none" // 간격 없음 (기본값과 동일)
+          mainPadding="none" // 메인 영역 패딩 없음 (기본값과 동일)
+        >
           {children}
-        </LandingLayout>
+        </AppLayout>
       </body>
     </html>
   );
