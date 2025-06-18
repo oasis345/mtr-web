@@ -1,7 +1,0 @@
-pnpm --filter=frontend build 명령을 실행하면
-
-frontend 패키지와
-
-frontend가 의존하는 내부 패키지들 (예: ui-library)만 빌드합니다.
-
-모노레포 내 backend 같은 다른 독립 패키지는 빌드하지 않습니다.
