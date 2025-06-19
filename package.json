@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "pnpm -r dev",
     "build": "pnpm -r build",
+    "start": "pnpm --filter web start",
     "lint": "eslint . --cache --cache-location .eslintcache",
     "lint:fix": "eslint . --fix --cache --cache-location .eslintcache",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
