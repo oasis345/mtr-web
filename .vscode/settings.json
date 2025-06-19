@@ -17,5 +17,5 @@
   "liveshare.featureSet": "stable",
   "liveshare.presence": true,
   "liveshare.shareExternalPorts": true,
-  "liveshare.allowGuestDebugControl": true  
+  "liveshare.allowGuestDebugControl": true
 }

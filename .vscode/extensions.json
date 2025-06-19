@@ -8,10 +8,7 @@
     "aaron-bond.better-comments",
     "streetsidesoftware.code-spell-checker",
     "formulahendry.auto-rename-tag",
-    "kisstkondoros.vscode-codemetrics",
     "bradlc.vscode-tailwindcss",
-    "ms-vsliveshare.vsliveshare",
-    "hancel.google-translate",
-    "esbenp.prettier-vscode",
-  ],
+    "ms-vsliveshare.vsliveshare"
+  ]
 }
