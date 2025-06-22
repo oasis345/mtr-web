@@ -1,11 +1,5 @@
 // Export all layout components
-export * from './layout';
+export * from './src/layout';
 
 // Export all basic components
-export * from './components';
-
-// Export utilities
-export * from './utils/cn';
-
-// // Hooks
-// export * from './hooks';
+export * from './src/components';

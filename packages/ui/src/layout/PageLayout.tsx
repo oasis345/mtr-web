@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../utils/cn';
+import { cn } from '../lib/utils';
 
 const pageLayoutStyles = cva('w-full', {
   variants: {

@@ -1,4 +1,4 @@
-import { PageLayout, Section } from '@mtr/ui';
+import { PageLayout, Section, Button } from '@mtr/ui';
 
 const SigninPage = () => {
   return (
@@ -6,6 +6,7 @@ const SigninPage = () => {
       <Section>
         <div>
           <h1>Signin</h1>
+          <Button size="lg">Button</Button>
         </div>
       </Section>
     </PageLayout>

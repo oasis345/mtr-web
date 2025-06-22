@@ -1,21 +1,12 @@
+/* 1. UI 패키지에서 정의한 "토스 테마"를 가져옵니다. */
+@import '@mtr/ui/styles';
+
+/* 2. Tailwind가 클래스를 생성하도록 지시문을 추가합니다. */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import '@mtr/ui/css/globals.css';
-
-@layer child-overrides {
-  html,
-  body {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    background-color: green;
-  }
-
-  #__next {
-    height: 100%;
-  }
-}
+/*
+  앱 전용 스타일은 여기에 추가할 수 있지만,
+  테마 변수(:root)를 직접 덮어쓰는 것은 피하는 것이 좋습니다.
+*/

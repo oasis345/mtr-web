@@ -1,5 +1,5 @@
 import { cva } from 'class-variance-authority';
-import { cn } from '../utils/cn';
+import { cn } from '../lib/utils';
 
 const headerVariants = cva('flex items-center w-full h-16 px-5');
 
