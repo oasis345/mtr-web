@@ -47,6 +47,15 @@ export default tseslint.config(
     rules: {
       // 여기에 타입 정보가 필요한 규칙들을 추가하세요.
       // 예: '@typescript-eslint/no-floating-promises': 'error'
+      // form handler에서만 허용
+      '@typescript-eslint/no-misused-promises': [
+        'error',
+        {
+          checksVoidReturn: {
+            attributes: false, // JSX 속성에서는 체크하지 않음
+          },
+        },
+      ],
     },
   },
 

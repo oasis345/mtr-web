@@ -12,7 +12,6 @@ const config: Config = {
     // 3. node_modules는 스캔에서 제외 (성능 최적화)
     '!**/node_modules/**',
     '!**/*.d.ts',
-    '!**/node_modules/**',
   ],
 
   presets: [sharedConfig],

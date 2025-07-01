@@ -6,6 +6,16 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer child {
+  /* body {
+    background-color: green;
+  } */
+
+  #__next {
+    height: 100%;
+  }
+}
+
 /*
   앱 전용 스타일은 여기에 추가할 수 있지만,
   테마 변수(:root)를 직접 덮어쓰는 것은 피하는 것이 좋습니다.

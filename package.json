@@ -1,5 +1,5 @@
 {
-  "name": "monorepo-monkytarders",
+  "name": "monorepo-monkey-traders",
   "private": true,
   "type": "module",
   "scripts": {
@@ -28,6 +28,7 @@
     "globals": "^16.2.0",
     "prettier": "^3.2.5",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.34.1"
+    "typescript-eslint": "^8.34.1",
+    "@types/qs": "^6.14.0"
   }
 }

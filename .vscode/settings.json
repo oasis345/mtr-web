@@ -14,8 +14,17 @@
   "prettier.useEditorConfig": false,
   "prettier.configPath": ".prettierrc",
   "typescript.tsdk": "node_modules/typescript/lib",
-  "liveshare.featureSet": "stable",
-  "liveshare.presence": true,
-  "liveshare.shareExternalPorts": true,
-  "liveshare.allowGuestDebugControl": true
+  "tailwindCSS.includeLanguages": {
+    "typescript": "typescript",
+    "javascript": "javascript",
+    "typescriptreact": "typescriptreact",
+    "javascriptreact": "javascriptreact"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+  ],
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
 }
