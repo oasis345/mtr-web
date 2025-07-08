@@ -5,3 +5,4 @@ export * from './src/service/auth/tokenProvider';
 export * from './src/api/routes';
 export * from './src/utils';
 export * from './src/service';
+export * from './src/error';
