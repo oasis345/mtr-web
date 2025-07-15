@@ -8,8 +8,6 @@ const SigninPage = () => {
   const { signin, googleLoginUrl } = useAuth();
   const router = useRouter();
 
-  throw new Error('test');
-
   return (
     <PageLayout>
       <Section>

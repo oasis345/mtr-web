@@ -6,7 +6,8 @@
     "dev": "next dev --turbo --port 8000",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "clean": "rm -rf .next tsconfig.tsbuildinfo node_modules"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",

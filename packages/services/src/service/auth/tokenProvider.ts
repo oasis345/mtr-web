@@ -1,6 +1,11 @@
 // packages/services/src/service/auth/tokenProvider.ts
+export type TokenData = {
+  accessToken: string;
+  refreshToken?: string;
+};
+
 export abstract class TokenProvider {
-  abstract getTokens(): Promise<{ accessToken: string; refreshToken?: string } | null>;
-  setTokens?(tokens: { accessToken: string; refreshToken?: string }): void;
+  abstract getTokens(): Promise<TokenData | null>;
+  setTokens?(tokens: TokenData): void;
   removeTokens?(): void;
 }

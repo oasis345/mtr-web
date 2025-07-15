@@ -1,5 +1,5 @@
-/* 1. UI 패키지에서 정의한 "토스 테마"를 가져옵니다. */
-@import '@mtr/ui/styles';
+/* apps/web/src/app/globals.css */
+@import '@mtr/ui/css';
 
 /* 2. Tailwind가 클래스를 생성하도록 지시문을 추가합니다. */
 @tailwind base;

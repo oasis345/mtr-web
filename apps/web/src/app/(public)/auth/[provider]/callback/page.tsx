@@ -11,7 +11,8 @@ const GoogleCallbackPage = () => {
         .find(row => row.startsWith('mtr_access_token='))
         ?.split('=')[1];
 
-      tokenProvider.setTokens({ accessToken: accessToken ?? '' });
+      // setTokens가 존재할 경우에만 호출하도록 수정
+      tokenProvider.setTokens?.({ accessToken: accessToken ?? '' });
     };
     void getTokens();
   }, []);

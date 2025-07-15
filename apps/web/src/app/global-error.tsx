@@ -1,6 +1,8 @@
 'use client';
 
+import { ErrorService } from '@mtr/services';
 import { GlobalErrorFallback } from '@mtr/ui';
+import { useEffect } from 'react';
 
 interface GlobalErrorProps {
   error: Error & { digest?: string };
@@ -8,11 +10,17 @@ interface GlobalErrorProps {
 }
 
 export default function GlobalError({ error, reset }: GlobalErrorProps) {
+  const normalizedError = ErrorService.normalize(error);
+
+  useEffect(() => {
+    ErrorService.report(normalizedError);
+  }, []);
+
   return (
     <html lang="ko">
       <body>
         <GlobalErrorFallback
-          error={error}
+          error={normalizedError}
           reset={reset}
           branding={{
             appName: 'MTR 웹 서비스',

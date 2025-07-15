@@ -1,21 +1,40 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": ".", // <-- 이 줄이 매우 중요합니다.
+    "paths": {
+      "@/*": ["./src/*"],
+      "@mtr/utils": ["../../packages/utils/src/index"],
+      "@mtr/utils/*": ["../../packages/utils/src/*"],
+      "@mtr/services": ["../../packages/services/src/index"],
+      "@mtr/services/*": ["../../packages/services/src/*"],
+      "@mtr/ui": ["../../packages/ui/src/index"],
+      "@mtr/ui/*": ["../../packages/ui/src/*"]
+    },
+    "target": "es6",
     "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
     "jsx": "preserve",
-    "noEmit": true,
     "incremental": true,
     "plugins": [
       {
         "name": "next"
       }
     ],
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "allowJs": true
+    "noEmit": true
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "references": [
+    { "path": "../../packages/utils" },
+    { "path": "../../packages/services" },
+    { "path": "../../packages/ui" }
+  ]
 }

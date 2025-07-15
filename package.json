@@ -3,23 +3,27 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm -r dev",
-    "build": "pnpm -r build",
+    "dev": "pnpm --filter web dev",
+    "build:packages": "tsc -b",
+    "build:web": "pnpm build:packages && pnpm --filter web build",
     "start": "pnpm --filter web start",
     "lint": "eslint . --cache --cache-location .eslintcache",
     "lint:fix": "eslint . --fix --cache --cache-location .eslintcache",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "type-check": "tsc --noEmit",
     "test": "pnpm -r test",
-    "clean": "pnpm -r clean"
+    "clean": "pnpm -r clean",
+    "clean:full": "pnpm clean && rm -rf node_modules pnpm-lock.yaml"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.0.0",
     "@eslint/js": "^8.57.1",
     "@next/eslint-plugin-next": "^15.3.3",
-    "@types/react": "^19.1.8",
+    "@types/qs": "^6.14.0",
+    "@types/react": "^18.3.3",
     "@typescript-eslint/eslint-plugin": "^8.34.1",
     "@typescript-eslint/parser": "^8.34.1",
+    "cpy-cli": "^5.0.0",
     "eslint": "^8.57.1",
     "eslint-config-next": "^15.3.3",
     "eslint-config-prettier": "^9.1.0",
@@ -28,7 +32,6 @@
     "globals": "^16.2.0",
     "prettier": "^3.2.5",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.34.1",
-    "@types/qs": "^6.14.0"
+    "typescript-eslint": "^8.34.1"
   }
 }

@@ -1,11 +1,22 @@
 {
   "name": "@mtr/services",
   "version": "0.1.0",
-  "exports": {
-    ".": "./index.ts"
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo node_modules"
   },
   "dependencies": {
     "axios": "^1.7.7",
     "@mtr/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5"
   }
 }

@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { serverApi } from '@/api';
 
+type RouteContext = {
+  params: Promise<{ path: string[] }>;
+};
+
 // API 요청 처리 함수
 async function handleApiRequest(
   request: NextRequest,
@@ -31,27 +35,27 @@ async function handleApiRequest(
   }
 }
 
-export async function GET(request: NextRequest, { params }: { params: { path: string[] } }) {
-  const { path } = params;
+export async function GET(request: NextRequest, context: RouteContext) {
+  const { path } = await context.params;
   return handleApiRequest(request, 'GET', path);
 }
 
-export async function POST(request: NextRequest, { params }: { params: { path: string[] } }) {
-  const { path } = params;
+export async function POST(request: NextRequest, context: RouteContext) {
+  const { path } = await context.params;
   return handleApiRequest(request, 'POST', path, await request.json());
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { path: string[] } }) {
-  const { path } = params;
+export async function PUT(request: NextRequest, context: RouteContext) {
+  const { path } = await context.params;
   return handleApiRequest(request, 'PUT', path, await request.json());
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { path: string[] } }) {
-  const { path } = params;
+export async function DELETE(request: NextRequest, context: RouteContext) {
+  const { path } = await context.params;
   return handleApiRequest(request, 'DELETE', path);
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { path: string[] } }) {
-  const { path } = params;
+export async function PATCH(request: NextRequest, context: RouteContext) {
+  const { path } = await context.params;
   return handleApiRequest(request, 'PATCH', path, await request.json());
 }

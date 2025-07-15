@@ -1,5 +1,5 @@
 import './globals.css';
-import { AppLayout } from '@mtr/ui';
+import { AppLayout, ToastProvider } from '@mtr/ui';
 
 export default function RootLayout({
   children,
@@ -18,6 +18,7 @@ export default function RootLayout({
         >
           {children}
         </AppLayout>
+        <ToastProvider />
       </body>
     </html>
   );

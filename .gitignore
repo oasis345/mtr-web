@@ -12,6 +12,10 @@ yarn.lock
 .next/
 next-env.d.ts
 
+dist
+tsconfig.tsbuildinfo
+jsx
+
 # Turborepo
 .turbo
 
