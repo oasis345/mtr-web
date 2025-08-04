@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '@mtr/utils';
 
 /**
  * 사용자 아이디 규칙입니다.

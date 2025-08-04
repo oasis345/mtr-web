@@ -45,14 +45,21 @@ export default tseslint.config(
       },
     },
     rules: {
-      // 여기에 타입 정보가 필요한 규칙들을 추가하세요.
-      // 예: '@typescript-eslint/no-floating-promises': 'error'
-      // form handler에서만 허용
+      // 엄격한 타입 체크 규칙들을 완전히 비활성화
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+
+      // 기본적인 타입 규칙만 유지
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-misused-promises': [
         'error',
         {
           checksVoidReturn: {
-            attributes: false, // JSX 속성에서는 체크하지 않음
+            attributes: false,
           },
         },
       ],

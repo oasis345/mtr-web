@@ -40,7 +40,7 @@ const sidebarStyles = cva('flex-shrink-0 p-6', {
 });
 
 export interface PageLayoutProps extends VariantProps<typeof pageLayoutStyles> {
-  children: ReactNode;
+  main: ReactNode;
   aside?: ReactNode;
   asideWidth?: VariantProps<typeof sidebarStyles>['width'];
   asidePosition?: 'left' | 'right';
@@ -49,7 +49,7 @@ export interface PageLayoutProps extends VariantProps<typeof pageLayoutStyles> {
 
 export const PageLayout = ({
   variant = 'fullwidth',
-  children,
+  main,
   aside,
   asideWidth = 'md',
   asidePosition = 'right',
@@ -63,7 +63,7 @@ export const PageLayout = ({
     return (
       <div className={cn(layoutClasses, className)}>
         {asidePosition === 'left' && <aside className={sidebarClasses}>{aside}</aside>}
-        <div className={contentClasses}>{children}</div>
+        <div className={contentClasses}>{main}</div>
         {asidePosition === 'right' && <aside className={sidebarClasses}>{aside}</aside>}
       </div>
     );
@@ -71,7 +71,7 @@ export const PageLayout = ({
 
   return (
     <div className={cn(layoutClasses, className)}>
-      <div className={contentClasses}>{children}</div>
+      <div className={contentClasses}>{main}</div>
     </div>
   );
 };

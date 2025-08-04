@@ -7,7 +7,6 @@ export interface BaseErrorOptions {
   cause?: Error; // 에러 체이닝을 위한 원인
   code?: string; // 에러 코드 (예: 'INVALID_INPUT')
   status?: number; // HTTP 상태 코드
-  meta?: Record<string, unknown>; // 기타 추가 정보
 }
 
 /**
@@ -17,7 +16,6 @@ export class BaseError extends Error {
   public readonly cause?: Error;
   public readonly code?: string;
   public readonly status?: number;
-  public readonly meta?: Record<string, unknown>;
 
   constructor(message: string, options: BaseErrorOptions = {}) {
     super(message);
@@ -25,26 +23,7 @@ export class BaseError extends Error {
     this.cause = options.cause;
     this.code = options.code;
     this.status = options.status;
-    this.meta = options.meta;
     Object.setPrototypeOf(this, new.target.prototype);
-  }
-}
-
-/**
- * 클라이언트 측의 잘못된 요청(4xx 에러 등)을 나타냅니다.
- */
-export class ClientError extends BaseError {
-  constructor(message = '잘못된 요청입니다.', options?: BaseErrorOptions) {
-    super(message, options);
-  }
-}
-
-/**
- * 서버 측의 문제(5xx 에러 등)를 나타냅니다.
- */
-export class ServerError extends BaseError {
-  constructor(message = '서버에 문제가 발생했습니다.', options?: BaseErrorOptions) {
-    super(message, options);
   }
 }
 

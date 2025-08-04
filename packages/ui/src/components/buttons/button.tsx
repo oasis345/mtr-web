@@ -1,3 +1,4 @@
+'use client';
 import { forwardRef } from 'react';
 import { type ButtonProps, Button as ShadButton } from '../../shadcn/components/ui/button';
 

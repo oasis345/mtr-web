@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { serverApi } from '@/api';
+import { httpClient } from '@/service/api';
 
 type RouteContext = {
   params: Promise<{ path: string[] }>;
@@ -17,7 +17,7 @@ async function handleApiRequest(
   const apiPath = '/' + path.map(encodeURIComponent).join('/');
 
   try {
-    const response = await serverApi.request({
+    const response = await httpClient.request({
       method,
       url: apiPath,
       baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -37,6 +37,7 @@ async function handleApiRequest(
 
 export async function GET(request: NextRequest, context: RouteContext) {
   const { path } = await context.params;
+
   return handleApiRequest(request, 'GET', path);
 }
 

@@ -1,25 +1,22 @@
 'use client';
 
-import { LoginForm, PageLayout, Section } from '@mtr/ui';
+import { PageLayout } from '@mtr/ui';
+import { LoginForm } from '@mtr/ui/client';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
 
 const SigninPage = () => {
-  const { signin, googleLoginUrl } = useAuth();
   const router = useRouter();
 
   return (
-    <PageLayout>
-      <Section>
+    <PageLayout
+      main={
         <LoginForm
-          onSubmit={signin}
           onSuccess={() => {
             router.push('/user');
           }}
-          googleLoginUrl={googleLoginUrl}
         />
-      </Section>
-    </PageLayout>
+      }
+    ></PageLayout>
   );
 };
 

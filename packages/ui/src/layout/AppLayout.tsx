@@ -47,7 +47,7 @@ const mainAreaStyles = cva('', {
 export interface AppLayoutProps extends VariantProps<typeof appLayoutStyles> {
   nav: React.ReactNode;
   logo: React.ReactNode;
-  children?: React.ReactNode;
+  main?: React.ReactNode;
   mainPadding?: VariantProps<typeof mainAreaStyles>['padding'];
   className?: string;
 }
@@ -55,7 +55,7 @@ export interface AppLayoutProps extends VariantProps<typeof appLayoutStyles> {
 export const AppLayout = ({
   nav,
   logo,
-  children,
+  main,
   height = 'screen',
   spacing = 'none',
   mainPadding = 'none',
@@ -70,7 +70,7 @@ export const AppLayout = ({
         <AppHeader nav={nav} logo={logo} />
       </header>
 
-      <main className={mainClasses}>{children}</main>
+      <main className={mainClasses}>{main}</main>
 
       <footer>
         <AppFooter />

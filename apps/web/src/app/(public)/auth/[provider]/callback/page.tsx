@@ -1,21 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
-import { tokenProvider } from '@/api';
 
 const GoogleCallbackPage = () => {
-  useEffect(() => {
-    const getTokens = () => {
-      const accessToken = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('mtr_access_token='))
-        ?.split('=')[1];
-
-      // setTokens가 존재할 경우에만 호출하도록 수정
-      tokenProvider.setTokens?.({ accessToken: accessToken ?? '' });
-    };
-    void getTokens();
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <div>

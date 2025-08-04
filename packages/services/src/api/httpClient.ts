@@ -2,12 +2,13 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
 import { TokenProvider } from '../service/auth/tokenProvider';
 import { qs } from '@mtr/utils';
 
-export interface ApiResponse<T> {
+interface ApiResponse<T> {
   data: T;
   statusCode: number;
   message: string;
 }
 
+export type ApiResponsePromise<T> = Promise<ApiResponse<T>>;
 export class HttpClient {
   private client: AxiosInstance;
 
@@ -24,7 +25,6 @@ export class HttpClient {
 
       paramsSerializer: (params: unknown) => {
         if (typeof params === 'object' && params !== null) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
           return qs.stringify(params, { arrayFormat: 'brackets' });
         }
         return '';
@@ -38,8 +38,7 @@ export class HttpClient {
   private setupInterceptors() {
     this.client.interceptors.request.use(
       async config => {
-        const tokens = await this.tokenProvider?.getTokens();
-        const accessToken = tokens?.accessToken;
+        const accessToken = await this.getToken();
         if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
 
         return config;
@@ -88,5 +87,10 @@ export class HttpClient {
   async request<T>(config: AxiosRequestConfig): Promise<ApiResponse<T>> {
     const response = await this.client.request<ApiResponse<T>>(config);
     return response.data;
+  }
+
+  async getToken() {
+    const tokens = await this.tokenProvider?.getTokens();
+    return tokens?.accessToken || null;
   }
 }

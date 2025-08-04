@@ -1,6 +1,7 @@
+import { BaseError } from '@mtr/services';
 import React from 'react';
 interface GlobalErrorFallbackProps {
-  error: Error & { digest?: string };
+  error: BaseError;
   reset: () => void;
   /**
    * 앱별 브랜딩 정보
@@ -30,7 +31,6 @@ export const GlobalErrorFallback: React.FC<GlobalErrorFallbackProps> = ({
 오류 정보:
 - 메시지: ${error.message}
 - 시간: ${new Date().toLocaleString()}
-- Digest: ${error.digest || 'N/A'}
 추가 설명:
 [여기에 오류 발생 상황을 설명해주세요]
     `);
@@ -70,14 +70,6 @@ export const GlobalErrorFallback: React.FC<GlobalErrorFallbackProps> = ({
                     {error.message}
                   </p>
                 </div>
-                {error.digest && (
-                  <div>
-                    <span className="font-medium text-red-700">Next.js Digest:</span>
-                    <p className="text-red-600 font-mono bg-red-100 p-2 rounded mt-1 text-xs">
-                      {error.digest}
-                    </p>
-                  </div>
-                )}
                 {error.stack && (
                   <div>
                     <span className="font-medium text-red-700">스택 트레이스:</span>

@@ -1,5 +1,4 @@
 'use client';
-
 import { loginSchema, type LoginFormFields } from '@mtr/services';
 import { TextField } from '../fields';
 import { BaseForm } from './baseForm';
@@ -10,15 +9,17 @@ import {
   FormControl,
   FormMessage,
 } from '../../shadcn/components/ui/form';
-import { Button } from '../buttons';
+import { OauthButton } from '../buttons/oauth/OauthButton';
+import { useAppServices } from '../../store/serviceStore';
 
 export interface LoginFormProps {
-  onSubmit: (data: LoginFormFields) => Promise<void>;
+  onSubmit?: (data: LoginFormFields) => Promise<void>;
   onSuccess?: () => void;
-  googleLoginUrl?: string;
 }
 
-export const LoginForm = ({ onSubmit, onSuccess, googleLoginUrl }: LoginFormProps) => {
+export const LoginForm = ({ onSubmit, onSuccess }: LoginFormProps) => {
+  const { authService } = useAppServices();
+
   return (
     <>
       <BaseForm
@@ -64,17 +65,7 @@ export const LoginForm = ({ onSubmit, onSuccess, googleLoginUrl }: LoginFormProp
         )}
       </BaseForm>
       <div className="space-y-2 h-2" />
-      {googleLoginUrl && (
-        <Button
-          type="button"
-          onClick={() => {
-            window.location.href = googleLoginUrl;
-          }}
-          className="w-full"
-        >
-          Google로 로그인
-        </Button>
-      )}
+      <OauthButton label="Google Login" oauthUrl={authService.getGoogleLoginUrl()} />
     </>
   );
 };

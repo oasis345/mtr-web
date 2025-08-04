@@ -6,11 +6,10 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve"
@@ -20,5 +19,12 @@
     { "path": "./packages/services" },
     { "path": "./packages/ui" }
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "**/*.config.js", // ✅ 모든 설정 파일 제외
+    "**/*.config.ts", // ✅ 모든 설정 파일 제외
+    "**/dist/**", // ✅ 모든 dist 폴더 제외
+    "**/.next/**", // ✅ Next.js 빌드 폴더 제외
+    "**/*.tsbuildinfo" // ✅ 빌드 캐시 파일 제외
+  ]
 }

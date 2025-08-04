@@ -1,42 +1,32 @@
 import { HttpClient } from '../../api/httpClient';
-import { ROUTES } from '../../api/routes';
-import { AuthUser } from './type';
+import { AuthService, SigninRequest, SigninResponse } from './type';
+import { TokenProvider } from './tokenProvider';
 
-export class AuthService {
-  constructor(private httpClient: HttpClient) {}
+export type OauthConfig = {
+  clientId: string;
+  redirectUri: string;
+  scope?: string;
+};
 
-  async login(data: unknown): Promise<AuthUser> {
-    try {
-      const response = await this.httpClient.post<AuthUser>(ROUTES.AUTH.SIGN_IN, data);
-      return response.data;
-    } catch (error) {
-      throw new Error('로그인 실패');
-    }
-  }
+export const createAuthService = (
+  httpClient: HttpClient,
+  tokenProvider: TokenProvider,
+  oauthConfig: OauthConfig,
+): AuthService => {
+  const signin = async (params: SigninRequest) => {
+    return await httpClient.post<SigninResponse>('/auth/signin', params);
+  };
 
-  async signUp(data: unknown): Promise<AuthUser> {
-    try {
-      const response = await this.httpClient.post<AuthUser>(ROUTES.AUTH.SIGN_UP, data);
-      return response.data;
-    } catch (error) {
-      throw new Error('회원가입 실패');
-    }
-  }
+  const signout = async () => {
+    return await httpClient.post('/auth/signout', {});
+  };
 
-  async logout(): Promise<void> {}
+  const getTokens = async () => {
+    return await tokenProvider.getTokens();
+  };
 
-  // async fetchUserInfo(): Promise<AuthUser> {
-  //   try {
-  //     const response = await this.httpClient.get<AuthUser>(ROUTES.AUTH.PROFILE);
-  //     return response.data;
-  //   } catch (error) {
-  //     throw new Error('사용자 정보 조회 실패');
-  //   }
-  // }
-
-  createGoogleLoginUrl(options: { clientId: string; redirectUri: string; scope?: string }): string {
-    const { clientId, redirectUri, scope = 'email profile' } = options;
-
+  const getGoogleLoginUrl = () => {
+    const { clientId, redirectUri, scope = 'email profile' } = oauthConfig;
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: redirectUri,
@@ -45,5 +35,12 @@ export class AuthService {
     });
 
     return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
-  }
-}
+  };
+
+  return {
+    signin,
+    signout,
+    getTokens,
+    getGoogleLoginUrl,
+  };
+};

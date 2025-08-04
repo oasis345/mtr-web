@@ -1,5 +1,6 @@
+import { AppLayout } from '@mtr/ui';
+import { ServiceProvider } from '@/store/provider';
 import './globals.css';
-import { AppLayout, ToastProvider } from '@mtr/ui';
 
 export default function RootLayout({
   children,
@@ -9,16 +10,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AppLayout
-          nav={<div>nav</div>}
-          logo={<div>logo</div>}
-          height="screen" // min-h-screen (기본값과 동일)
-          spacing="none" // 간격 없음 (기본값과 동일)
-          mainPadding="none" // 메인 영역 패딩 없음 (기본값과 동일)
-        >
-          {children}
-        </AppLayout>
-        <ToastProvider />
+        <ServiceProvider>
+          <AppLayout
+            main={children}
+            nav={<div>nav</div>}
+            logo={<div>logo</div>}
+            height="screen"
+            spacing="none"
+            mainPadding="none"
+          />
+        </ServiceProvider>
       </body>
     </html>
   );

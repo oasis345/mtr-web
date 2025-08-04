@@ -1,6 +1,25 @@
-import { AuthService } from './auth/authService';
-import { HttpClient } from '../api/httpClient';
+import { UiService } from './ui/types';
+import { AuthService } from './auth/type';
+import { ErrorService } from '../error';
+import { HttpClient } from '../api';
 
-export const serviceFactory = (httpClient: HttpClient) => ({
-  authService: new AuthService(httpClient),
-});
+export const serviceFactory = ({
+  errorService,
+  httpClient,
+  uiService = null,
+  authService = null,
+}: {
+  errorService: ErrorService;
+  httpClient: HttpClient;
+  authService: AuthService | null;
+  uiService: UiService | null;
+}) => {
+  return {
+    authService,
+    errorService,
+    uiService,
+    httpClient,
+  };
+};
+
+export type AppServices = ReturnType<typeof serviceFactory>;

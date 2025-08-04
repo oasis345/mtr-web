@@ -6,12 +6,7 @@
     "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,
-    "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "@mtr/utils/*": ["../utils/src/*"],
-      "@mtr/services/*": ["../services/src/*"]
-    }
+    "jsx": "react-jsx"
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"],
