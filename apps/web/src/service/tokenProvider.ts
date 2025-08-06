@@ -1,39 +1,32 @@
-import { TokenProvider } from '@mtr/services';
-import { isServer } from './config';
+import { type TokenData } from '@mtr/services';
 
-const createTokenProvider = (): TokenProvider => {
-  if (isServer) {
-    return {
-      async getTokens() {
-        const { cookies } = await import('next/headers');
-        const cookieStore = await cookies();
-        const accessToken = cookieStore.get('mtr_access_token')?.value;
-        if (!accessToken) return null;
-
-        const refreshToken = cookieStore.get('mtr_refresh_token')?.value;
-        return { accessToken, refreshToken: refreshToken || undefined };
-      },
-    };
-  }
+export const createClientTokenProvider = () => {
   return {
-    async getTokens() {
-      const accessToken =
-        localStorage.getItem('mtr_access_token') ||
-        document.cookie
-          .split('; ')
-          .find(row => row.startsWith('mtr_access_token='))
-          ?.split('=')[1];
-
+    getTokens: () => {
+      // 이 코드는 클라이언트 컨텍스트에서만 사용됩니다.
+      const accessToken = localStorage.getItem('access_token');
       if (!accessToken) return null;
-      return Promise.resolve({ accessToken });
+      return { accessToken };
     },
-    setTokens(tokens) {
-      localStorage.setItem('mtr_access_token', tokens.accessToken);
+    setTokens: (tokens: TokenData) => {
+      localStorage.setItem('access_token', tokens.accessToken);
     },
-    removeTokens() {
-      localStorage.removeItem('mtr_access_token');
+    removeTokens: () => {
+      localStorage.removeItem('access_token');
     },
   };
 };
 
-export const tokenProvider = createTokenProvider();
+export const createServerTokenProvider = () => {
+  return {
+    async getTokens() {
+      const { cookies } = await import('next/headers');
+      const cookieStore = await cookies();
+      const accessToken = cookieStore.get('mtr_access_token')?.value;
+      if (!accessToken) return null;
+      const refreshToken = cookieStore.get('mtr_refresh_token')?.value;
+      return { accessToken, refreshToken: refreshToken || undefined };
+    },
+    // ... 서버용 set/remove 로직
+  };
+};

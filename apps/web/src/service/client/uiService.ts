@@ -1,11 +1,11 @@
 import { type ToastOptions, toast } from '@mtr/ui/client';
-import { type NotificationOptions } from '@mtr/services';
+import type { UiService, NotificationOptions, NavigationOptions } from '@mtr/services';
 
 type WebNotificationOptions = NotificationOptions & {
   props?: ToastOptions;
 };
 
-export const createUiService = () => {
+export const createUiService = (router: NavigationOptions): UiService => {
   const notify = (options: WebNotificationOptions) => {
     const { message, type = 'info', duration, props } = options;
     const toastMethods = {
@@ -19,5 +19,17 @@ export const createUiService = () => {
     method(message, { duration, ...props });
   };
 
-  return { notify };
+  const navigate: NavigationOptions = {
+    push: (path: string) => {
+      router.push(path);
+    },
+    replace: (path: string) => {
+      router.replace(path);
+    },
+    back: () => {
+      router.back();
+    },
+  };
+
+  return { notify, navigate };
 };

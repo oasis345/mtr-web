@@ -6,10 +6,11 @@
   "tailwind": {
     "config": "tailwind/config.ts",
     "css": "css/globals.css",
-    "baseColor": "slate",
+    "baseColor": "zinc",
     "cssVariables": true,
     "prefix": ""
   },
+  "iconLibrary": "lucide",
   "aliases": {
     "components": "src/shadcn/components",
     "utils": "src/lib/utils"

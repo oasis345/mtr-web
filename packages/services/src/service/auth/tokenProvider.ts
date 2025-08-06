@@ -3,8 +3,8 @@ export type TokenData = {
   refreshToken?: string;
 };
 
-export interface TokenProvider {
-  getTokens(): Promise<TokenData | null>;
+export interface TokenProvider<T = Promise<TokenData | null> | TokenData | null> {
+  getTokens(): T;
   setTokens?(tokens: TokenData): void;
   removeTokens?(): void;
 }

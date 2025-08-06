@@ -1,5 +1,5 @@
 import { ApiResponsePromise } from '../../api';
-import { TokenData } from './tokenProvider';
+import { type TokenData } from './tokenProvider';
 
 export interface AuthUser {
   id: string;
@@ -13,12 +13,13 @@ export interface AuthState {
   error: string | null;
 }
 
-// 플랫폼별 구현을 위한 추상 인터페이스
-export type AuthService = {
+// getTokens의 반환 타입을 제네릭 T로 변경
+export type AuthService<T = Promise<TokenData | null> | TokenData | null> = {
   signin: (params: SigninRequest) => ApiResponsePromise<SigninResponse>;
   signout: () => ApiResponsePromise<unknown>;
-  getTokens: () => Promise<TokenData | null>;
   getGoogleLoginUrl: () => string;
+  getTokens: () => T;
+  setTokens?: (tokens: TokenData) => void;
 };
 
 export interface SigninRequest {
@@ -31,4 +32,10 @@ export interface SigninResponse {
     accessToken: string;
     refreshToken: string;
   };
+}
+
+export interface OauthConfig {
+  clientId: string;
+  redirectUri: string;
+  scope?: string;
 }

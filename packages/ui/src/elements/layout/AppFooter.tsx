@@ -1,5 +1,5 @@
 import { cva } from 'class-variance-authority';
-import { cn } from '../lib/utils';
+import { cn } from '../../lib/utils';
 
 const footerVariants = cva('flex justify-center items-center w-full h-16 px-5');
 

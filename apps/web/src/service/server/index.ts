@@ -1,17 +1,20 @@
-import { AppServices, HttpClient } from '@mtr/services';
+import { AppServices, createAuthService, HttpClient } from '@mtr/services';
 import { API_BASE_URL } from '../config';
-import { tokenProvider } from '../tokenProvider';
+import { createServerTokenProvider } from '../tokenProvider';
 import { serverErrorService } from './errorService';
 
-const serverHttpClient = new HttpClient(
+const tokenProvider = createServerTokenProvider();
+const httpClient = new HttpClient(
   API_BASE_URL,
   { withCredentials: true, timeout: 10000 },
   tokenProvider,
 );
 
-export const serverService: AppServices = {
+const authService = createAuthService(httpClient, tokenProvider);
+
+export const appServices: AppServices = {
   errorService: serverErrorService,
-  httpClient: serverHttpClient,
-  authService: null,
+  httpClient,
+  authService: authService,
   uiService: null,
 };

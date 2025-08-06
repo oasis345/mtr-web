@@ -51,6 +51,7 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-enum-comparison': 'off',
 
       // 기본적인 타입 규칙만 유지
       '@typescript-eslint/no-explicit-any': 'warn',

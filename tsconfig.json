@@ -17,7 +17,8 @@
   "references": [
     { "path": "./packages/utils" },
     { "path": "./packages/services" },
-    { "path": "./packages/ui" }
+    { "path": "./packages/ui" },
+    { "path": "./packages/finance" }
   ],
   "exclude": [
     "node_modules",
