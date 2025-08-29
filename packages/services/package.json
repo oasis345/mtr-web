@@ -12,8 +12,9 @@
     "clean": "rm -rf dist tsconfig.tsbuildinfo node_modules"
   },
   "dependencies": {
+    "@mtr/utils": "workspace:*",
     "axios": "^1.7.7",
-    "@mtr/utils": "workspace:*"
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "typescript": "^5"

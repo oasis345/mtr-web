@@ -1,8 +1,14 @@
-import { MarketTab, TimeRangeTab } from '../types/tabs';
+import { MarketDataTypeTab, MarketTab, TimeRangeTab } from '../types/tabs';
 
-export const MARKET_CATEGORIES: MarketTab[] = [
+export const MARKET_ASSETS: MarketTab[] = [
   { label: '주식', value: 'stock' },
   { label: '코인', value: 'crypto' },
+];
+export const MARKET_DATA_TYPES: MarketDataTypeTab[] = [
+  { label: '시가총액', value: 'marketCap' },
+  { label: '거래량', value: 'volume' },
+  { label: '상승종목', value: 'gainers' },
+  { label: '하락종목', value: 'losers' },
 ];
 
 export const TIME_RANGES: TimeRangeTab[] = [

@@ -1,15 +1,21 @@
 // packages/finance/src/types/market.ts
-export type MarketCategory = 'stock' | 'crypto';
+export type MarketAsset = 'stock' | 'crypto';
 export type TimeRange = 'realtime' | '1d' | '1w' | '1m' | '3m' | '1y';
+export type MarketDataType = 'marketCap' | 'volume' | 'gainers' | 'losers' | 'price';
 
 export interface MarketTab {
   label: string;
-  value: MarketCategory;
+  value: MarketAsset;
 }
 
 export interface TimeRangeTab {
   label: string;
   value: TimeRange;
+}
+
+export interface MarketDataTypeTab {
+  label: string;
+  value: MarketDataType;
 }
 
 export interface MarketData {
@@ -18,16 +24,8 @@ export interface MarketData {
   name: string;
   price: number;
   change: number;
-  changePercent: number;
+  changesPercentage: number;
   volume: number;
   marketCap: number;
-  category: MarketCategory;
-}
-
-export interface MarketColumn {
-  key: string;
-  label: string;
-  width?: number;
-  align?: 'left' | 'center' | 'right';
-  sortable?: boolean;
+  asset: MarketAsset;
 }

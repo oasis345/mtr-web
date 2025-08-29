@@ -54,7 +54,7 @@ export class HttpClient {
           // 인증 에러 처리 로직
           throw new Error('Unauthorized');
         }
-        throw new Error('API Error');
+        throw new Error(error.message);
       },
     );
   }

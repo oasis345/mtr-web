@@ -1,18 +1,26 @@
 import { PageLayout, Section } from '@mtr/ui';
-import { MarketViewer } from '@mtr/finance';
+import { appServices } from '@/service/server';
+import { FINANCIAL_ROUTES } from '@mtr/finance';
+import { MarketData } from '@mtr/finance/src/components/types/tabs';
+import { MarketPageClient } from '@/components/markets/MarketClient';
 
-export default function RootPage() {
-  const data = [
-    { symbol: 'AAPL', name: 'Apple', price: 150.75, changePercent: 0.02, volume: 1000000 },
-    { symbol: 'GOOG', name: 'Google', price: 2800.5, changePercent: 0.01, volume: 500000 },
-    {
-      symbol: 'MSFT',
-      name: 'Microsoft',
-      price: 210.22,
-      changePercent: 0.03,
-      volume: 800000,
-    },
-  ];
+export default async function RootPage({ searchParams }: { searchParams }) {
+  const { httpClient, errorService } = appServices;
+  const { assetType = 'stock', dataType = 'marketCap' } = await searchParams;
+  let data: MarketData[] = [];
+
+  try {
+    const response = await httpClient.get<MarketData[]>(FINANCIAL_ROUTES.FINANCIAL.MARKET, {
+      assetType,
+      dataType,
+      country: 'US',
+    });
+
+    data = response.statusCode === 200 ? response.data : [];
+  } catch (error: unknown) {
+    const errorMessage = errorService.normalize(error);
+    console.error(errorMessage);
+  }
 
   return (
     <PageLayout
@@ -25,7 +33,7 @@ export default function RootPage() {
             titleColor="default"
             padding="sm"
           >
-            <MarketViewer data={data} />
+            <MarketPageClient initialData={data} />
           </Section>
 
           <Section title="테스트 섹션 2">

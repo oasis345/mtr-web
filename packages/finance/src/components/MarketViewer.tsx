@@ -1,40 +1,55 @@
 'use client';
 import { BaseGrid, BaseTab } from '@mtr/ui/client';
-import type { MarketCategory, MarketData, TimeRange } from './types/tabs';
-import { MARKET_CATEGORIES, TIME_RANGES } from './model/marketTabs';
-import { marketColumns } from './model/maketColumns';
+import type {
+  MarketAsset,
+  MarketData,
+  MarketDataType,
+  MarketDataTypeTab,
+  MarketTab,
+} from './types/tabs';
+import { ColDef } from 'ag-grid-community';
 
 export interface MarketViewerProps {
   data: MarketData[];
-  selectedCategory?: MarketCategory;
-  selectedTimeRange?: TimeRange;
-  onCategoryChange: (category: MarketCategory) => void;
-  onTimeRangeChange: (timeRange: TimeRange) => void;
+  columns: ColDef<MarketData>[];
+  assetTabs: MarketTab[];
+  dataTypeTabs: MarketDataTypeTab[];
+  selectedAsset?: MarketAsset;
+  selectedMarketDataType?: MarketDataType;
+  onAssetChange?: (category: MarketAsset) => void;
+  onMarketDataTypeChange?: (marketDataType: MarketDataType) => void;
 }
 
 export const MarketViewer = ({
+  assetTabs,
+  dataTypeTabs,
   data,
-  selectedCategory,
-  selectedTimeRange,
-  onCategoryChange,
-  onTimeRangeChange,
+  columns,
+  selectedAsset,
+  selectedMarketDataType,
+  onAssetChange,
+  onMarketDataTypeChange,
 }: MarketViewerProps) => {
   return (
     <>
-      <BaseTab
-        data={MARKET_CATEGORIES}
-        defaultValue={selectedCategory}
-        onValueChange={onCategoryChange}
-      />
+      <div className="flex gap-4 mb-4">
+        <BaseTab data={assetTabs} defaultValue={selectedAsset} onValueChange={onAssetChange} />
 
-      <BaseTab
+        <BaseTab
+          data={dataTypeTabs}
+          defaultValue={selectedMarketDataType}
+          onValueChange={onMarketDataTypeChange}
+        />
+      </div>
+
+      {/* <BaseTab
         data={TIME_RANGES}
         defaultValue={selectedTimeRange}
         onValueChange={onTimeRangeChange}
         variant="underline"
-      />
+      /> */}
 
-      <BaseGrid data={data} columns={marketColumns} />
+      <BaseGrid data={data} columns={columns} />
     </>
   );
 };

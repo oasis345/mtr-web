@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { httpClient } from '@/service/api';
+import { appServices } from '@/service/server';
 
 type RouteContext = {
   params: Promise<{ path: string[] }>;
@@ -17,7 +17,7 @@ async function handleApiRequest(
   const apiPath = '/' + path.map(encodeURIComponent).join('/');
 
   try {
-    const response = await httpClient.request({
+    const response = await appServices.httpClient.request({
       method,
       url: apiPath,
       baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -26,7 +26,7 @@ async function handleApiRequest(
       params,
     });
 
-    return NextResponse.json(response.data);
+    return NextResponse.json(response);
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Unknown error' },

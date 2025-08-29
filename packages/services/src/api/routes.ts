@@ -8,7 +8,4 @@ export const ROUTES = {
     PROFILE: '/auth/profile',
     GOOGLE_CALLBACK: '/auth/google/callback',
   },
-} as const;
-
-// 타입 안전성을 위한 헬퍼
-export type ApiEndpoint = typeof ROUTES;
+};

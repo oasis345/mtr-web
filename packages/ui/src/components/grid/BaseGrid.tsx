@@ -13,9 +13,9 @@ const myTheme = themeQuartz.withParams({
 // Register all Community features
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-export const BaseGrid = ({ data, columns }) => {
+export const BaseGrid = ({ data, columns, height = 600 }) => {
   return (
-    <div style={{ height: 600 }}>
+    <div style={{ height }}>
       <AgGridReact rowData={data} columnDefs={columns} theme={myTheme} />
     </div>
   );
