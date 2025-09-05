@@ -3,6 +3,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../lib/utils';
 import { AppHeader } from './AppHeader';
 import { AppFooter } from './AppFooter';
+import { ThemeProvider } from 'next-themes';
 
 const appLayoutStyles = cva('flex flex-col w-full', {
   variants: {
@@ -65,16 +66,17 @@ export const AppLayout = ({
   const mainClasses = mainAreaStyles({ grow: true, padding: mainPadding });
 
   return (
-    <div className={cn(layoutClasses, className)}>
-      <header>
-        <AppHeader nav={nav} logo={logo} />
-      </header>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <div className={cn(layoutClasses, className)}>
+        <header>
+          <AppHeader nav={nav} logo={logo} />
+        </header>
 
-      <main className={mainClasses}>{main}</main>
-
-      <footer>
-        <AppFooter />
-      </footer>
-    </div>
+        <main className={mainClasses}>{main}</main>
+        <footer>
+          <AppFooter />
+        </footer>
+      </div>
+    </ThemeProvider>
   );
 };

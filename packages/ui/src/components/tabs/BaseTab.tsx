@@ -20,16 +20,16 @@ export const tabVariants = cva(
   {
     variants: {
       variant: {
-        // 기본 스타일 (이미지와 유사)
+        // 기본 스타일 - shadcn 호환
         default:
-          'bg-transparent text-gray-500 hover:text-gray-700 data-[state=active]:text-black data-[state=active]:font-semibold',
+          'bg-transparent text-muted-foreground hover:text-foreground data-[state=active]:text-foreground data-[state=active]:font-semibold',
 
-        // 카드 스타일
-        card: 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm border border-gray-200',
+        // 카드 스타일 - shadcn 호환
+        card: 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm border border-border',
 
-        // 언더라인 스타일
+        // 언더라인 스타일 - shadcn 호환
         underline:
-          'bg-transparent text-gray-500 hover:text-gray-700 data-[state=active]:text-black data-[state=active]:border-b-2 data-[state=active]:border-pink-500 rounded-none border-b-2 border-transparent',
+          'bg-transparent text-muted-foreground hover:text-foreground data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent',
       },
       size: {
         default: 'h-10 px-4 py-2',
@@ -48,8 +48,8 @@ export const tabsListVariants = cva('inline-flex items-center justify-center', {
   variants: {
     variant: {
       default: 'bg-transparent gap-1',
-      card: 'bg-gray-100 rounded-lg p-1 gap-1',
-      underline: 'bg-transparent border-b border-gray-200',
+      card: 'bg-muted rounded-lg p-1 gap-1',
+      underline: 'bg-transparent border-b border-border',
     },
   },
   defaultVariants: {

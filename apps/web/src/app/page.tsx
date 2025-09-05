@@ -6,7 +6,7 @@ import { MarketPageClient } from '@/components/markets/MarketClient';
 
 export default async function RootPage({ searchParams }: { searchParams }) {
   const { httpClient, errorService } = appServices;
-  const { assetType = 'stock', dataType = 'marketCap' } = await searchParams;
+  const { assetType = 'stocks', dataType = 'mostActive' } = await searchParams;
   let data: MarketData[] = [];
 
   try {

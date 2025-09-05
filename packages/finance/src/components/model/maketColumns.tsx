@@ -52,17 +52,17 @@ export const marketColumns: ColDef<MarketData>[] = [
       return usdCurrencyFormatter.format(value);
     },
   },
-  {
-    field: 'change',
-    headerName: '전일대비',
-    flex: 1,
-    sortable: true,
-    valueFormatter: (params: ValueFormatterParams<MarketData, number>) => {
-      const value = params.value;
-      if (_.isNull(value)) return '-';
-      return usdCurrencyFormatter.format(value);
-    },
-  },
+  // {
+  //   field: 'change',
+  //   headerName: '전일대비',
+  //   flex: 1,
+  //   sortable: true,
+  //   valueFormatter: (params: ValueFormatterParams<MarketData, number>) => {
+  //     const value = params.value;
+  //     if (_.isNull(value)) return '-';
+  //     return usdCurrencyFormatter.format(value);
+  //   },
+  // },
   {
     field: 'changesPercentage',
     headerName: '등락률',
@@ -83,15 +83,15 @@ export const marketColumns: ColDef<MarketData>[] = [
       };
     },
   },
-  {
-    field: 'volume',
-    headerName: '거래량',
-    flex: 1,
-    sortable: true,
-    valueFormatter: (params: ValueFormatterParams<MarketData, number>) => {
-      const value = params.value;
-      if (_.isNull(value)) return '-';
-      return volumeFormatter.format(value);
-    },
-  },
+  // {
+  //   field: 'volume',
+  //   headerName: '거래량',
+  //   flex: 1,
+  //   sortable: true,
+  //   valueFormatter: (params: ValueFormatterParams<MarketData, number>) => {
+  //     const value = params.value;
+  //     if (_.isNull(value)) return '-';
+  //     return volumeFormatter.format(value);
+  //   },
+  // },
 ];

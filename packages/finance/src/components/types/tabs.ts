@@ -1,7 +1,23 @@
 // packages/finance/src/types/market.ts
-export type MarketAsset = 'stock' | 'crypto';
-export type TimeRange = 'realtime' | '1d' | '1w' | '1m' | '3m' | '1y';
-export type MarketDataType = 'marketCap' | 'volume' | 'gainers' | 'losers' | 'price';
+export enum MarketAsset {
+  STOCKS = 'stocks',
+  CRYPTO = 'crypto',
+}
+
+export enum TimeRange {
+  REALTIME = 'realtime',
+  ONE_DAY = '1d',
+  ONE_WEEK = '1w',
+  ONE_MONTH = '1m',
+  THREE_MONTHS = '3m',
+  ONE_YEAR = '1y',
+}
+
+export enum MarketDataType {
+  MOST_ACTIVE = 'mostActive',
+  GAINERS = 'gainers',
+  LOSERS = 'losers',
+}
 
 export interface MarketTab {
   label: string;
