@@ -1,5 +1,5 @@
-import { AllCommunityModule, ModuleRegistry, themeQuartz } from 'ag-grid-community';
-import { AgGridReact } from 'ag-grid-react';
+import { AllCommunityModule, GridOptions, ModuleRegistry, themeQuartz } from 'ag-grid-community';
+import { AgGridReact, AgGridReactProps } from 'ag-grid-react';
 
 // === 주식 사이트 전용 테마들 ===
 
@@ -145,6 +145,7 @@ interface BaseGridProps {
   columns: any[];
   height?: number;
   theme?: GridThemeType;
+  options?: AgGridReactProps<GridOptions>;
 }
 
 export const BaseGrid = ({
@@ -152,6 +153,7 @@ export const BaseGrid = ({
   columns,
   height = 600,
   theme = 'PROFESSIONAL_DARK',
+  options,
 }: BaseGridProps) => {
   const selectedTheme = GRID_THEMES[theme];
 
@@ -164,9 +166,9 @@ export const BaseGrid = ({
         // 추가 그리드 옵션들
         animateRows={true}
         enableCellTextSelection={true}
-        suppressRowClickSelection={true}
         headerHeight={selectedTheme.headerHeight || 48}
         rowHeight={selectedTheme.rowHeight || 40}
+        {...options}
       />
     </div>
   );

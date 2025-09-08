@@ -1,4 +1,4 @@
-import { PageLayout, Section, SidebarSection } from '@mtr/ui';
+import { PageLayout, Section } from '@mtr/ui';
 
 export default function UserPage() {
   return (
@@ -6,7 +6,7 @@ export default function UserPage() {
       variant="sidebar"
       aside={
         <>
-          <SidebarSection title="사용자 메뉴" divider="border" titleColor="primary">
+          <Section title="사용자 메뉴" divider="border" titleColor="primary">
             <ul className="space-y-2">
               <li>
                 <a href="/profile" className="hover:text-blue-600 transition-colors">
@@ -24,15 +24,9 @@ export default function UserPage() {
                 </a>
               </li>
             </ul>
-          </SidebarSection>
+          </Section>
 
-          <SidebarSection
-            title="통계"
-            spacing="relaxed"
-            divider="border"
-            titleSize="sm"
-            contentSize="sm"
-          >
+          <Section title="통계" spacing="relaxed" divider="border" titleSize="sm" contentSize="sm">
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span>이번 달 로그인</span>
@@ -47,9 +41,9 @@ export default function UserPage() {
                 <span>2024.01.15</span>
               </div>
             </div>
-          </SidebarSection>
+          </Section>
 
-          <SidebarSection
+          <Section
             title="최근 활동"
             titleSize="sm"
             titleColor="muted"
@@ -70,9 +64,9 @@ export default function UserPage() {
                 <span className="text-xs">어제</span>
               </li>
             </ul>
-          </SidebarSection>
+          </Section>
 
-          <SidebarSection title="빠른 액션" spacing="compact" titleSize="sm">
+          <Section title="빠른 액션" spacing="compact" titleSize="sm">
             <div className="grid grid-cols-1 gap-2">
               <button className="px-3 py-2 text-sm bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors">
                 새 게시글
@@ -81,11 +75,11 @@ export default function UserPage() {
                 메시지 보내기
               </button>
             </div>
-          </SidebarSection>
+          </Section>
         </>
       }
     >
-      <Section title="사용자 대시보드" background="card" padding="md" spacing="relaxed">
+      <Section title="사용자 대시보드" variant="card" padding="md" spacing="relaxed">
         <div className="space-y-6">
           <div>
             <h3 className="text-lg font-semibold mb-4">환영합니다!</h3>
@@ -113,8 +107,8 @@ export default function UserPage() {
 
       <Section
         title="최근 게시글"
-        titleSize="md"
-        background="white"
+        titleSize="lg"
+        variant="card"
         padding="md"
         spacing="normal"
         className="shadow-sm border rounded-lg"

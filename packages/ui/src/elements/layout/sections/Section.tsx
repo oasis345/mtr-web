@@ -2,11 +2,19 @@ import { ReactNode } from 'react';
 import { type VariantProps } from 'class-variance-authority';
 import { cn } from '../../../lib/utils';
 import { Heading } from '../../typography/Heading';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from '../../../shadcn/components/ui/card';
 import { cva } from 'class-variance-authority';
 
 export interface SectionProps extends VariantProps<typeof sectionVariants> {
   title?: string;
   children: ReactNode;
+  footer?: ReactNode; // Card footer 추가
   className?: string;
   // 제목 관련 props
   titleAs?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
@@ -15,6 +23,10 @@ export interface SectionProps extends VariantProps<typeof sectionVariants> {
   // 콘텐츠 관련 props
   contentSize?: VariantProps<typeof contentVariants>['size'];
   contentColor?: VariantProps<typeof contentVariants>['color'];
+  // Card 관련 props
+  cardHeaderClass?: string;
+  cardContentClass?: string;
+  cardFooterClass?: string;
 }
 
 export const sectionVariants = cva('', {
@@ -24,6 +36,11 @@ export const sectionVariants = cva('', {
       main: '', // 메인 섹션
       sidebar: '', // 사이드바 섹션
     },
+    // 스타일 variant
+    variant: {
+      default: '', // 기본 스타일
+      card: '', // Card 스타일 (shadcn Card 컴포넌트 활용)
+    },
     // 간격
     spacing: {
       compact: 'mb-3',
@@ -31,24 +48,23 @@ export const sectionVariants = cva('', {
       relaxed: 'mb-6',
       section: 'mb-6', // 섹션 전용
     },
-    // 패딩 (메인 섹션만)
+    // 패딩 (variant="default"일 때만 적용)
     padding: {
       none: '',
       sm: 'p-2',
       md: 'p-4',
       lg: 'p-6',
     },
-    // 배경 (메인 섹션만)
+    // 배경 (variant="default"일 때만 적용)
     background: {
       none: '',
-      white: 'bg-white',
-      gray: 'bg-gray-50',
-      card: 'bg-white shadow-sm border rounded-lg',
+      muted: 'bg-muted/50', // shadcn muted 색상
+      accent: 'bg-accent', // shadcn accent 색상
     },
     // 구분선 (사이드바만)
     divider: {
       none: '',
-      border: 'pb-4 border-b border-gray-200 last:border-b-0',
+      border: 'pb-4 border-b border-border last:border-b-0',
       shadow: 'pb-4 shadow-sm last:shadow-none',
     },
   },
@@ -68,6 +84,7 @@ export const sectionVariants = cva('', {
   ],
   defaultVariants: {
     layout: 'main',
+    variant: 'default',
     spacing: 'normal',
     padding: 'none',
     background: 'none',
@@ -75,8 +92,8 @@ export const sectionVariants = cva('', {
   },
 });
 
-// 제목 스타일
-export const titleVariants = cva('font-medium mb-3', {
+// 제목 스타일 (shadcn 호환)
+export const titleVariants = cva('font-medium', {
   variants: {
     size: {
       sm: 'text-sm',
@@ -88,9 +105,9 @@ export const titleVariants = cva('font-medium mb-3', {
       '4xl': 'text-4xl',
     },
     color: {
-      default: 'text-gray-800',
-      muted: 'text-gray-600',
-      primary: 'text-blue-600',
+      default: 'text-foreground',
+      muted: 'text-muted-foreground',
+      primary: 'text-primary',
     },
   },
   defaultVariants: {
@@ -99,7 +116,7 @@ export const titleVariants = cva('font-medium mb-3', {
   },
 });
 
-// 콘텐츠 스타일
+// 콘텐츠 스타일 (shadcn 호환)
 export const contentVariants = cva('', {
   variants: {
     size: {
@@ -108,9 +125,9 @@ export const contentVariants = cva('', {
       lg: 'text-base',
     },
     color: {
-      default: 'text-gray-900',
-      muted: 'text-gray-600',
-      light: 'text-gray-500',
+      default: 'text-foreground',
+      muted: 'text-muted-foreground',
+      light: 'text-muted-foreground/80',
     },
   },
   defaultVariants: {
@@ -122,7 +139,9 @@ export const contentVariants = cva('', {
 export const Section = ({
   title,
   children,
+  footer,
   layout = 'main',
+  variant = 'default',
   spacing = 'normal',
   padding = 'none',
   background = 'none',
@@ -132,27 +151,84 @@ export const Section = ({
   titleColor = 'default',
   contentSize = 'md',
   contentColor = 'muted',
+  cardHeaderClass,
+  cardContentClass,
+  cardFooterClass,
   className,
 }: SectionProps) => {
   const Component = layout === 'main' ? 'section' : 'div';
 
-  return (
-    <Component
-      className={cn(sectionVariants({ layout, spacing, padding, background, divider }), className)}
-    >
-      {title && (
-        <Heading
-          as={titleAs}
-          size={titleSize}
-          variant={
-            titleColor === 'primary' ? 'primary' : titleColor === 'muted' ? 'muted' : 'default'
-          }
-          className="mb-4"
-        >
-          {title}
-        </Heading>
-      )}
-      <div className={contentVariants({ size: contentSize, color: contentColor })}>{children}</div>
-    </Component>
+  // 제목 렌더링 (Card가 아닌 경우)
+  const renderTitle = () => {
+    if (!title) return null;
+
+    return (
+      <Heading
+        as={titleAs}
+        size={titleSize}
+        variant={
+          titleColor === 'primary' ? 'primary' : titleColor === 'muted' ? 'muted' : 'default'
+        }
+        className="mb-4"
+      >
+        {title}
+      </Heading>
+    );
+  };
+
+  // Card Title 렌더링 (Card용)
+  const renderCardTitle = () => {
+    if (!title) return null;
+
+    return (
+      <CardTitle className={cn(titleVariants({ size: titleSize, color: titleColor }))}>
+        {title}
+      </CardTitle>
+    );
+  };
+
+  // 콘텐츠 렌더링
+  const renderContent = () => (
+    <div className={contentVariants({ size: contentSize, color: contentColor })}>{children}</div>
   );
+
+  // 기본 variant
+  if (variant === 'default') {
+    const baseClasses = sectionVariants({
+      layout,
+      spacing,
+      padding,
+      background,
+      divider,
+    });
+
+    return (
+      <Component className={cn(baseClasses, className)}>
+        {renderTitle()}
+        {renderContent()}
+      </Component>
+    );
+  }
+
+  // Card variant (완전한 Card 구조)
+  if (variant === 'card') {
+    const cardClasses = cn(sectionVariants({ layout, spacing, divider }), className);
+
+    return (
+      <Component className={cardClasses}>
+        <Card>
+          {/* CardHeader: 제목이 있을 때만 렌더링 */}
+          {title && <CardHeader className={cardHeaderClass}>{renderCardTitle()}</CardHeader>}
+
+          {/* CardContent: 항상 렌더링 */}
+          <CardContent className={cardContentClass}>{renderContent()}</CardContent>
+
+          {/* CardFooter: footer가 있을 때만 렌더링 */}
+          {footer && <CardFooter className={cardFooterClass}>{footer}</CardFooter>}
+        </Card>
+      </Component>
+    );
+  }
+
+  return null;
 };

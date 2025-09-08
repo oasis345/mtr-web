@@ -1,6 +1,14 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
 import { TokenProvider } from '../service/auth/tokenProvider';
 import { qs } from '@mtr/utils';
+import {
+  NetworkError,
+  ApiError,
+  AuthError,
+  ForbiddenError,
+  NotFoundError,
+  ValidationError,
+} from '../error/baseError';
 
 interface ApiResponse<T> {
   data: T;
@@ -9,6 +17,7 @@ interface ApiResponse<T> {
 }
 
 export type ApiResponsePromise<T> = Promise<ApiResponse<T>>;
+
 export class HttpClient {
   private client: AxiosInstance;
 
@@ -22,7 +31,6 @@ export class HttpClient {
       headers: {
         'Content-Type': 'application/json',
       },
-
       paramsSerializer: (params: unknown) => {
         if (typeof params === 'object' && params !== null) {
           return qs.stringify(params, { arrayFormat: 'brackets' });
@@ -40,21 +48,55 @@ export class HttpClient {
       async config => {
         const accessToken = await this.getToken();
         if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
-
         return config;
       },
       (error: AxiosError) => Promise.reject(error),
     );
 
-    // 응답 인터셉터 - 에러 처리
+    // ✅ BaseError 클래스들을 직접 활용
     this.client.interceptors.response.use(
       response => response,
       (error: AxiosError) => {
-        if (error.response?.status === 401) {
-          // 인증 에러 처리 로직
-          throw new Error('Unauthorized');
+        // 1. 타임아웃/네트워크 에러
+        if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
+          throw new NetworkError('요청 시간이 초과되었습니다.', {
+            cause: error,
+            context: { url: error.config?.url, timeout: error.config?.timeout },
+          });
         }
-        throw new Error(error.message);
+
+        // 2. 네트워크 연결 에러
+        if (!error.response) {
+          throw new NetworkError('서버와의 연결에 실패했습니다.', {
+            cause: error,
+            context: { url: error.config?.url },
+          });
+        }
+
+        // 3. HTTP 상태 코드별로 적절한 BaseError 사용
+        const { status, data } = error.response;
+        const message = data?.message || error.message || 'API 요청 실패';
+
+        switch (status) {
+          case 400:
+            throw new ValidationError(message, { cause: error, status });
+          case 401:
+            throw new AuthError(message, { cause: error, status });
+          case 403:
+            throw new ForbiddenError(message, { cause: error, status });
+          case 404:
+            throw new NotFoundError(message, { cause: error, status });
+          default:
+            throw new ApiError(message, {
+              cause: error,
+              status,
+              context: {
+                url: error.config?.url,
+                method: error.config?.method,
+                responseData: data,
+              },
+            });
+        }
       },
     );
   }

@@ -2,6 +2,7 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   transpilePackages: ['@mtr/ui', '@mtr/services', '@mtr/utils', '@mtr/finance'],
+  reactStrictMode: false,
 
   // webpack: config => {
   //   config.resolve.symlinks = false;

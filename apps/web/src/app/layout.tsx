@@ -16,8 +16,7 @@ export default function RootLayout({
             nav={<div>nav</div>}
             logo={<div>logo</div>}
             height="screen"
-            spacing="none"
-            mainPadding="none"
+            maxWidth="tablet"
           />
         </ServiceProvider>
       </body>

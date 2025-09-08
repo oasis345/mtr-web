@@ -43,5 +43,7 @@ export interface MarketData {
   changesPercentage: number;
   volume: number;
   marketCap: number;
+  timestamp: number;
+  previousClose: number;
   asset: MarketAsset;
 }

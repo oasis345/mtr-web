@@ -1,4 +1,4 @@
-import { AppServices, createAuthService, HttpClient } from '@mtr/services';
+import { createAuthService, HttpClient, ServerAppServices } from '@mtr/services';
 import { API_BASE_URL } from '../config';
 import { createServerTokenProvider } from '../tokenProvider';
 import { serverErrorService } from './errorService';
@@ -12,9 +12,8 @@ const httpClient = new HttpClient(
 
 const authService = createAuthService(httpClient, tokenProvider);
 
-export const appServices: AppServices = {
+export const appServices: ServerAppServices = {
+  authService,
   errorService: serverErrorService,
   httpClient,
-  authService: authService,
-  uiService: null,
 };
