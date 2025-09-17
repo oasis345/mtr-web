@@ -1,4 +1,4 @@
-import { type ToastOptions, toast } from '@mtr/ui/client';
+import { type ToastOptions, Toast } from '@mtr/ui/client';
 import type { UiService, NotificationOptions, NavigationOptions } from '@mtr/services';
 
 type WebNotificationOptions = NotificationOptions & {
@@ -9,10 +9,10 @@ export const createUiService = (router: NavigationOptions): UiService => {
   const notify = (options: WebNotificationOptions) => {
     const { message, type = 'info', duration, props } = options;
     const toastMethods = {
-      success: toast.success,
-      error: toast.error,
-      info: toast.info,
-      warning: toast.warning,
+      success: Toast.success,
+      error: Toast.error,
+      info: Toast.info,
+      warning: Toast.warning,
     } as const;
     const method = toastMethods[type];
 

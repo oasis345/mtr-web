@@ -177,3 +177,9 @@ export class UnknownError extends BaseError {
     super(message, { status: 500, code: 'UNKNOWN_ERROR', ...options });
   }
 }
+
+export class AxiosError extends BaseError {
+  constructor(message: string, options?: BaseErrorOptions) {
+    super(message, { code: 'AXIOS_ERROR', ...options });
+  }
+}

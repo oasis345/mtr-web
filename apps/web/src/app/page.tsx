@@ -1,19 +1,28 @@
 import { PageLayout, Section } from '@mtr/ui';
 import { appServices } from '@/service/server';
-import { FINANCIAL_ROUTES } from '@mtr/finance';
-import { MarketData } from '@mtr/finance/src/components/types/tabs';
+import { FINANCIAL_ROUTES, AssetType, MarketData } from '@mtr/finance';
 import { MarketPageClient } from '@/components/markets/MarketClient';
 
-export default async function RootPage({ searchParams }: { searchParams }) {
+export default async function RootPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ asset?: string; dataType?: string }>;
+}) {
   const { httpClient, errorService } = appServices;
-  const { assetType = 'stocks', dataType = 'mostActive' } = await searchParams;
+  const { asset = 'stocks', dataType = 'mostActive' } = await searchParams;
+
+  // assetType 유효성 검사
+  const validAssetType = Object.values(AssetType).includes(asset as AssetType)
+    ? asset
+    : AssetType.STOCKS;
+
   let data: MarketData[] = [];
 
   try {
     const response = await httpClient.get<MarketData[]>(FINANCIAL_ROUTES.FINANCIAL.MARKET, {
-      assetType,
-      dataType,
-      country: 'US',
+      assetType: validAssetType,
+      dataType: asset === AssetType.STOCKS ? dataType : 'topTraded',
+      limit: asset === AssetType.STOCKS ? 10 : 100,
     });
 
     data = response.statusCode === 200 ? response.data : [];
@@ -27,7 +36,7 @@ export default async function RootPage({ searchParams }: { searchParams }) {
     <PageLayout
       main={
         <>
-          <Section title="실시간 차트" titleAs="h1" titleSize="2xl" titleColor="default">
+          <Section title={`실시간 차트`} titleAs="h1" titleSize="2xl">
             <MarketPageClient initialData={data} />
           </Section>
 
@@ -38,7 +47,7 @@ export default async function RootPage({ searchParams }: { searchParams }) {
       }
       variant="sidebar"
       aside={
-        <Section title="테스트 사이드바" layout="sidebar" titleSize="lg" titleColor="primary">
+        <Section title="테스트 사이드바" layout="sidebar" titleSize="lg">
           <div>사이드바 1 콘텐츠</div>
         </Section>
       }

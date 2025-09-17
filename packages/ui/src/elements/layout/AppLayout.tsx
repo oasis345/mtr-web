@@ -4,6 +4,7 @@ import { cn } from '../../lib/utils';
 import { AppHeader } from './AppHeader';
 import { AppFooter } from './AppFooter';
 import { ThemeProvider } from 'next-themes';
+import { Toaster } from 'sonner';
 
 const appLayoutStyles = cva('flex flex-col w-full', {
   variants: {
@@ -147,6 +148,7 @@ export const AppLayout = ({
           <AppFooter />
         </footer>
       </div>
+      <Toaster position="top-center" />
     </ThemeProvider>
   );
 };

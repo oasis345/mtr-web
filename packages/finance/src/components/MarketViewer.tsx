@@ -1,60 +1,54 @@
 'use client';
 import { BaseGrid, BaseTab } from '@mtr/ui/client';
 import { useTheme } from 'next-themes';
-import { useCallback, useEffect, useState } from 'react';
-import type {
-  MarketAsset,
-  MarketData,
-  MarketDataType,
-  MarketDataTypeTab,
-  MarketTab,
-} from './types/tabs';
-import { ColDef } from 'ag-grid-community';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createMarketColumns } from './model/maketColumns';
 import { _ } from '@mtr/utils';
-
-export interface MarketViewerProps {
-  data: MarketData[];
-  columns?: ColDef<MarketData>[];
-  assetTabs: MarketTab[];
-  dataTypeTabs: MarketDataTypeTab[];
-  selectedAsset?: MarketAsset;
-  selectedMarketDataType?: MarketDataType;
-  onAssetChange?: (category: MarketAsset) => void;
-  onMarketDataTypeChange?: (marketDataType: MarketDataType) => void;
-  onPageChanged?: (symbols: string[]) => void; // ✅ 새로운 prop
-}
+import { MarketData, MarketViewerProps } from '../types';
+import { Currency } from '../types';
+import { GridApi } from 'ag-grid-community';
 
 export const MarketViewer = ({
   assetTabs,
   dataTypeTabs,
   data,
-  columns,
   selectedAsset,
   selectedMarketDataType,
   onAssetChange,
   onMarketDataTypeChange,
-  onPageChanged, // ✅ 새로운 prop
+  onPageChanged,
+  onRowClicked,
+  showDataTypeTabs = true,
+  exchangeRate,
 }: MarketViewerProps) => {
   const { theme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const [currency, setCurrency] = useState<Currency>(Currency.USD);
+  const gridApiRef = useRef<GridApi<MarketData> | null>(null);
+
+  const currencyTabs = Object.values(Currency).map(currency => ({
+    label: currency,
+    value: currency,
+  }));
+
+  const dynamicColumns = useMemo(
+    () =>
+      createMarketColumns(data, {
+        currency,
+        exchangeRate,
+      }),
+    [data, currency, selectedAsset, exchangeRate],
+  );
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const dynamicColumns = columns || createMarketColumns(data);
+    gridApiRef.current?.refreshCells({ force: true, columns: ['price'] });
+  }, [currency, exchangeRate]);
 
   const getGridTheme = () => {
-    if (!mounted) {
-      return 'PROFESSIONAL_DARK';
-    }
     const currentTheme = resolvedTheme || theme;
     switch (currentTheme) {
-      case 'dark':
-        return 'PROFESSIONAL_DARK';
       case 'light':
         return 'MODERN_LIGHT';
+      case 'dark':
       default:
         return 'PROFESSIONAL_DARK';
     }
@@ -70,7 +64,6 @@ export const MarketViewer = ({
     [data],
   );
 
-  // ✅ 디바운스된 페이지 변경 핸들러
   const debouncedPageChange = useCallback(
     _.debounce((symbols: string[]) => {
       onPageChanged?.(symbols);
@@ -84,11 +77,18 @@ export const MarketViewer = ({
         <div className="flex-1 justify-start">
           <BaseTab data={assetTabs} defaultValue={selectedAsset} onValueChange={onAssetChange} />
         </div>
-        <div className="flex justify-end">
+        <div className="flex items-center gap-3">
+          {showDataTypeTabs && (
+            <BaseTab
+              data={dataTypeTabs}
+              defaultValue={selectedMarketDataType}
+              onValueChange={onMarketDataTypeChange}
+            />
+          )}
           <BaseTab
-            data={dataTypeTabs}
-            defaultValue={selectedMarketDataType}
-            onValueChange={onMarketDataTypeChange}
+            data={currencyTabs}
+            defaultValue={Currency.USD}
+            onValueChange={value => setCurrency(value as Currency)}
           />
         </div>
       </div>
@@ -102,20 +102,27 @@ export const MarketViewer = ({
           pagination: true,
           paginationPageSize: 10,
           paginationPageSizeSelector: false,
-          alwaysShowVerticalScroll: false, // 세로 스크롤바 숨기기
-          suppressHorizontalScroll: false, // 가로 스크롤 허용
+          alwaysShowVerticalScroll: false,
+          suppressHorizontalScroll: false,
+          suppressCellFocus: true,
+          rowClass: 'cursor-pointer',
+          rowSelection: 'single',
+          getRowId: params => (params.data as MarketData).symbol,
           cellFlashDuration: 600,
           cellFadeDuration: 300,
 
+          onRowClicked: params => {
+            onRowClicked?.(params.data as MarketData);
+          },
+
           onGridReady: params => {
+            gridApiRef.current = params.api;
             params.api.sizeColumnsToFit();
-            // ✅ 첫 페이지 symbol들
             const symbols = getCurrentPageSymbols(0);
             debouncedPageChange?.(symbols);
           },
 
           onPaginationChanged: params => {
-            // ✅ 현재 페이지 symbol들
             const currentPage = params.api.paginationGetCurrentPage();
             const symbols = getCurrentPageSymbols(currentPage);
             debouncedPageChange?.(symbols);

@@ -39,13 +39,12 @@ const clientErrorHandlers: ErrorHandler[] = [
 
 export const createErrorService = (uiService: UiService) => {
   const normalize = (error: unknown) => normalizeError(error, clientErrorHandlers);
-  const notify = (error: BaseError) => {
-    // 개발 환경에서는 콘솔에도 로깅
-    logError(error);
+  const notify = (error: unknown) => {
+    const normalizedError = normalize(error);
+    logError(normalizedError);
 
-    // 사용자에게 안전한 메시지 표시
     uiService.notify({
-      message: error.getSafeMessage(),
+      message: normalizedError.getSafeMessage(),
       type: 'error',
     });
   };

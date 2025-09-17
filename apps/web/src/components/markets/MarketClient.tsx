@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   MARKET_ASSETS,
@@ -8,55 +8,50 @@ import {
   MarketViewer,
   isMarketAsset,
   isMarketDataType,
+  MarketData,
+  AssetType,
+  MarketDataType,
 } from '@mtr/finance';
-import { MarketAsset, MarketData, MarketDataType } from '@mtr/finance/src/components/types/tabs';
 import { useAppServices } from '@mtr/ui/client';
+import { Socket } from 'socket.io-client';
 
 export function MarketPageClient({ initialData }: { initialData: MarketData[] }) {
   const [data, setData] = useState(initialData);
-  const [pageSymbols, setPageSymbols] = useState<string[]>([]);
+  const pageSymbols = useRef<Set<string>>(new Set());
   const { socketService } = useAppServices();
 
   // URL 상태 관리
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
   const assetParam = searchParams.get('asset');
-  const currentAsset = isMarketAsset(assetParam) ? assetParam : MarketAsset.STOCKS;
+  const currentAsset = isMarketAsset(assetParam) ? assetParam : AssetType.STOCKS;
   const dataTypeParam = searchParams.get('dataType');
   const currentDataType = isMarketDataType(dataTypeParam)
     ? dataTypeParam
     : MarketDataType.MOST_ACTIVE;
 
-  // ✅ initialData가 변경되면 상태 업데이트
   useEffect(() => {
-    console.log('InitialData changed:', initialData.length, 'items');
     setData(initialData);
   }, [initialData]);
 
   useEffect(() => {
-    let marketSocket: any = null;
+    let marketSocket: Socket | null = null;
 
     const setupAndSubscribe = async () => {
       try {
-        console.log('Setting up socket and subscribing...');
-
         // 1. 소켓 생성
         marketSocket = await socketService.createChannel('market');
-
-        // 2. 이벤트 리스너 설정
         marketSocket.on('market-data', (updates: MarketData[]) => {
-          // updates: [{ symbol, price, ... }] 형태라고 가정
-          if (!Array.isArray(updates) || updates.length === 0 || pageSymbols.length === 0) return;
+          const visibleSymbols = pageSymbols.current;
+          if (visibleSymbols.size === 0) return;
 
-          const visible = new Set(pageSymbols);
           const priceBySymbol = new Map(updates.map(u => [u.symbol, u.price]));
 
           setData(prev => {
             let changed = false;
             const next = prev.map(row => {
-              if (!visible.has(row.symbol)) return row;
+              if (!visibleSymbols.has(row.symbol)) return row;
 
               const nextPrice = priceBySymbol.get(row.symbol);
               if (nextPrice == null || nextPrice === row.price) return row;
@@ -74,7 +69,6 @@ export function MarketPageClient({ initialData }: { initialData: MarketData[] })
         });
 
         // 3. 구독 설정
-        console.log(`Subscribing to: ${currentAsset} - ${currentDataType}`);
         marketSocket.emit('subscribe-market', {
           payload: {
             assetType: currentAsset,
@@ -99,8 +93,6 @@ export function MarketPageClient({ initialData }: { initialData: MarketData[] })
           },
         });
       }
-
-      socketService.disconnectAll();
     };
   }, [currentAsset, currentDataType]); // 모든 의존성 포함
 
@@ -123,8 +115,13 @@ export function MarketPageClient({ initialData }: { initialData: MarketData[] })
   );
 
   const handlePageChanged = useCallback((symbols: string[]) => {
-    setPageSymbols(symbols);
+    pageSymbols.current = new Set(symbols);
   }, []);
+
+  function handleRowClicked(data: MarketData): void {
+    const { assetType, symbol } = data;
+    router.push(`/${assetType}/${symbol.toLowerCase()}`);
+  }
 
   return (
     <MarketViewer
@@ -136,6 +133,9 @@ export function MarketPageClient({ initialData }: { initialData: MarketData[] })
       onAssetChange={handleAssetChange}
       onMarketDataTypeChange={handleMarketDataTypeChange}
       onPageChanged={handlePageChanged}
+      onRowClicked={handleRowClicked}
+      showDataTypeTabs={currentAsset === AssetType.STOCKS}
+      exchangeRate={1382}
     />
   );
 }

@@ -1,8 +1,8 @@
-import { MarketAsset, MarketDataType } from '../components/types/tabs';
+import { AssetType, MarketDataType } from '../types';
 
-export const isMarketAsset = (value: string | null): value is MarketAsset => {
+export const isMarketAsset = (value: string | null): value is AssetType => {
   if (!value) return false;
-  return Object.values(MarketAsset).includes(value as MarketAsset);
+  return Object.values(AssetType).includes(value as AssetType);
 };
 
 export const isMarketDataType = (value: string | null): value is MarketDataType => {

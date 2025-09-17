@@ -26,18 +26,26 @@ async function handleApiRequest(
       params,
     });
 
-    return NextResponse.json(response);
+    // 원본 상태코드/데이터 그대로 전달
+    return NextResponse.json(response.data, { status: response.status });
   } catch (error) {
+    // 에러 정규화 후 상태/메시지 전달
+    const normalized = appServices.errorService.normalize(error);
+    const status = normalized.status ?? 500;
+
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 },
+      {
+        error: normalized.getSafeMessage(),
+        code: normalized.code,
+        context: normalized.context,
+      },
+      { status },
     );
   }
 }
 
 export async function GET(request: NextRequest, context: RouteContext) {
   const { path } = await context.params;
-
   return handleApiRequest(request, 'GET', path);
 }
 

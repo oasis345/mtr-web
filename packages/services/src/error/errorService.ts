@@ -1,3 +1,4 @@
+import { AxiosError, isAxiosError } from 'axios';
 import {
   BaseError,
   NetworkError,
@@ -18,7 +19,28 @@ export type ErrorHandler = {
  * Next.js 환경별 기본 에러 핸들러들
  */
 export const createDefaultHandlers = (environment: ErrorEnvironment): ErrorHandler[] => [
-  // Fetch API 에러 처리
+  // 1) AxiosError 먼저
+  {
+    canHandle: (error): error is AxiosError => isAxiosError(error),
+    handle: (error: AxiosError) => {
+      const data = error.response?.data as any;
+      const status = error.response?.status;
+      const msg =
+        data?.message ?? data?.error ?? error.message ?? '요청 처리 중 오류가 발생했습니다.';
+      return new ApiError(msg, {
+        status,
+        cause: error,
+        context: {
+          environment,
+          url: error.config?.url,
+          method: error.config?.method,
+          params: error.config?.params,
+        },
+      });
+    },
+  },
+
+  // 2) Fetch API 네트워크 계열
   {
     canHandle: (error): error is TypeError =>
       error instanceof TypeError && error.message.includes('fetch'),
@@ -29,7 +51,7 @@ export const createDefaultHandlers = (environment: ErrorEnvironment): ErrorHandl
       }),
   },
 
-  // AbortError 처리 (fetch 취소)
+  // 3) AbortError
   {
     canHandle: (error): error is Error => isError(error) && error.name === 'AbortError',
     handle: error =>
@@ -40,31 +62,26 @@ export const createDefaultHandlers = (environment: ErrorEnvironment): ErrorHandl
       }),
   },
 
-  // Response 에러 처리 (HTTP 상태 코드 기반)
+  // 4) Response (fetch) 상태 코드 기반
   {
     canHandle: (error): error is Response => error instanceof Response && !error.ok,
-    handle: error => {
-      const message = `서버 요청 실패: ${error.status} ${error.statusText}`;
-      return new ApiError(message, {
+    handle: error =>
+      new ApiError(`서버 요청 실패: ${error.status} ${error.statusText}`, {
         status: error.status,
-        context: {
-          url: error.url,
-          environment,
-        },
-      });
-    },
+        context: { url: error.url, environment },
+      }),
   },
 
-  // 이미 BaseError인 경우
-  {
-    canHandle: (error): error is BaseError => isBaseError(error),
-    handle: error => error as BaseError,
-  },
-
-  // 일반 Error 처리
+  // 5) 일반 Error
   {
     canHandle: (error): error is Error => isError(error),
     handle: error => new UnknownError(error.message, { cause: error, context: { environment } }),
+  },
+
+  // 6) 마지막에 BaseError (이미 정규화된 경우 그대로 통과)
+  {
+    canHandle: (error): error is BaseError => isBaseError(error),
+    handle: error => error as BaseError,
   },
 ];
 

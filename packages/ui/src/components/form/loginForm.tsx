@@ -1,7 +1,7 @@
 'use client';
 import { loginSchema, type LoginFormFields } from '@mtr/services';
 import { TextField } from '../fields';
-import { BaseForm } from './baseForm';
+import { BaseForm } from './BaseForm';
 import {
   FormField,
   FormItem,

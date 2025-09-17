@@ -33,7 +33,7 @@ export class HttpClient {
       },
       paramsSerializer: (params: unknown) => {
         if (typeof params === 'object' && params !== null) {
-          return qs.stringify(params, { arrayFormat: 'brackets' });
+          return qs.stringify(params, { arrayFormat: 'comma' });
         }
         return '';
       },
@@ -54,51 +54,51 @@ export class HttpClient {
     );
 
     // ✅ BaseError 클래스들을 직접 활용
-    this.client.interceptors.response.use(
-      response => response,
-      (error: AxiosError) => {
-        // 1. 타임아웃/네트워크 에러
-        if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
-          throw new NetworkError('요청 시간이 초과되었습니다.', {
-            cause: error,
-            context: { url: error.config?.url, timeout: error.config?.timeout },
-          });
-        }
+    // this.client.interceptors.response.use(
+    //   response => response,
+    //   (error: AxiosError) => {
+    //     // 1. 타임아웃/네트워크 에러
+    //     if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
+    //       throw new NetworkError('요청 시간이 초과되었습니다.', {
+    //         cause: error,
+    //         context: { url: error.config?.url, timeout: error.config?.timeout },
+    //       });
+    //     }
 
-        // 2. 네트워크 연결 에러
-        if (!error.response) {
-          throw new NetworkError('서버와의 연결에 실패했습니다.', {
-            cause: error,
-            context: { url: error.config?.url },
-          });
-        }
+    //     // 2. 네트워크 연결 에러
+    //     if (!error.response) {
+    //       throw new NetworkError('서버와의 연결에 실패했습니다.', {
+    //         cause: error,
+    //         context: { url: error.config?.url },
+    //       });
+    //     }
 
-        // 3. HTTP 상태 코드별로 적절한 BaseError 사용
-        const { status, data } = error.response;
-        const message = data?.message || error.message || 'API 요청 실패';
+    //     // 3. HTTP 상태 코드별로 적절한 BaseError 사용
+    //     const { status, data } = error.response;
+    //     const message = data?.message || error.message || 'API 요청 실패';
 
-        switch (status) {
-          case 400:
-            throw new ValidationError(message, { cause: error, status });
-          case 401:
-            throw new AuthError(message, { cause: error, status });
-          case 403:
-            throw new ForbiddenError(message, { cause: error, status });
-          case 404:
-            throw new NotFoundError(message, { cause: error, status });
-          default:
-            throw new ApiError(message, {
-              cause: error,
-              status,
-              context: {
-                url: error.config?.url,
-                method: error.config?.method,
-                responseData: data,
-              },
-            });
-        }
-      },
-    );
+    //     switch (status) {
+    //       case 400:
+    //         throw new ValidationError(message, { cause: error, status });
+    //       case 401:
+    //         throw new AuthError(message, { cause: error, status });
+    //       case 403:
+    //         throw new ForbiddenError(message, { cause: error, status });
+    //       case 404:
+    //         throw new NotFoundError(message, { cause: error, status });
+    //       default:
+    //         throw new ApiError(message, {
+    //           cause: error,
+    //           status,
+    //           context: {
+    //             url: error.config?.url,
+    //             method: error.config?.method,
+    //             responseData: data,
+    //           },
+    //         });
+    //     }
+    //   },
+    // );
   }
 
   async get<T>(url: string, params?: unknown): Promise<ApiResponse<T>> {

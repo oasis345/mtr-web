@@ -1,85 +1,13 @@
 'use client';
 import { ColDef, ValueFormatterParams } from 'ag-grid-community';
-import { MarketData } from '../types/tabs';
+import { MarketData, Currency } from '../../types';
 import { _ } from '@mtr/utils';
-
-// --- 재사용 가능한 포맷터 ---
-const usdCurrencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 4,
-});
-
-const percentFormatter = new Intl.NumberFormat('ko-KR', {
-  style: 'percent',
-  signDisplay: 'exceptZero',
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-
-const volumeFormatter = new Intl.NumberFormat('ko-KR', {
-  style: 'decimal',
-  notation: 'compact',
-  maximumFractionDigits: 2,
-});
-
-// --- 기본 컬럼들 (항상 포함) ---
-const baseColumns: ColDef<MarketData>[] = [
-  {
-    field: 'symbol',
-    headerName: '티커',
-    flex: 1,
-    minWidth: 100,
-    maxWidth: 100,
-  },
-  {
-    field: 'name',
-    headerName: '종목명',
-    flex: 3,
-    minWidth: 200,
-    maxWidth: 500,
-    sortable: true,
-  },
-  {
-    field: 'price',
-    headerName: '현재가',
-    flex: 1,
-    minWidth: 100,
-    sortable: true,
-    enableCellChangeFlash: true,
-    valueFormatter: (params: ValueFormatterParams<MarketData, number>) => {
-      const value = params.value;
-      if (_.isNull(value)) return '-';
-      return usdCurrencyFormatter.format(value);
-    },
-  },
-  {
-    field: 'changesPercentage',
-    headerName: '등락률',
-    flex: 1,
-    sortable: true,
-    enableCellChangeFlash: true,
-    valueFormatter: (params: ValueFormatterParams<MarketData, number>) => {
-      if (_.isNull(params.value)) return '-';
-      const valueAsDecimal = params.value / 100;
-      return percentFormatter.format(valueAsDecimal);
-    },
-    cellStyle: params => {
-      const value = params.value;
-      if (_.isNull(value)) return null;
-      return {
-        color: value >= 0 ? '#ef4444' : '#3b82f6',
-        fontWeight: '500',
-      };
-    },
-  },
-];
+import { percentFormatter, volumeFormatter, formatPrice, convertCurrency } from '../../utils';
 
 // --- 거래량 컬럼 (조건부 포함) ---
 const volumeColumn: ColDef<MarketData> = {
   field: 'volume',
-  headerName: '거래량',
+  headerName: '거래량(24h)',
   flex: 1,
   sortable: true,
   valueFormatter: (params: ValueFormatterParams<MarketData, number>) => {
@@ -100,17 +28,56 @@ const hasVolumeData = (data: MarketData[]): boolean => {
   );
 };
 
-// --- 동적 컬럼 생성 함수 ---
-export const createMarketColumns = (data: MarketData[]): ColDef<MarketData>[] => {
-  const columns = [...baseColumns];
+// --- 기본 컬럼들 생성 (통화/환율 옵션 적용) ---
+type ColumnOpts = { currency: Currency; exchangeRate?: number };
 
-  // 거래량 데이터가 있으면 거래량 컬럼 추가
-  if (hasVolumeData(data)) {
-    columns.push(volumeColumn);
-  }
+const getBaseColumns = (opts: ColumnOpts): ColDef<MarketData>[] => {
+  const { currency, exchangeRate = 1300 } = opts;
 
-  return columns;
+  return [
+    { field: 'symbol', headerName: '티커', flex: 1, minWidth: 100, maxWidth: 100 },
+    { field: 'name', headerName: '종목명', flex: 3, minWidth: 200, maxWidth: 500, sortable: true },
+    {
+      field: 'price',
+      headerName: '현재가',
+      // ...
+      valueFormatter: (params: ValueFormatterParams<MarketData, number>) => {
+        const { data, value } = params;
+        if (value == null || !data) return '-';
+
+        const convertedPrice = convertCurrency(value, {
+          from: data.currency,
+          to: currency,
+
+          exchangeRate: exchangeRate,
+        });
+
+        // [변경점] formatPrice 호출 시 assetType을 함께 전달
+        return formatPrice(convertedPrice, {
+          currency: currency,
+          assetType: data.assetType, // data 객체에 assetType이 있다고 가정
+        });
+      },
+    },
+    {
+      field: 'changesPercentage',
+      headerName: '등락률',
+      flex: 1,
+      sortable: true,
+      enableCellChangeFlash: true,
+      valueFormatter: p => percentFormatter(p.value),
+      cellStyle: p => {
+        const v = p.value as number | null | undefined;
+        if (_.isNull(v)) return null;
+        return { color: v >= 0 ? '#ef4444' : '#3b82f6', fontWeight: '500' };
+      },
+    },
+  ];
 };
 
-// --- 기존 호환성을 위한 기본 컬럼 (거래량 포함) ---
-export const marketColumns: ColDef<MarketData>[] = [...baseColumns, volumeColumn];
+// --- 동적 컬럼 생성 함수 ---
+export const createMarketColumns = (data: MarketData[], opts: ColumnOpts): ColDef<MarketData>[] => {
+  const columns = [...getBaseColumns(opts)];
+  if (hasVolumeData(data)) columns.push(volumeColumn);
+  return columns;
+};

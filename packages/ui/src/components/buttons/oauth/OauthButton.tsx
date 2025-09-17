@@ -1,5 +1,5 @@
 'use client';
-import { Button } from '../button';
+import { Button } from '../Button';
 
 export const OauthButton = ({
   icon,

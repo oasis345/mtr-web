@@ -8,6 +8,7 @@ const config: Config = {
   content: [
     './src/**/*.{js,ts,jsx,tsx,mdx}',
     '../../packages/ui/src/**/*.{js,ts,jsx,tsx}',
+    '../../packages/finance/src/**/*.{js,ts,jsx,tsx}',
     '!**/node_modules/**',
     '!**/*.d.ts',
   ],
