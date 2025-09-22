@@ -43,7 +43,16 @@
       "path": "../../packages/ui"
     },
     {
-      "path": "../../packages/finance"
+      "path": "../../packages/store"
+    },
+    {
+      "path": "../../packages/hooks"
+    },
+    {
+      "path": "../../packages/finance-core"
+    },
+    {
+      "path": "../../packages/finance-ui"
     }
   ]
 }

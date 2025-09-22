@@ -28,9 +28,11 @@
     }
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.1.1",
     "@mtr/services": "workspace:*",
     "@mtr/utils": "workspace:*",
+    "@mtr/store": "workspace:*",
+    "@mtr/hooks": "workspace:*",
+    "@hookform/resolvers": "^5.1.1",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-label": "^2.1.7",
@@ -52,8 +54,7 @@
   },
   "peerDependencies": {
     "react": "^18",
-    "react-dom": "^18",
-    "zustand": "^5.0.6"
+    "react-dom": "^18"
   },
   "devDependencies": {
     "@types/react": "^18",

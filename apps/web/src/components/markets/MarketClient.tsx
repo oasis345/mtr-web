@@ -3,20 +3,19 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
-  MARKET_ASSETS,
-  MARKET_DATA_TYPES,
-  MarketViewer,
   isMarketAsset,
   isMarketDataType,
   MarketData,
   AssetType,
   MarketDataType,
-} from '@mtr/finance';
-import { useAppServices } from '@mtr/ui/client';
+} from '@mtr/finance-core';
+import { MarketViewer, MARKET_ASSETS_MAP, MARKET_DATA_MAP } from '@mtr/finance-ui';
+import { useAppServices } from '@mtr/store';
 import { Socket } from 'socket.io-client';
 
 export function MarketPageClient({ initialData }: { initialData: MarketData[] }) {
   const [data, setData] = useState(initialData);
+  console.log('data', data);
   const pageSymbols = useRef<Set<string>>(new Set());
   const { socketService } = useAppServices();
 
@@ -128,8 +127,8 @@ export function MarketPageClient({ initialData }: { initialData: MarketData[] })
       data={data}
       selectedAsset={currentAsset}
       selectedMarketDataType={currentDataType}
-      assetTabs={MARKET_ASSETS}
-      dataTypeTabs={MARKET_DATA_TYPES}
+      assetTabs={MARKET_ASSETS_MAP}
+      dataTypeTabs={MARKET_DATA_MAP}
       onAssetChange={handleAssetChange}
       onMarketDataTypeChange={handleMarketDataTypeChange}
       onPageChanged={handlePageChanged}

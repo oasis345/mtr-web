@@ -3,15 +3,10 @@
 import dynamic from 'next/dynamic';
 import { PageLayout, Section } from '@mtr/ui';
 import { use, useEffect, useState } from 'react';
-import {
-  AssetHeader,
-  ChartToolbar,
-  FINANCIAL_ROUTES,
-  MarketData,
-  MarketDataType,
-} from '@mtr/finance';
-import { useAppServices } from '@mtr/ui/client';
-const AssetChart = dynamic(() => import('@mtr/finance').then(mod => mod.AssetChart), {
+import { FINANCIAL_ROUTES, MarketData, MarketDataType } from '@mtr/finance-core';
+import { AssetHeader, ChartToolbar } from '@mtr/finance-ui';
+import { useAppServices } from '@mtr/store';
+const AssetChart = dynamic(() => import('@mtr/finance-ui').then(mod => mod.AssetChart), {
   ssr: false,
 });
 
@@ -44,6 +39,7 @@ export default function AssetPage({
         dataType: MarketDataType.SYMBOL,
         symbols: [symbol],
       });
+      console.log('data', data);
       setCurrentAsset(data[0]);
     } catch (error) {
       errorService.notify(error);
@@ -70,7 +66,13 @@ export default function AssetPage({
             onToggleMA={() => {}}
             onToggleVolume={() => {}}
           />
-          <AssetChart mode="candles" candles={candles} volumes={volumes} precision={4} />
+          <AssetChart
+            mode="candles"
+            candles={candles}
+            volumes={volumes}
+            precision={4}
+            onTimeframeChange={() => {}}
+          />
         </Section>
         <Section title="인기 급상승 커뮤니티" variant="card">
           <div>섹션 2 콘텐츠</div>

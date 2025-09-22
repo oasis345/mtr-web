@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from '../../shadcn/components/ui/form';
 import { OauthButton } from '../buttons/oauth/OauthButton';
-import { useAppServices } from '../../store/serviceStore';
+import { useAppServices } from '@mtr/store';
 
 export interface LoginFormProps {
   onSubmit?: (data: LoginFormFields) => Promise<void>;

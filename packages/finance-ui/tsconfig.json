@@ -11,9 +11,9 @@
   "include": ["src"],
   "exclude": ["node_modules", "dist"],
   "references": [
-    { "path": "../utils" },
-    { "path": "../services" },
-    { "path": "../store" },
-    { "path": "../hooks" }
+    { "path": "../../packages/utils" },
+    { "path": "../../packages/services" },
+    { "path": "../../packages/ui" },
+    { "path": "../../packages/finance-core" }
   ]
 }

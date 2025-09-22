@@ -5,15 +5,12 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "declaration": true,
-    "declarationMap": true,
-    "jsx": "react-jsx"
+    "declarationMap": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"],
   "references": [
-    { "path": "../utils" },
-    { "path": "../services" },
-    { "path": "../store" },
-    { "path": "../hooks" }
+    { "path": "../../packages/services" },
+    { "path": "../../packages/utils" }
   ]
 }

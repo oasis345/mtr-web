@@ -1,8 +1,8 @@
 'use client';
 import { ColDef, ValueFormatterParams } from 'ag-grid-community';
-import { MarketData, Currency } from '../../types';
+import { MarketData, Currency } from '@mtr/finance-core';
 import { _ } from '@mtr/utils';
-import { percentFormatter, volumeFormatter, formatPrice, convertCurrency } from '../../utils';
+import { percentFormatter, volumeFormatter, formatPrice, convertCurrency } from '@mtr/finance-core';
 
 // --- 거래량 컬럼 (조건부 포함) ---
 const volumeColumn: ColDef<MarketData> = {

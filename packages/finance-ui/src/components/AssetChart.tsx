@@ -1,13 +1,13 @@
 'use client';
 
 import { BaseTab, Combobox, LightWeightCharts } from '@mtr/ui/client';
-import { CHART_LONG_TIMEFRAMES_MAP, CHART_SHORT_TIMEFRAMES_MAP } from './model';
-import { ChartLongTimeframe, ChartShortTimeframe } from '../types';
+import { CHART_LONG_TIMEFRAMES_MAP, CHART_SHORT_TIMEFRAMES_MAP } from '../const';
+import { ChartLongTimeframe, ChartShortTimeframe } from '@mtr/finance-core';
 
 type Candle = { time: number | string; open: number; high: number; low: number; close: number };
 type Volume = { time: number | string; value: number; color?: string };
 
-type DomainChartProps = {
+type AssetChartProps = {
   mode?: 'candles' | 'area';
   height?: number;
   candles?: Candle[];
@@ -32,12 +32,12 @@ export const AssetChart = ({
   showMA = [5, 20, 60, 120],
   className,
   onTimeframeChange,
-}: DomainChartProps) => {
+}: AssetChartProps) => {
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-2">
         <Combobox
-          items={CHART_SHORT_TIMEFRAMES_MAP}
+          items={[...CHART_SHORT_TIMEFRAMES_MAP]}
           defaultValue={ChartShortTimeframe.FIVE_MINUTES}
           onValueChange={onTimeframeChange}
         />

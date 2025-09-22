@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { LoginFormFields } from '@mtr/services';
-import { useAppServices } from '../store/serviceStore';
+import { useAppServices } from '@mtr/store';
 
 export const useAuth = () => {
   const { authService } = useAppServices();

@@ -1,6 +1,6 @@
 'use client';
 
-import { useAppServiceStore } from '@mtr/ui/client';
+import { useAppServiceStore } from '@mtr/store';
 import { createClientService } from '@/service/client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation'; // 🚨 next/router에서 변경

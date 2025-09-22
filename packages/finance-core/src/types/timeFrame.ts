@@ -13,13 +13,13 @@ export enum ChartLongTimeframe {
   ONE_DAY = '1d',
   ONE_WEEK = '1w',
   ONE_MONTH = '1M',
-  ONE_YEAR = '1y',
+  ONE_YEAR = '12M',
 }
 
-export enum ChartTimeframe {
-  REALTIME = 'realtime',
-  ONE_DAY = '1d',
-  ONE_WEEK = '1w',
-  ONE_MONTH = '1M',
-  ONE_YEAR = '1y',
-}
+export type ChartTimeframe = ChartShortTimeframe | ChartLongTimeframe;
+
+// 모든 값 배열 (유효성 검사용)
+export const ALL_TIMEFRAMES: ChartTimeframe[] = [
+  ...Object.values(ChartShortTimeframe),
+  ...Object.values(ChartLongTimeframe),
+];

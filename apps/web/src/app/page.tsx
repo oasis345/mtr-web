@@ -1,6 +1,6 @@
 import { PageLayout, Section } from '@mtr/ui';
 import { appServices } from '@/service/server';
-import { FINANCIAL_ROUTES, AssetType, MarketData } from '@mtr/finance';
+import { FINANCIAL_ROUTES, AssetType, MarketData } from '@mtr/finance-core';
 import { MarketPageClient } from '@/components/markets/MarketClient';
 
 export default async function RootPage({

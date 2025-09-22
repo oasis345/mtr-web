@@ -1,35 +1,25 @@
 import {
   AssetType,
   MarketDataType,
-  ChartTimeframe,
   ChartShortTimeframe,
   ChartLongTimeframe,
-  MarketTab,
-  MarketDataTypeTab,
-} from '../../types';
+} from '@mtr/finance-core';
+import { MarketDataTypeTab, MarketTab } from '../types';
 
-export const MARKET_ASSETS: MarketTab[] = [
+export const MARKET_ASSETS_MAP: MarketTab[] = [
   { label: '주식', value: AssetType.STOCKS },
   { label: '코인', value: AssetType.CRYPTO },
 ];
 
-export const MARKET_DATA_TYPES: MarketDataTypeTab[] = [
+export const MARKET_DATA_MAP: MarketDataTypeTab[] = [
   { label: '인기종목', value: MarketDataType.MOST_ACTIVE },
   { label: '상승종목', value: MarketDataType.GAINERS },
   { label: '하락종목', value: MarketDataType.LOSERS },
 ];
 
-export const MARKET_SYMBOL_DATA_TYPES: MarketDataTypeTab[] = [
+export const MARKET_SYMBOL_DATA_MAP: MarketDataTypeTab[] = [
   { label: '티커', value: MarketDataType.SYMBOL },
   { label: '사용자 종목', value: MarketDataType.USER_SYMBOLS },
-];
-
-export const TIME_RANGES_MAP: { label: string; value: ChartTimeframe }[] = [
-  { label: '실시간', value: ChartTimeframe.REALTIME },
-  { label: '1일', value: ChartTimeframe.ONE_DAY },
-  { label: '1주일', value: ChartTimeframe.ONE_WEEK },
-  { label: '1개월', value: ChartTimeframe.ONE_MONTH },
-  { label: '1년', value: ChartTimeframe.ONE_YEAR },
 ];
 
 export const CHART_SHORT_TIMEFRAMES_MAP: { label: string; value: ChartShortTimeframe }[] = [

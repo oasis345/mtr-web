@@ -47,9 +47,8 @@ const percentIntl = new Intl.NumberFormat('ko-KR', {
 });
 
 export const percentFormatter = (value: number | null | undefined): string => {
-  if (_.isNull(value) || _.isUndefined(value)) return '-';
-  const decimal = Math.abs(value) > 1 ? value / 100 : value;
-  return percentIntl.format(decimal);
+  if (value == null) return '-';
+  return percentIntl.format(value);
 };
 
 export const convertCurrency = (

@@ -13,7 +13,6 @@
   "references": [
     { "path": "../utils" },
     { "path": "../services" },
-    { "path": "../store" },
-    { "path": "../hooks" }
+    { "path": "../ui" }
   ]
 }

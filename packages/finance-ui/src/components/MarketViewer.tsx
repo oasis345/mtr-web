@@ -2,10 +2,9 @@
 import { BaseGrid, BaseTab } from '@mtr/ui/client';
 import { useTheme } from 'next-themes';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { createMarketColumns } from './model/maketColumns';
+import { createMarketColumns } from '../grid';
 import { _ } from '@mtr/utils';
-import { MarketData, MarketViewerProps } from '../types';
-import { Currency } from '../types';
+import { MarketData, MarketViewerProps, Currency } from '@mtr/finance-core';
 import { GridApi } from 'ag-grid-community';
 
 export const MarketViewer = ({

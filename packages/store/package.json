@@ -1,0 +1,28 @@
+{
+  "name": "@mtr/store",
+  "private": true,
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo node_modules"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "dependencies": {
+    "@mtr/utils": "workspace:*",
+    "@mtr/services": "workspace:*",
+    "@mtr/ui": "workspace:*",
+    "zustand": "^5.0.6"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19"
+  },
+  "peerDependencies": {
+    "react": "^19",
+    "react-dom": "^19"
+  }
+}
