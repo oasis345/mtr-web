@@ -13,6 +13,6 @@
   ],
   "dependencies": {
     "@mtr/utils": "workspace:*",
-    "@mtr/services": "workspace:*"
+    "@mtr/network-core": "workspace:*"
   }
 }

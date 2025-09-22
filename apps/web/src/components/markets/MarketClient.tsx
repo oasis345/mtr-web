@@ -10,7 +10,7 @@ import {
   MarketDataType,
 } from '@mtr/finance-core';
 import { MarketViewer, MARKET_ASSETS_MAP, MARKET_DATA_MAP } from '@mtr/finance-ui';
-import { useAppServices } from '@mtr/store';
+import { useAppServices } from '@/store';
 import { Socket } from 'socket.io-client';
 
 export function MarketPageClient({ initialData }: { initialData: MarketData[] }) {

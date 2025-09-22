@@ -12,8 +12,9 @@
   "exclude": ["node_modules", "dist"],
   "references": [
     { "path": "../../packages/utils" },
-    { "path": "../../packages/services" },
+    { "path": "../../packages/network-core" },
     { "path": "../../packages/ui" },
+    { "path": "../../packages/store" },
     { "path": "../../packages/finance-core" }
   ]
 }

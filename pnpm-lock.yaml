@@ -64,7 +64,13 @@ importers:
     dependencies:
       '@hookform/resolvers':
         specifier: ^5.1.1
-        version: 5.2.2(react-hook-form@7.63.0(react@18.3.1))
+        version: 5.2.2(react-hook-form@7.63.0(react@19.1.1))
+      '@mtr/auth-core':
+        specifier: workspace:*
+        version: link:../../packages/auth-core
+      '@mtr/error-handler':
+        specifier: workspace:*
+        version: link:../../packages/error-handler
       '@mtr/finance-core':
         specifier: workspace:*
         version: link:../../packages/finance-core
@@ -74,9 +80,9 @@ importers:
       '@mtr/hooks':
         specifier: workspace:*
         version: link:../../packages/hooks
-      '@mtr/services':
+      '@mtr/network-core':
         specifier: workspace:*
-        version: link:../../packages/services
+        version: link:../../packages/network-core
       '@mtr/store':
         specifier: workspace:*
         version: link:../../packages/store
@@ -86,31 +92,37 @@ importers:
       '@mtr/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      '@tanstack/react-query':
+        specifier: ^5.9.0
+        version: 5.90.1(react@19.1.1)
+      '@tanstack/react-query-devtools':
+        specifier: ^5.90.1
+        version: 5.90.1(@tanstack/react-query@5.90.1(react@19.1.1))(react@19.1.1)
       next:
         specifier: ^15.3.4
-        version: 15.5.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 15.5.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       react:
-        specifier: ^18
-        version: 18.3.1
+        specifier: ^19
+        version: 19.1.1
       react-dom:
-        specifier: ^18
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19
+        version: 19.1.1(react@19.1.1)
       react-hook-form:
         specifier: ^7.58.1
-        version: 7.63.0(react@18.3.1)
+        version: 7.63.0(react@19.1.1)
       zustand:
         specifier: ^5.0.6
-        version: 5.0.8(@types/react@18.3.24)(react@18.3.1)
+        version: 5.0.8(@types/react@19.1.13)(react@19.1.1)
     devDependencies:
       '@types/node':
         specifier: ^20
         version: 20.19.17
       '@types/react':
-        specifier: ^18
-        version: 18.3.24
+        specifier: ^19
+        version: 19.1.13
       '@types/react-dom':
-        specifier: ^18
-        version: 18.3.7(@types/react@18.3.24)
+        specifier: ^19
+        version: 19.1.9(@types/react@19.1.13)
       autoprefixer:
         specifier: ^10
         version: 10.4.21(postcss@8.5.6)
@@ -130,11 +142,32 @@ importers:
         specifier: ^5
         version: 5.9.2
 
+  packages/auth-core:
+    dependencies:
+      '@mtr/network-core':
+        specifier: workspace:*
+        version: link:../network-core
+      '@mtr/utils':
+        specifier: workspace:*
+        version: link:../utils
+
+  packages/error-handler:
+    dependencies:
+      '@mtr/network-core':
+        specifier: workspace:*
+        version: link:../network-core
+      '@mtr/utils':
+        specifier: workspace:*
+        version: link:../utils
+      axios:
+        specifier: ^1.7.7
+        version: 1.12.2
+
   packages/finance-core:
     dependencies:
-      '@mtr/services':
+      '@mtr/network-core':
         specifier: workspace:*
-        version: link:../services
+        version: link:../network-core
       '@mtr/utils':
         specifier: workspace:*
         version: link:../utils
@@ -144,9 +177,12 @@ importers:
       '@mtr/finance-core':
         specifier: workspace:*
         version: link:../finance-core
-      '@mtr/services':
+      '@mtr/network-core':
         specifier: workspace:*
-        version: link:../services
+        version: link:../network-core
+      '@mtr/store':
+        specifier: workspace:*
+        version: link:../store
       '@mtr/ui':
         specifier: workspace:*
         version: link:../ui
@@ -175,15 +211,18 @@ importers:
 
   packages/hooks:
     dependencies:
-      '@mtr/services':
+      '@mtr/finance-core':
         specifier: workspace:*
-        version: link:../services
-      '@mtr/ui':
+        version: link:../finance-core
+      '@mtr/network-core':
         specifier: workspace:*
-        version: link:../ui
+        version: link:../network-core
       '@mtr/utils':
         specifier: workspace:*
         version: link:../utils
+      '@tanstack/react-query':
+        specifier: ^5.9.0
+        version: 5.90.1(react@19.1.1)
       react:
         specifier: ^19
         version: 19.1.1
@@ -198,7 +237,7 @@ importers:
         specifier: ^19
         version: 19.1.9(@types/react@19.1.13)
 
-  packages/services:
+  packages/network-core:
     dependencies:
       '@mtr/utils':
         specifier: workspace:*
@@ -216,12 +255,6 @@ importers:
 
   packages/store:
     dependencies:
-      '@mtr/services':
-        specifier: workspace:*
-        version: link:../services
-      '@mtr/ui':
-        specifier: workspace:*
-        version: link:../ui
       '@mtr/utils':
         specifier: workspace:*
         version: link:../utils
@@ -250,9 +283,9 @@ importers:
       '@mtr/hooks':
         specifier: workspace:*
         version: link:../hooks
-      '@mtr/services':
+      '@mtr/network-core':
         specifier: workspace:*
-        version: link:../services
+        version: link:../network-core
       '@mtr/store':
         specifier: workspace:*
         version: link:../store
@@ -1000,6 +1033,23 @@ packages:
 
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
+
+  '@tanstack/query-core@5.90.1':
+    resolution: {integrity: sha512-hmi8i+mWP3QnD8yq3+6LWri9IEZAlFbpbM/UVB+TJtp5RIxUfzuARqyW39b+HCfBKKnFKSHWMXNB5YN8lo/E/Q==}
+
+  '@tanstack/query-devtools@5.90.1':
+    resolution: {integrity: sha512-GtINOPjPUH0OegJExZ70UahT9ykmAhmtNVcmtdnOZbxLwT7R5OmRztR5Ahe3/Cu7LArEmR6/588tAycuaWb1xQ==}
+
+  '@tanstack/react-query-devtools@5.90.1':
+    resolution: {integrity: sha512-otOjczcUft13RZlWi8JHIWei1MLuRf0AK+hyEEAm0/IqKUbs/0ZXj0wlc+P1XdE0nYcOMuHK69496FvP/9g3LQ==}
+    peerDependencies:
+      '@tanstack/react-query': ^5.90.1
+      react: ^18 || ^19
+
+  '@tanstack/react-query@5.90.1':
+    resolution: {integrity: sha512-tN7Fx2HuV2SBhl+STgL8enbfSInRoNU1B1+5LIU62klcMElE4lFzol4aReuRSUeD6ntzPayK0KrM6w9+ZlHEkw==}
+    peerDependencies:
+      react: ^18 || ^19
 
   '@tybys/wasm-util@0.10.1':
     resolution: {integrity: sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg==}
@@ -2989,6 +3039,11 @@ snapshots:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.63.0(react@18.3.1)
 
+  '@hookform/resolvers@5.2.2(react-hook-form@7.63.0(react@19.1.1))':
+    dependencies:
+      '@standard-schema/utils': 0.3.0
+      react-hook-form: 7.63.0(react@19.1.1)
+
   '@humanfs/core@0.19.1': {}
 
   '@humanfs/node@0.16.7':
@@ -3493,6 +3548,21 @@ snapshots:
   '@swc/helpers@0.5.15':
     dependencies:
       tslib: 2.8.1
+
+  '@tanstack/query-core@5.90.1': {}
+
+  '@tanstack/query-devtools@5.90.1': {}
+
+  '@tanstack/react-query-devtools@5.90.1(@tanstack/react-query@5.90.1(react@19.1.1))(react@19.1.1)':
+    dependencies:
+      '@tanstack/query-devtools': 5.90.1
+      '@tanstack/react-query': 5.90.1(react@19.1.1)
+      react: 19.1.1
+
+  '@tanstack/react-query@5.90.1(react@19.1.1)':
+    dependencies:
+      '@tanstack/query-core': 5.90.1
+      react: 19.1.1
 
   '@tybys/wasm-util@0.10.1':
     dependencies:
@@ -4855,15 +4925,15 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  next@15.5.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  next@15.5.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
     dependencies:
       '@next/env': 15.5.3
       '@swc/helpers': 0.5.15
       caniuse-lite: 1.0.30001743
       postcss: 8.4.31
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      styled-jsx: 5.1.6(react@18.3.1)
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
+      styled-jsx: 5.1.6(react@19.1.1)
     optionalDependencies:
       '@next/swc-darwin-arm64': 15.5.3
       '@next/swc-darwin-x64': 15.5.3
@@ -5079,6 +5149,10 @@ snapshots:
   react-hook-form@7.63.0(react@18.3.1):
     dependencies:
       react: 18.3.1
+
+  react-hook-form@7.63.0(react@19.1.1):
+    dependencies:
+      react: 19.1.1
 
   react-is@16.13.1: {}
 
@@ -5390,10 +5464,10 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  styled-jsx@5.1.6(react@18.3.1):
+  styled-jsx@5.1.6(react@19.1.1):
     dependencies:
       client-only: 0.0.1
-      react: 18.3.1
+      react: 19.1.1
 
   sucrase@3.35.0:
     dependencies:
@@ -5656,11 +5730,6 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   zod@3.25.76: {}
-
-  zustand@5.0.8(@types/react@18.3.24)(react@18.3.1):
-    optionalDependencies:
-      '@types/react': 18.3.24
-      react: 18.3.1
 
   zustand@5.0.8(@types/react@19.1.13)(react@19.1.1):
     optionalDependencies:

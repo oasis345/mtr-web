@@ -12,10 +12,11 @@
     "src"
   ],
   "dependencies": {
-    "@mtr/services": "workspace:*",
+    "@mtr/network-core": "workspace:*",
     "@mtr/utils": "workspace:*",
     "@mtr/ui": "workspace:*",
-    "@mtr/finance-core": "workspace:*"
+    "@mtr/finance-core": "workspace:*",
+    "@mtr/store": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19",

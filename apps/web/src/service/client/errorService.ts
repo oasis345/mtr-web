@@ -5,7 +5,7 @@ import {
   logError,
   type ErrorHandler,
   type UiService,
-} from '@mtr/services';
+} from '@mtr/error-handler';
 
 /**
  * 클라이언트 전용 에러 클래스

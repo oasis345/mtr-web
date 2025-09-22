@@ -1,5 +1,5 @@
 import { AppLayout } from '@mtr/ui';
-import { ServiceProvider } from '@/store/provider';
+import { AppProviders } from '@/store/AppProvider';
 import './globals.css';
 
 export default function RootLayout({
@@ -10,7 +10,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ServiceProvider>
+        <AppProviders>
           <AppLayout
             main={children}
             nav={<div>nav</div>}
@@ -18,7 +18,7 @@ export default function RootLayout({
             height="screen"
             maxWidth="tablet"
           />
-        </ServiceProvider>
+        </AppProviders>
       </body>
     </html>
   );

@@ -39,3 +39,8 @@ export enum Currency {
   USD = 'USD',
   KRW = 'KRW',
 }
+
+export interface AssetParams {
+  assetType: string;
+  symbol: string;
+}

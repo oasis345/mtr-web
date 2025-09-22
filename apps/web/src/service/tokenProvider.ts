@@ -1,4 +1,4 @@
-import { type TokenData } from '@mtr/services';
+import { type TokenData } from '@mtr/network-core';
 
 export const createClientTokenProvider = () => {
   return {

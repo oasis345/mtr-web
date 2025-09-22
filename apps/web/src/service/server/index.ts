@@ -1,7 +1,14 @@
-import { createAuthService, HttpClient, ServerAppServices } from '@mtr/services';
+import { createAuthService,  } from '@mtr/auth-core';
+import { HttpClient } from '@mtr/network-core';
 import { API_BASE_URL } from '../config';
 import { createServerTokenProvider } from '../tokenProvider';
 import { serverErrorService } from './errorService';
+
+export interface ServerAppServices {
+  authService: AuthService;
+  errorService: ErrorService;
+  httpClient: HttpClient;
+}
 
 const tokenProvider = createServerTokenProvider();
 const httpClient = new HttpClient(

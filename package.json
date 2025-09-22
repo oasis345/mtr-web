@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter web dev",
-    "build:packages": "tsc -b packages/utils packages/services packages/ui",
+    "build:packages": "tsc -b packages/utils packages/network-core packages/auth-core packages/error-handler packages/ui",
     "build:web": "pnpm --filter web build",
     "start": "pnpm --filter web start",
     "lint": "eslint . --cache --cache-location .eslintcache",

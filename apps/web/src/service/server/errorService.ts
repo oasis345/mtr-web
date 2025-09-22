@@ -4,7 +4,7 @@ import {
   normalizeError,
   logError,
   type ErrorHandler,
-} from '@mtr/services';
+} from '@mtr/error-handler';
 
 /**
  * 서버 전용 에러 클래스

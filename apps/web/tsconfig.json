@@ -37,7 +37,13 @@
       "path": "../../packages/utils"
     },
     {
-      "path": "../../packages/services"
+      "path": "../../packages/network-core"
+    },
+    {
+      "path": "../../packages/auth-core"
+    },
+    {
+      "path": "../../packages/error-handler"
     },
     {
       "path": "../../packages/ui"

@@ -1,4 +1,4 @@
-import { BaseError } from '@mtr/services';
+import { BaseError } from '@mtr/error-handler';
 import React from 'react';
 interface GlobalErrorFallbackProps {
   error: BaseError;

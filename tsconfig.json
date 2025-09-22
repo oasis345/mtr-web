@@ -16,10 +16,12 @@
   },
   "references": [
     { "path": "./packages/utils" },
-    { "path": "./packages/services" },
     { "path": "./packages/ui" },
     { "path": "./packages/store" },
     { "path": "./packages/hooks" },
+    { "path": "./packages/network-core" },
+    { "path": "./packages/auth-core" },
+    { "path": "./packages/error-handler" },
     { "path": "./packages/finance-core" },
     { "path": "./packages/finance-ui" }
   ],

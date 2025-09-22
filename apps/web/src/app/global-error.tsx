@@ -3,7 +3,7 @@
 import { GlobalErrorFallback } from '@mtr/ui/client';
 import { createClientService } from '@/service/client';
 import { useEffect, useState } from 'react';
-import { ErrorService } from '@mtr/services';
+import { ErrorService } from '@mtr/error-handler';
 
 interface GlobalErrorProps {
   error: Error & { digest?: string };

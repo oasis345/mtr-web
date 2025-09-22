@@ -13,8 +13,8 @@
   ],
   "dependencies": {
     "@mtr/utils": "workspace:*",
-    "@mtr/services": "workspace:*",
-    "@mtr/ui": "workspace:*"
+    "@mtr/network-core": "workspace:*",
+    "@mtr/finance-core": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19",
@@ -22,6 +22,7 @@
   },
   "peerDependencies": {
     "react": "^19",
-    "react-dom": "^19"
+    "react-dom": "^19",
+    "@tanstack/react-query": "^5.9.0"
   }
 }

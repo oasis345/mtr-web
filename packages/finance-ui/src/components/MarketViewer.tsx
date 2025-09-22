@@ -4,7 +4,8 @@ import { useTheme } from 'next-themes';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createMarketColumns } from '../grid';
 import { _ } from '@mtr/utils';
-import { MarketData, MarketViewerProps, Currency } from '@mtr/finance-core';
+import { MarketData, Currency } from '@mtr/finance-core';
+import { MarketViewerProps } from '../types';
 import { GridApi } from 'ag-grid-community';
 
 export const MarketViewer = ({
