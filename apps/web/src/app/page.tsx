@@ -22,7 +22,7 @@ export default async function RootPage({
     const response = await httpClient.get<MarketData[]>(FINANCIAL_ROUTES.FINANCIAL.MARKET, {
       assetType: validAssetType,
       dataType: asset === AssetType.STOCKS ? dataType : 'topTraded',
-      limit: asset === AssetType.STOCKS ? 10 : 100,
+      limit: asset === AssetType.STOCKS ? 100 : 300,
     });
 
     data = response.statusCode === 200 ? response.data : [];
@@ -33,26 +33,29 @@ export default async function RootPage({
   }
 
   return (
-    <PageLayout
-      main={
-        <>
-          <Section title={`실시간 차트`} titleAs="h1" titleSize="2xl">
+    <PageLayout variant="sidebar" asideWidth="lg" asidePosition="right">
+      <PageLayout.Main>
+        <Section>
+          <Section.Header>실시간 차트</Section.Header>
+          <Section.Content>
             <MarketPageClient initialData={data} />
-          </Section>
-
-          <Section title="인기 급상승 커뮤니티">
-            <div>섹션 2 콘텐츠</div>
-          </Section>
-        </>
-      }
-      variant="sidebar"
-      aside={
-        <Section title="테스트 사이드바" layout="sidebar" titleSize="lg">
-          <div>사이드바 1 콘텐츠</div>
+          </Section.Content>
         </Section>
-      }
-      asideWidth="lg"
-      asidePosition="right"
-    />
+        <Section>
+          <Section.Header>인기 급상승 커뮤니티</Section.Header>
+          <Section.Content>
+            <div>섹션 2 콘텐츠</div>
+          </Section.Content>
+        </Section>
+      </PageLayout.Main>
+      <PageLayout.Aside>
+        <Section>
+          <Section.Header>테스트 사이드바</Section.Header>
+          <Section.Content>
+            <div>사이드바 1 콘텐츠</div>
+          </Section.Content>
+        </Section>
+      </PageLayout.Aside>
+    </PageLayout>
   );
 }

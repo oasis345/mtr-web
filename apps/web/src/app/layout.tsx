@@ -16,7 +16,7 @@ export default function RootLayout({
             nav={<div>nav</div>}
             logo={<div>logo</div>}
             height="screen"
-            maxWidth="tablet"
+            maxWidth="responsive"
           />
         </AppProviders>
       </body>

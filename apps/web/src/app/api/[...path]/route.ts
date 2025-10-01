@@ -27,7 +27,7 @@ async function handleApiRequest(
     });
 
     // 원본 상태코드/데이터 그대로 전달
-    return NextResponse.json(response.data, { status: response.status });
+    return NextResponse.json(response, { status: response.statusCode });
   } catch (error) {
     // 에러 정규화 후 상태/메시지 전달
     const normalized = appServices.errorService.normalize(error);

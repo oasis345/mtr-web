@@ -22,7 +22,7 @@ export function createClientService(): ClientAppServices {
   const tokenProvider = createClientTokenProvider();
   const httpClient = new HttpClient(
     CLIENT_BASE_URL,
-    { withCredentials: true, timeout: 10000 },
+    { withCredentials: true, timeout: 20000 },
     tokenProvider,
   );
 

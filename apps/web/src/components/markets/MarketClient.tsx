@@ -15,7 +15,6 @@ import { Socket } from 'socket.io-client';
 
 export function MarketPageClient({ initialData }: { initialData: MarketData[] }) {
   const [data, setData] = useState(initialData);
-  console.log('data', data);
   const pageSymbols = useRef<Set<string>>(new Set());
   const { socketService } = useAppServices();
 

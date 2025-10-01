@@ -5,5 +5,6 @@ export * from './error';
 export * from './toast';
 export * from './grid';
 export * from './tabs';
-export * from './charts';
 export * from './combobox';
+export * from './loading';
+export * from './image';

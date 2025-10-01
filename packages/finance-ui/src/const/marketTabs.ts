@@ -3,6 +3,7 @@ import {
   MarketDataType,
   ChartShortTimeframe,
   ChartLongTimeframe,
+  Currency,
 } from '@mtr/finance-core';
 import { MarketDataTypeTab, MarketTab } from '../types';
 
@@ -37,3 +38,10 @@ export const CHART_LONG_TIMEFRAMES_MAP: { label: string; value: ChartLongTimefra
   { label: '1개월', value: ChartLongTimeframe.ONE_MONTH },
   { label: '1년', value: ChartLongTimeframe.ONE_YEAR },
 ];
+
+export const CURRENCY_MAP: { label: string; value: Currency }[] = Object.values(Currency).map(
+  currency => ({
+    label: currency,
+    value: currency,
+  }),
+);

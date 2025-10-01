@@ -154,6 +154,7 @@ export const BaseGrid = ({
   height = 600,
   theme = 'PROFESSIONAL_DARK',
   options,
+  ...rest
 }: BaseGridProps) => {
   const selectedTheme = GRID_THEMES[theme];
 
@@ -168,6 +169,7 @@ export const BaseGrid = ({
         enableCellTextSelection={true}
         headerHeight={selectedTheme.headerHeight || 48}
         rowHeight={selectedTheme.rowHeight || 40}
+        {...rest}
         {...options}
       />
     </div>

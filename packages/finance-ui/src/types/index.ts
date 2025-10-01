@@ -1,6 +1,6 @@
 import { ColDef } from 'ag-grid-community';
-import { AssetType, MarketDataType } from '@mtr/finance/core';
-import { MarketData } from '@mtr/finance/core';
+import { AssetType, MarketDataType } from '@mtr/finance-core';
+import { MarketData } from '@mtr/finance-core';
 
 export interface MarketTab {
   label: string;
@@ -34,3 +34,10 @@ export interface MarketViewerProps {
   onRowClicked?: (data: MarketData) => void;
   exchangeRate?: number;
 }
+
+export type InfiniteController<T> = {
+  items: T[];
+  loadNext: () => void;
+  hasNext: boolean;
+  isLoadingNext: boolean;
+};

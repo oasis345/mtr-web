@@ -1,8 +1,9 @@
 'use client';
-import { ColDef, ValueFormatterParams } from 'ag-grid-community';
+import { ColDef, ValueFormatterParams, ICellRendererParams } from 'ag-grid-community';
 import { MarketData, Currency } from '@mtr/finance-core';
 import { _ } from '@mtr/utils';
 import { percentFormatter, volumeFormatter, formatPrice, convertCurrency } from '@mtr/finance-core';
+import { SymbolCell } from './SymbolCell';
 
 // --- 거래량 컬럼 (조건부 포함) ---
 const volumeColumn: ColDef<MarketData> = {
@@ -35,8 +36,18 @@ const getBaseColumns = (opts: ColumnOpts): ColDef<MarketData>[] => {
   const { currency, exchangeRate = 1300 } = opts;
 
   return [
-    { field: 'symbol', headerName: '티커', flex: 1, minWidth: 100, maxWidth: 100 },
-    { field: 'name', headerName: '종목명', flex: 3, minWidth: 200, maxWidth: 500, sortable: true },
+    {
+      field: 'symbol',
+      headerName: '티커',
+      flex: 1,
+      minWidth: 400,
+      maxWidth: 400,
+      resizable: true,
+      cellRenderer: (params: ICellRendererParams<MarketData>) => {
+        return <SymbolCell data={params.data} />;
+      },
+    },
+    // { field: 'name', headerName: '종목명', flex: 3, minWidth: 200, maxWidth: 500, sortable: true },
     {
       field: 'price',
       headerName: '현재가',
@@ -48,7 +59,6 @@ const getBaseColumns = (opts: ColumnOpts): ColDef<MarketData>[] => {
         const convertedPrice = convertCurrency(value, {
           from: data.currency,
           to: currency,
-
           exchangeRate: exchangeRate,
         });
 
@@ -60,7 +70,7 @@ const getBaseColumns = (opts: ColumnOpts): ColDef<MarketData>[] => {
       },
     },
     {
-      field: 'changesPercentage',
+      field: 'changePercentage',
       headerName: '등락률',
       flex: 1,
       sortable: true,

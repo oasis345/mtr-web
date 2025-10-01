@@ -73,23 +73,27 @@ export const MarketViewer = ({
 
   return (
     <>
-      <div className="flex gap-4 mb-4">
-        <div className="flex-1 justify-start">
+      <div className="flex w-full gap-4 mb-4">
+        <div className="flex justify-start">
           <BaseTab data={assetTabs} defaultValue={selectedAsset} onValueChange={onAssetChange} />
         </div>
-        <div className="flex items-center gap-3">
-          {showDataTypeTabs && (
+        <div className="flex w-full justify-end gap-3">
+          <div className="justify-start">
+            {showDataTypeTabs && (
+              <BaseTab
+                data={dataTypeTabs}
+                defaultValue={selectedMarketDataType}
+                onValueChange={onMarketDataTypeChange}
+              />
+            )}
+          </div>
+          <div className="justify-end">
             <BaseTab
-              data={dataTypeTabs}
-              defaultValue={selectedMarketDataType}
-              onValueChange={onMarketDataTypeChange}
+              data={currencyTabs}
+              defaultValue={Currency.USD}
+              onValueChange={value => setCurrency(value as Currency)}
             />
-          )}
-          <BaseTab
-            data={currencyTabs}
-            defaultValue={Currency.USD}
-            onValueChange={value => setCurrency(value as Currency)}
-          />
+          </div>
         </div>
       </div>
 

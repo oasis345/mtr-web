@@ -2,11 +2,28 @@
 
 import dynamic from 'next/dynamic';
 import { PageLayout, Section } from '@mtr/ui';
-import { Suspense, use, useCallback, useEffect, useState } from 'react';
-import { MarketData } from '@mtr/finance-core';
-import { AssetHeader, ChartToolbar } from '@mtr/finance-ui';
+import { Suspense, use, useEffect, useMemo, useState } from 'react';
+import {
+  AssetHeader,
+  ChartToolbar,
+  CURRENCY_MAP,
+  DailyMarketPrice,
+  InfiniteController,
+} from '@mtr/finance-ui';
 import { useAppServices } from '@/store';
-import { useAssets } from '@mtr/hooks';
+import { useAssets, useCandles, useCurrency, useInfiniteCandles } from '@mtr/hooks';
+import {
+  AssetType,
+  Candle,
+  ChartLongTimeframe,
+  ChartTimeframe,
+  convertCurrency,
+  Currency,
+  formatPrice,
+  MarketDataType,
+} from '@mtr/finance-core';
+import { BaseTab, LoadingIndicator, LoadingSkeleton } from '@mtr/ui/client';
+import { dayjs } from '@mtr/utils';
 const AssetChart = dynamic(() => import('@mtr/finance-ui').then(mod => mod.AssetChart), {
   ssr: false,
 });
@@ -18,66 +35,126 @@ export default function AssetPage({
 }) {
   const { errorService, financialService } = useAppServices();
   const { assetType, symbol } = use(params);
+  const [timeframe, setTimeframe] = useState<ChartTimeframe>(ChartLongTimeframe.ONE_MONTH);
 
-  const { data, isLoading, isError, error } = useAssets({
-    assetType,
-    symbol,
-    fetchAssets: financialService.getAssets,
+  const candleParams = useMemo(
+    () => ({
+      assetType: assetType as AssetType,
+      symbols: [symbol],
+      dataType: MarketDataType.CANDLES,
+      timeframe,
+    }),
+    [assetType, symbol, timeframe],
+  );
+
+  const {
+    data: assetData,
+    isLoading: isLoadingAsset,
+    isError: isErrorAsset,
+    error: errorAsset,
+  } = useAssets({
+    params: {
+      assetType: assetType as AssetType,
+      symbols: [symbol],
+      dataType: MarketDataType.SYMBOL,
+    },
+    fetcher: financialService.getAssets,
   });
 
-  const candles = [
-    { time: '2018-12-22', open: 32.51, high: 32.51, low: 32.51, close: 32.51 },
-    { time: '2018-12-23', open: 31.11, high: 31.11, low: 31.11, close: 31.11 },
-    { time: '2018-12-24', open: 27.02, high: 27.02, low: 27.02, close: 27.02 },
-    { time: '2018-12-25', open: 27.32, high: 27.32, low: 27.32, close: 27.32 },
-  ];
-  const volumes = [
-    { time: '2018-12-22', value: 32.51 },
-    { time: '2018-12-23', value: 31.11 },
-    { time: '2018-12-24', value: 27.02 },
-    { time: '2018-12-25', value: 27.32 },
-  ];
+  const { currency, setCurrency, formattedPrice } = useCurrency(
+    1300,
+    assetData,
+    assetType as AssetType,
+  );
+
+  const {
+    data: chartData,
+    isLoading: isLoadingChart,
+    isError: isErrorChart,
+    error: errorChart,
+  } = useCandles({
+    params: {
+      assetType: assetType as AssetType,
+      symbols: [symbol],
+      dataType: MarketDataType.CANDLES,
+      timeframe,
+    },
+    fetcher: financialService.getCandles,
+  });
+
+  // useInfiniteQuery 훅 호출
+  const infiniteQuery = useInfiniteCandles(
+    {
+      assetType: assetType as AssetType,
+      symbols: [symbol],
+      dataType: MarketDataType.CANDLES,
+      timeframe: ChartLongTimeframe.ONE_DAY,
+      limit: 100,
+    },
+    financialService.getCandles,
+  );
+
+  const controller: InfiniteController<Candle> = {
+    items: infiniteQuery.data ?? [],
+    loadNext: () => infiniteQuery.fetchNextPage(),
+    hasNext: !!infiniteQuery.hasNextPage,
+    isLoadingNext: infiniteQuery.isFetchingNextPage,
+  };
 
   useEffect(() => {
-    if (isError) errorService.notify(error);
-  }, [isError, error]);
+    if (isErrorAsset) errorService.notify(errorAsset);
+    if (isErrorChart) errorService.notify(errorChart);
+    if (infiniteQuery.isError) errorService.notify(infiniteQuery.error);
+  }, [isErrorAsset, isErrorChart, infiniteQuery.isError]);
 
-  if (isLoading) return <div>Loading...</div>;
-
-  return PageLayout({
-    variant: 'sidebar',
-    main: (
-      <>
-        <Suspense fallback={<div>Loading...</div>}>
-          <Section>
-            <AssetHeader {...data} />
-            <ChartToolbar
-              interval="1m"
-              onIntervalChange={() => {}}
-              showMA={true}
-              showVolume={true}
-              onToggleMA={() => {}}
-              onToggleVolume={() => {}}
-            />
+  return (
+    <PageLayout variant="sidebar">
+      <PageLayout.Main>
+        <Section variant="card" borderless>
+          <Section.Header>
+            <div className="flex  items-center gap-2">
+              <div className="flex-1 justify-start">
+                <AssetHeader {...assetData} price={formattedPrice} />
+              </div>
+              <div className="justify-end">
+                <BaseTab
+                  data={CURRENCY_MAP}
+                  defaultValue={currency}
+                  onValueChange={value => setCurrency(value as Currency)}
+                />
+              </div>
+            </div>
+          </Section.Header>
+          <Section.Content>
+            <ChartToolbar />
             <AssetChart
-              mode="candles"
-              candles={candles}
-              volumes={volumes}
+              candles={chartData?.candles}
+              volumes={chartData?.volumes}
               precision={4}
-              onTimeframeChange={() => {}}
+              defaultTimeframe={timeframe}
+              assetType={assetType as AssetType}
+              currency={assetData?.currency}
+              onTimeframeChange={(timeframe: ChartTimeframe) => setTimeframe(timeframe)}
             />
-          </Section>
-        </Suspense>
-
-        <Section title="인기 급상승 커뮤니티" variant="card">
-          <div>섹션 2 콘텐츠</div>
+          </Section.Content>
         </Section>
-      </>
-    ),
-    aside: (
-      <Section title="호가" variant="card">
-        <div>123</div>
-      </Section>
-    ),
-  });
+
+        <Section variant="card" borderless>
+          <Section.Header>일별 실시간 시세</Section.Header>
+          <Section.Content>
+            <DailyMarketPrice currency={currency} controller={controller} />
+          </Section.Content>
+        </Section>
+      </PageLayout.Main>
+
+      <PageLayout.Aside>
+        <Section variant="card" borderless>
+          <Section.Header>호가</Section.Header>
+          <Section.Content>
+            <div>123</div>
+          </Section.Content>
+        </Section>
+      </PageLayout.Aside>
+    </PageLayout>
+  );
 }

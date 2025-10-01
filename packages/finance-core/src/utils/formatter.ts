@@ -113,3 +113,28 @@ export const formatPrice = (
 
   return price.toLocaleString();
 };
+
+export const formatPriceByCurrency = ({
+  price,
+  from,
+  to,
+  exchangeRate,
+  assetType,
+}: {
+  price: number;
+  from: Currency;
+  to: Currency;
+  exchangeRate: number;
+  assetType: AssetType;
+}): string => {
+  const convertedPrice = convertCurrency(price, {
+    from,
+    to,
+    exchangeRate: exchangeRate,
+  });
+
+  return formatPrice(convertedPrice, {
+    currency: to,
+    assetType,
+  });
+};

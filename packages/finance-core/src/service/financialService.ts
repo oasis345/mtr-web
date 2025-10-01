@@ -1,6 +1,8 @@
 import { HttpClient } from '@mtr/network-core';
 import {
-  AssetParams,
+  AssetQueryParams,
+  CandleQueryParams,
+  CandleResponse,
   FINANCIAL_ROUTES,
   FinancialService,
   MarketData,
@@ -8,21 +10,30 @@ import {
 } from '@mtr/finance-core';
 
 export const createFinancialService = (httpClient: HttpClient): FinancialService => {
-  const getAssets = async ({ assetType, symbol }: AssetParams): Promise<MarketData[]> => {
-    const { data } = await httpClient.get<MarketData[]>(FINANCIAL_ROUTES.FINANCIAL.MARKET, {
+  const getAssets = async ({ assetType, symbols }: AssetQueryParams): Promise<MarketData[]> => {
+    const response = await httpClient.get<MarketData[]>(FINANCIAL_ROUTES.FINANCIAL.MARKET, {
       assetType,
       dataType: MarketDataType.SYMBOL,
-      symbols: [symbol],
+      symbols,
     });
+    const { data } = response;
+    if (!data) throw new Error(response.message);
+    return data;
+  };
 
-    if (!data || data.length === 0) {
-      throw new Error(`[API] Asset not found for symbol: ${symbol}`);
-    }
+  const getCandles = async (params: CandleQueryParams): Promise<CandleResponse> => {
+    const response = await httpClient.get<CandleResponse>(
+      FINANCIAL_ROUTES.FINANCIAL.CANDLES,
+      params,
+    );
 
+    const { data } = response;
+    if (!data) throw new Error(response.message);
     return data;
   };
 
   return {
     getAssets,
+    getCandles,
   };
 };

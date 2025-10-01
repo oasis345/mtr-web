@@ -1,7 +1,6 @@
-import { ReactNode } from 'react';
+import React, { ReactNode, Children, isValidElement } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../../lib/utils';
-import { Heading } from '../../typography/Heading';
 import {
   Card,
   CardHeader,
@@ -26,76 +25,70 @@ export const sectionVariants = cva('', {
       md: 'mb-4',
       lg: 'mb-6',
     },
-    divider: {
-      none: '',
-      border: 'pb-4 border-b border-border last:border-b-0',
-    },
   },
-  compoundVariants: [
-    { layout: 'main', spacing: 'lg', className: 'mb-6' },
-    { layout: 'sidebar', spacing: 'md', className: 'mb-4' },
-  ],
   defaultVariants: {
     layout: 'main',
     variant: 'default',
     spacing: 'md',
-    divider: 'none',
   },
 });
 
-type TitleSize = 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl';
-const titleSizeClass: Record<TitleSize, string> = {
-  sm: 'text-sm',
-  base: 'text-base',
-  lg: 'text-lg',
-  xl: 'text-xl',
-  '2xl': 'text-2xl',
-  '3xl': 'text-3xl',
-};
+// --- Compound Components ---
+const Header = ({ children }: { children: ReactNode }) => <>{children}</>;
+Header.displayName = 'Section.Header';
 
-export interface SectionProps extends VariantProps<typeof sectionVariants> {
-  title?: string;
+const Content = ({ children }: { children: ReactNode }) => <>{children}</>;
+Content.displayName = 'Section.Content';
+
+const Footer = ({ children }: { children: ReactNode }) => <>{children}</>;
+Footer.displayName = 'Section.Footer';
+
+// --- Main Section Component ---
+interface SectionProps extends VariantProps<typeof sectionVariants> {
   children: ReactNode;
-  footer?: ReactNode;
   className?: string;
-  titleAs?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
-  titleSize?: TitleSize;
+  borderless?: boolean; // borderless prop 다시 추가
 }
 
 export const Section = ({
-  title,
   children,
-  footer,
   layout = 'main',
   variant = 'default',
   spacing = 'md',
-  divider = 'none',
-  titleAs = 'h2',
-  titleSize = 'lg',
+  borderless = false, // 기본값은 false (테두리 있음)
   className,
 }: SectionProps) => {
-  const Wrapper: any = layout === 'main' ? 'section' : 'div';
-  const baseClasses = sectionVariants({ layout, variant, spacing, divider });
+  let header: ReactNode = null;
+  let content: ReactNode = null;
+  let footer: ReactNode = null;
 
-  const renderTitle = () =>
-    title ? (
-      <Heading as={titleAs} className={cn('mb-4 font-medium', titleSizeClass[titleSize])}>
-        {title}
-      </Heading>
-    ) : null;
+  Children.forEach(children, child => {
+    if (isValidElement(child)) {
+      if (child.type === Header) header = child.props.children;
+      if (child.type === Content) content = child.props.children;
+      if (child.type === Footer) footer = child.props.children;
+    }
+  });
+  
+  if (!content && !header && !footer) {
+    content = children;
+  }
+
+  const Wrapper: any = layout === 'main' ? 'section' : 'div';
+  const baseClasses = sectionVariants({ layout, variant, spacing });
 
   if (variant === 'card') {
     return (
-      <Wrapper className={cn(sectionVariants({ layout, spacing, divider }), className)}>
-        <Card>
-          {title && (
+      <Wrapper className={cn(baseClasses, className)}>
+        <Card className={cn(
+          borderless ? 'border-0' : 'dark:border' // borderless가 true면 항상 테두리 없음
+        )}>
+          {header && (
             <CardHeader>
-              <CardTitle className={cn('font-medium', titleSizeClass[titleSize])}>
-                {title}
-              </CardTitle>
+              <CardTitle>{header}</CardTitle>
             </CardHeader>
           )}
-          <CardContent>{children}</CardContent>
+          {content && <CardContent>{content}</CardContent>}
           {footer && <CardFooter>{footer}</CardFooter>}
         </Card>
       </Wrapper>
@@ -104,8 +97,14 @@ export const Section = ({
 
   return (
     <Wrapper className={cn(baseClasses, className)}>
-      {renderTitle()}
-      <div>{children}</div>
+      {header && <header className="mb-4">{header}</header>}
+      {content && <div>{content}</div>}
+      {footer && <footer className="mt-4">{footer}</footer>}
     </Wrapper>
   );
 };
+
+// --- Attach Compound Components ---
+Section.Header = Header;
+Section.Content = Content;
+Section.Footer = Footer;

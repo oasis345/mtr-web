@@ -20,3 +20,26 @@
   앱 전용 스타일은 여기에 추가할 수 있지만,
   테마 변수(:root)를 직접 덮어쓰는 것은 피하는 것이 좋습니다.
 */
+
+/* TradingView 로고 숨기기 */
+.tv-lightweight-charts [data-name='watermark'] {
+  display: none !important;
+}
+
+.tv-lightweight-charts .tv-watermark {
+  display: none !important;
+}
+
+/* 추가 워터마크 제거 */
+.tv-lightweight-charts a[href*='tradingview'] {
+  display: none !important;
+}
+
+.tv-lightweight-charts [class*='watermark'] {
+  display: none !important;
+}
+
+/* 더 강력한 방법 */
+.tv-lightweight-charts > div:last-child {
+  display: none !important;
+}

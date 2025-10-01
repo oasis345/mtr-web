@@ -1,15 +1,17 @@
 'use client';
 
-import { BaseTab, Combobox, LightWeightCharts } from '@mtr/ui/client';
+import { Combobox } from '@mtr/ui/client';
+import { LightWeightCharts } from './charts';
 import { CHART_LONG_TIMEFRAMES_MAP, CHART_SHORT_TIMEFRAMES_MAP } from '../const';
-import { ChartLongTimeframe, ChartShortTimeframe } from '@mtr/finance-core';
+import { AssetType, ChartTimeframe, Currency } from '@mtr/finance-core';
 
 type Candle = { time: number | string; open: number; high: number; low: number; close: number };
 type Volume = { time: number | string; value: number; color?: string };
 
 type AssetChartProps = {
-  mode?: 'candles' | 'area';
   height?: number;
+  assetType?: AssetType;
+  currency?: Currency;
   candles?: Candle[];
   volumes?: Volume[];
   areaData?: { time: number | string; value: number }[];
@@ -18,11 +20,11 @@ type AssetChartProps = {
   showVolume?: boolean; // 기본 true
   showMA?: number[]; // 기본 [5,20,60,120]
   className?: string;
-  onTimeframeChange?: (timeframe: string) => void;
+  defaultTimeframe?: ChartTimeframe;
+  onTimeframeChange?: (timeframe: ChartTimeframe) => void;
 };
 
 export const AssetChart = ({
-  mode = 'candles',
   height = 420,
   candles = [],
   volumes = [],
@@ -31,29 +33,29 @@ export const AssetChart = ({
   showVolume = true,
   showMA = [5, 20, 60, 120],
   className,
+  assetType,
+  currency,
   onTimeframeChange,
+  defaultTimeframe,
 }: AssetChartProps) => {
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-2">
         <Combobox
-          items={[...CHART_SHORT_TIMEFRAMES_MAP]}
-          defaultValue={ChartShortTimeframe.FIVE_MINUTES}
-          onValueChange={onTimeframeChange}
-        />
-        <BaseTab
-          data={CHART_LONG_TIMEFRAMES_MAP}
-          defaultValue={ChartLongTimeframe.ONE_DAY}
+          items={[...CHART_SHORT_TIMEFRAMES_MAP, ...CHART_LONG_TIMEFRAMES_MAP]}
+          defaultValue={defaultTimeframe}
           onValueChange={onTimeframeChange}
         />
       </div>
       <LightWeightCharts
-        mode={mode}
         height={height}
+        assetType={assetType}
+        currency={currency}
         candles={candles}
         volumes={volumes}
         areaData={areaData}
         show={{ volume: showVolume, ma: showMA }}
+        showOHLC={true} // OHLC 정보 표시
         priceFormat={{
           type: 'price',
           precision,

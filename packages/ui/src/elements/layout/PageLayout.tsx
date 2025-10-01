@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { Children, ReactNode, isValidElement } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../lib/utils';
 
@@ -62,9 +62,16 @@ const sidebarStyles = cva('flex-shrink-0', {
   },
 });
 
+// --- 하위 컴포넌트 정의 ---
+const Main = ({ children }: { children: ReactNode }) => <>{children}</>;
+Main.displayName = 'PageLayout.Main';
+
+const Aside = ({ children }: { children: ReactNode }) => <>{children}</>;
+Aside.displayName = 'PageLayout.Aside';
+// ---
+
 export interface PageLayoutProps extends VariantProps<typeof pageLayoutStyles> {
-  main: ReactNode;
-  aside?: ReactNode;
+  children: ReactNode;
   asideWidth?: VariantProps<typeof sidebarStyles>['width'];
   asidePosition?: 'left' | 'right';
   asidePadding?: VariantProps<typeof sidebarStyles>['padding'];
@@ -76,8 +83,7 @@ export interface PageLayoutProps extends VariantProps<typeof pageLayoutStyles> {
 export const PageLayout = ({
   variant = 'fullwidth',
   padding = 'md',
-  main,
-  aside,
+  children,
   asideWidth = 'optimal',
   asidePosition = 'right',
   asidePadding = 'md',
@@ -92,15 +98,29 @@ export const PageLayout = ({
     padding: asidePadding,
   });
 
-  if (variant === 'sidebar' && aside) {
+  // children에서 Main과 Aside 컴포넌트를 찾아 분리합니다.
+  let mainContent: ReactNode = null;
+  let asideContent: ReactNode = null;
+
+  Children.forEach(children, child => {
+    if (isValidElement(child)) {
+      if (child.type === Main) {
+        mainContent = child;
+      } else if (child.type === Aside) {
+        asideContent = child;
+      }
+    }
+  });
+
+  if (variant === 'sidebar' && asideContent) {
     return (
       <div className={cn(layoutClasses, pageClasses)}>
         {asidePosition === 'left' && (
-          <aside className={cn(sidebarClasses, asideClasses)}>{aside}</aside>
+          <aside className={cn(sidebarClasses, asideClasses)}>{asideContent}</aside>
         )}
-        <main className={cn(contentClasses, mainClasses)}>{main}</main>
+        <main className={cn(contentClasses, mainClasses)}>{mainContent}</main>
         {asidePosition === 'right' && (
-          <aside className={cn(sidebarClasses, asideClasses)}>{aside}</aside>
+          <aside className={cn(sidebarClasses, asideClasses)}>{asideContent}</aside>
         )}
       </div>
     );
@@ -108,7 +128,11 @@ export const PageLayout = ({
 
   return (
     <div className={cn(layoutClasses, pageClasses)}>
-      <main className={cn(contentClasses, mainClasses)}>{main}</main>
+      <main className={cn(contentClasses, mainClasses)}>{mainContent || children}</main>
     </div>
   );
 };
+
+// 생성한 하위 컴포넌트를 PageLayout에 연결합니다.
+PageLayout.Main = Main;
+PageLayout.Aside = Aside;
