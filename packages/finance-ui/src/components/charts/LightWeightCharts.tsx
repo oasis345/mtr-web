@@ -9,241 +9,214 @@ import {
   CandlestickSeries,
   HistogramSeries,
   MouseEventParams,
+  LogicalRange,
+  SeriesDefinition,
+  CrosshairMode,
 } from 'lightweight-charts';
 import { OHLCInfo } from '../OHLCinfo';
+import {
+  AssetType,
+  Candle,
+  ChartData,
+  ChartShortTimeframe,
+  ChartTimeframe,
+  Currency,
+} from '@mtr/finance-core';
 
-// Type definitions (Area 관련 제거)
-type Candle = { time: number | string; open: number; high: number; low: number; close: number };
-type Volume = { time: number | string; value: number; color?: string };
-type ChartColors = {
-  backgroundColor?: string;
-  textColor?: string;
-  gridColor?: string;
-  upColor?: string;
-  downColor?: string;
-  volumeColor?: string;
-};
-type PriceFormat =
-  | { type: 'price'; precision?: number; minMove?: number }
-  | { type: 'volume' }
-  | { type: 'custom'; formatter: (price: number) => string };
-type ShowOptions = {
-  volume?: boolean;
-};
 type LightWeightChartProps = {
+  timeframe: ChartTimeframe;
+  data: ChartData[];
   height?: number;
   className?: string;
-  colors?: ChartColors;
-  priceFormat?: PriceFormat;
-  candles?: Candle[];
-  volumes?: Volume[];
-  show?: ShowOptions;
-  showOHLC?: boolean;
+  onVisibleLogicalRangeChange?: (range: LogicalRange | null) => void;
 };
 
-const defaultColors: Required<ChartColors> = {
+const DefaultColors = {
   backgroundColor: 'transparent',
   textColor: '#e5e7eb',
   gridColor: '#1f2937',
-  upColor: '#ef4444', // 상승 캔들 = 빨간색 (red-500)
-  downColor: '#3b82f6', // 하락 캔들 = 파란색 (blue-500)
+  upColor: '#ef4444',
+  downColor: '#3b82f6',
   volumeColor: '#ef4444',
 };
 
 export const LightWeightCharts = ({
-  height = 360,
   className,
-  colors,
-  priceFormat,
-  candles = [],
-  volumes = [],
-  show = { volume: true },
-  showOHLC = true,
-  currency = 'USD',
-  assetType,
+  data,
+  height = 360,
+  timeframe,
+  onVisibleLogicalRangeChange,
 }: LightWeightChartProps) => {
-  const palette = useMemo(() => ({ ...defaultColors, ...(colors || {}) }), [colors]);
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<IChartApi>(null);
+  const chartSeriesRef = useRef<ISeriesApi<CandlestickSeries>>(null);
+  const volumeContainerRef = useRef<HTMLDivElement>(null);
+  const volumeChartRef = useRef<IChartApi>(null);
+  const volumeSeriesRef = useRef<ISeriesApi<HistogramSeries>>(null);
+  const chartHeight = useMemo(() => height * 0.5, [height]);
+  const volumeHeight = useMemo(() => height * 0.5, [height]);
 
-  const mainContainerRef = useRef<HTMLDivElement | null>(null);
-  const volumeContainerRef = useRef<HTMLDivElement | null>(null);
-  const mainChartRef = useRef<IChartApi | null>(null);
-  const volumeChartRef = useRef<IChartApi | null>(null);
-  const mainSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
-  const volumeSeriesRef = useRef<ISeriesApi<'Histogram'> | null>(null);
-
-  const [currentCandle, setCurrentCandle] = useState<Candle | undefined>();
-  const [currentVolume, setCurrentVolume] = useState<Volume | undefined>();
-
-  const transformedVolumes = useMemo(() => {
-    return volumes.map(v => {
-      const correspondingCandle = candles.find(c => c.time === v.time);
-      return {
-        ...v,
-        color:
-          v.color ||
-          (correspondingCandle && correspondingCandle.close >= correspondingCandle.open
-            ? `${palette.upColor}CC` // 상승: 빨강 (80% 불투명도)
-            : `${palette.downColor}CC`), // 하락: 파랑 (80% 불투명도)
-      };
-    });
-  }, [volumes, candles, palette.upColor, palette.downColor]);
-
-  const mainHeight = show.volume ? Math.floor(height * 0.7) : height;
-  const volumeHeight = show.volume ? Math.floor(height * 0.3) : 0;
-
+  // Create chart
   useEffect(() => {
-    if (candles.length > 0) setCurrentCandle(candles[candles.length - 1]);
-    if (volumes.length > 0) setCurrentVolume(volumes[volumes.length - 1]);
-  }, [candles, volumes]);
-
-  // 메인 차트 생성 + 시리즈 생성 (통합)
-  useEffect(() => {
-    if (!mainContainerRef.current) return;
-
-    const chart = createChart(mainContainerRef.current, {
+    const chart = createChart(chartContainerRef.current, {
       layout: {
-        background: { type: ColorType.Solid, color: palette.backgroundColor },
-        textColor: palette.textColor,
+        background: { type: ColorType.Solid, color: 'transparent' },
+        textColor: '#e5e7eb',
       },
-      width: mainContainerRef.current.clientWidth,
-      height: mainHeight,
-      rightPriceScale: { borderVisible: false, scaleMargins: { top: 0.1, bottom: 0.1 } },
+      grid: { vertLines: { visible: false }, horzLines: { color: DefaultColors.gridColor } },
       timeScale: {
+        visible: false,
+        lockVisibleTimeRangeOnResize: true,
+      },
+      rightPriceScale: {
         borderVisible: false,
-        timeVisible: true,
-        secondsVisible: false,
-        visible: !show.volume,
+        scaleMargins: {
+          top: 0.4,
+          bottom: 0,
+        },
+        alignLabels: true,
       },
-      grid: { vertLines: { visible: false }, horzLines: { color: palette.gridColor } },
     });
+    chartRef.current = chart;
 
-    // 캔들스틱 시리즈 생성
-    const mainSeries = chart.addSeries(CandlestickSeries, {
-      upColor: palette.upColor,
-      downColor: palette.downColor,
-      wickUpColor: palette.upColor,
-      wickDownColor: palette.downColor,
+    chartSeriesRef.current = chart.addSeries(CandlestickSeries, {
+      upColor: DefaultColors.upColor,
+      downColor: DefaultColors.downColor,
+      wickUpColor: DefaultColors.upColor,
+      wickDownColor: DefaultColors.downColor,
       borderVisible: false,
-      priceFormat:
-        priceFormat?.type === 'price'
-          ? priceFormat
-          : { type: 'price', precision: 4, minMove: 0.0001 },
+      priceFormat: { type: 'price' },
     });
-    mainSeries.setData(candles);
 
-    mainChartRef.current = chart;
-    mainSeriesRef.current = mainSeries;
+    chart.timeScale().subscribeVisibleLogicalRangeChange(range => {
+      volumeChartRef.current.timeScale().setVisibleLogicalRange(range);
 
-    if (candles.length > 0) {
-      chart.timeScale().fitContent();
-    }
-
-    const resizeHandler = () => chart.applyOptions({ width: mainContainerRef.current.clientWidth });
-    window.addEventListener('resize', resizeHandler);
+      if (range && range.from < 10) {
+        onVisibleLogicalRangeChange?.(range);
+      }
+    });
 
     return () => {
-      window.removeEventListener('resize', resizeHandler);
       chart.remove();
-      mainChartRef.current = null;
-      mainSeriesRef.current = null;
     };
-  }, [mainHeight, palette, priceFormat, show.volume]);
+  }, [timeframe]);
 
-  // 볼륨 차트 생성 + 시리즈 생성 (통합)
+  // create volume
   useEffect(() => {
-    if (!show.volume || !volumeContainerRef.current) return;
-
-    const chart = createChart(volumeContainerRef.current, {
+    const showTime = Object.values(ChartShortTimeframe).includes(timeframe);
+    const volume = createChart(volumeContainerRef.current, {
       layout: {
-        background: { type: ColorType.Solid, color: palette.backgroundColor },
-        textColor: palette.textColor,
+        background: { type: ColorType.Solid, color: 'transparent' },
+        textColor: '#e5e7eb',
       },
-      width: volumeContainerRef.current.clientWidth,
-      height: volumeHeight,
-      rightPriceScale: { borderVisible: false, scaleMargins: { top: 0.2, bottom: 0 } },
-      timeScale: { borderVisible: false, timeVisible: true, secondsVisible: false },
-      grid: { vertLines: { visible: false }, horzLines: { color: palette.gridColor } },
+      grid: { vertLines: { visible: false }, horzLines: { color: DefaultColors.gridColor } },
+      rightPriceScale: {
+        borderVisible: false,
+        scaleMargins: {
+          top: 0.4,
+          bottom: 0,
+        },
+        alignLabels: true,
+      },
+      timeScale: {
+        borderVisible: true,
+        timeVisible: showTime,
+        secondsVisible: false,
+        lockVisibleTimeRangeOnResize: true,
+      },
     });
-
-    // 볼륨 시리즈 생성
-    const volumeSeries = chart.addSeries(HistogramSeries, {
+    volumeChartRef.current = volume;
+    volumeSeriesRef.current = volume.addSeries(HistogramSeries, {
+      color: DefaultColors.volumeColor,
       priceFormat: { type: 'volume' },
-      base: 0,
+      priceLineVisible: false,
     });
-    volumeSeries.setData(transformedVolumes);
-
-    volumeChartRef.current = chart;
-    volumeSeriesRef.current = volumeSeries;
-
-    const resizeHandler = () =>
-      chart.applyOptions({ width: volumeContainerRef.current.clientWidth });
-    window.addEventListener('resize', resizeHandler);
+    volume.timeScale().applyOptions({ barSpacing: 10 });
+    volume.timeScale().subscribeVisibleLogicalRangeChange(range => {
+      chartRef.current.timeScale().setVisibleLogicalRange(range);
+    });
 
     return () => {
-      window.removeEventListener('resize', resizeHandler);
-      chart.remove();
-      volumeChartRef.current = null;
-      volumeSeriesRef.current = null;
+      volumeChartRef.current.remove();
     };
-  }, [show.volume, volumeHeight, palette]);
+  }, [timeframe]);
 
-  // 데이터 업데이트 (차트 재생성 없이)
+  // Update chart series
   useEffect(() => {
-    if (mainSeriesRef.current) {
-      mainSeriesRef.current.setData(candles);
-      if (candles.length > 0) mainChartRef.current?.timeScale().fitContent();
-    }
-  }, [candles]);
+    if (!data || !chartRef.current) return;
 
+    chartSeriesRef.current?.setData(data?.candles);
+    volumeSeriesRef.current?.setData(data?.volumes);
+    // const visbleFrom = data?.candles.length - 50;
+    // const visbleTo = data?.candles.length;
+    // chartRef.current.timeScale().setVisibleLogicalRange({ from: visbleFrom, to: visbleTo });
+    // volumeChartRef.current.timeScale().setVisibleLogicalRange({ from: visbleFrom, to: visbleTo });
+  }, [data]);
+
+  // resize
   useEffect(() => {
-    if (volumeSeriesRef.current) {
-      volumeSeriesRef.current.setData(transformedVolumes);
-    }
-  }, [transformedVolumes]);
-
-  // 이벤트 핸들러 & 동기화
-  useEffect(() => {
-    const mainChart = mainChartRef.current;
-    const volumeChart = volumeChartRef.current;
-    if (!mainChart || !volumeChart) return;
-
-    const syncHandler = (range: any) => {
-      if (range) volumeChart.timeScale().setVisibleRange(range);
+    const handleResize = () => {
+      chartRef.current.applyOptions({ width: chartContainerRef.current.clientWidth });
+      volumeChartRef.current.applyOptions({ width: volumeContainerRef.current.clientWidth });
     };
-    mainChart.timeScale().subscribeVisibleTimeRangeChange(syncHandler);
+    window.addEventListener('resize', handleResize);
 
-    const crosshairHandler = (param: MouseEventParams) => {
-      const time = param.time;
-      if (!time) {
-        setCurrentCandle(candles[candles.length - 1]);
-        setCurrentVolume(volumes[volumes.length - 1]);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  // sync crosshair
+  useEffect(() => {
+    if (
+      !chartRef.current ||
+      !volumeChartRef.current ||
+      !data?.candles?.length ||
+      !data?.volumes?.length
+    )
+      return;
+
+    const getCrosshairDataPoint = (series, param) => {
+      if (!param.time) {
+        return null;
+      }
+      const dataPoint = param.seriesData.get(series);
+      return dataPoint || null;
+    };
+
+    const syncCrosshair = (chart, series, dataPoint) => {
+      if (dataPoint) {
+        chart.setCrosshairPosition(dataPoint.value, dataPoint.time, series);
         return;
       }
-      const candle = candles.find(c => c.time === time);
-      const volume = volumes.find(v => v.time === time);
-      if (candle) setCurrentCandle(candle);
-      if (volume) setCurrentVolume(volume);
+      chart.clearCrosshairPosition();
     };
-    mainChart.subscribeCrosshairMove(crosshairHandler);
+
+    const chartToVolumeHandler = param => {
+      const point = getCrosshairDataPoint(chartSeriesRef.current, param);
+      syncCrosshair(volumeChartRef.current, volumeSeriesRef.current, point);
+    };
+
+    const volumeToChartHandler = param => {
+      const point = getCrosshairDataPoint(volumeSeriesRef.current, param);
+      syncCrosshair(chartRef.current, chartSeriesRef.current, point);
+    };
+
+    chartRef.current.subscribeCrosshairMove(chartToVolumeHandler);
+    volumeChartRef.current.subscribeCrosshairMove(volumeToChartHandler);
 
     return () => {
-      mainChart.timeScale().unsubscribeVisibleTimeRangeChange(syncHandler);
-      mainChart.unsubscribeCrosshairMove(crosshairHandler);
+      chartRef.current.unsubscribeCrosshairMove(chartToVolumeHandler);
+      volumeChartRef.current.unsubscribeCrosshairMove(volumeToChartHandler);
     };
-  }, [candles, volumes, show.volume]);
+
+    console.log('syncCrosshair', data);
+  }, [timeframe, data]);
 
   return (
-    <div className={className ?? 'w-full'}>
-      {showOHLC && (
-        <OHLCInfo
-          candle={currentCandle}
-          volume={currentVolume}
-          currency={currency}
-          assetType={assetType}
-        />
-      )}
-      <div ref={mainContainerRef} style={{ height: mainHeight }} />
-      {show.volume && <div ref={volumeContainerRef} style={{ height: volumeHeight }} />}
+    <div className={className ?? 'flex flex-col gap-y-2 w-full'}>
+      <div ref={chartContainerRef} style={{ height: chartHeight }} />
+      <div ref={volumeContainerRef} style={{ height: volumeHeight }} />
     </div>
   );
 };

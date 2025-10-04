@@ -18,19 +18,24 @@ export type ComboboxItem = {
   label: string;
 };
 
+type ComboboxProps = {
+  items: ComboboxItem[];
+  // 'defaultValue' 대신 'value'를 받습니다.
+  value?: string | null;
+  onValueChange?: (value: string) => void;
+  placeholder?: string;
+  searchPlaceholder?: string;
+  emptyText?: string;
+};
+
 export function Combobox({
   items,
-  defaultValue,
+  value,
   onValueChange,
-}: {
-  items: ComboboxItem[];
-  defaultValue: string;
-  onValueChange: (value: string) => void;
-}) {
+  placeholder = 'Select item...',
+}: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState(defaultValue);
-
-  const selectedItem = items.find(item => item.value === value);
+  const selectedLabel = items.find(item => item.value === value)?.label;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -41,7 +46,7 @@ export function Combobox({
           aria-expanded={open}
           className="w-[200px] justify-between"
         >
-          {selectedItem?.label ?? 'Select item...'}
+          <span>{value ? selectedLabel : placeholder}</span>
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -57,7 +62,6 @@ export function Combobox({
                   value={item.value}
                   onSelect={currentValue => {
                     const newValue = currentValue === value ? '' : currentValue;
-                    setValue(newValue);
                     onValueChange(newValue);
                     setOpen(false);
                   }}

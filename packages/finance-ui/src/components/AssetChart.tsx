@@ -1,68 +1,72 @@
 'use client';
 
+import { useMemo, useRef, useState } from 'react';
+import _ from 'lodash';
+import { type LogicalRange } from 'lightweight-charts';
 import { Combobox } from '@mtr/ui/client';
 import { LightWeightCharts } from './charts';
 import { CHART_LONG_TIMEFRAMES_MAP, CHART_SHORT_TIMEFRAMES_MAP } from '../const';
-import { AssetType, ChartTimeframe, Currency } from '@mtr/finance-core';
-
-type Candle = { time: number | string; open: number; high: number; low: number; close: number };
-type Volume = { time: number | string; value: number; color?: string };
+import { AssetType, ChartData, ChartTimeframe, Currency } from '@mtr/finance-core';
+import { InfiniteController } from '../types';
 
 type AssetChartProps = {
   height?: number;
   assetType?: AssetType;
   currency?: Currency;
-  candles?: Candle[];
-  volumes?: Volume[];
-  areaData?: { time: number | string; value: number }[];
-  // 도메인 기본값: 코인/주식 공통 소수점
-  precision?: number; // 기본 4
-  showVolume?: boolean; // 기본 true
-  showMA?: number[]; // 기본 [5,20,60,120]
+  timeFrameController?: InfiniteController<ChartData>;
+  precision?: number;
+  showVolume?: boolean;
   className?: string;
   defaultTimeframe?: ChartTimeframe;
+  timeframe?: ChartTimeframe;
   onTimeframeChange?: (timeframe: ChartTimeframe) => void;
 };
 
 export const AssetChart = ({
   height = 420,
-  candles = [],
-  volumes = [],
-  areaData = [],
-  precision = 4,
-  showVolume = true,
-  showMA = [5, 20, 60, 120],
+  timeFrameController,
   className,
-  assetType,
-  currency,
+  timeframe,
   onTimeframeChange,
-  defaultTimeframe,
 }: AssetChartProps) => {
+  const { items, loadNext, hasNext, isLoadingNext } = timeFrameController || {};
+
+  const controllerStateRef = useRef({ loadNext, hasNext, isLoadingNext });
+  controllerStateRef.current = { loadNext, hasNext, isLoadingNext };
+
+  const handleVisibleLogicalRangeChange = useMemo(
+    () =>
+      _.debounce((range: LogicalRange | null) => {
+        const { hasNext, isLoadingNext, loadNext } = controllerStateRef.current;
+
+        if (!range || !hasNext || isLoadingNext || !loadNext) {
+          return;
+        }
+
+        if (hasNext) {
+          loadNext();
+        }
+      }, 300),
+    [], // 의존성 배열을 비워 함수가 절대 재생성되지 않도록 합니다.
+  );
+
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-2">
         <Combobox
+          value={timeframe}
           items={[...CHART_SHORT_TIMEFRAMES_MAP, ...CHART_LONG_TIMEFRAMES_MAP]}
-          defaultValue={defaultTimeframe}
-          onValueChange={onTimeframeChange}
+          onValueChange={(timeframe: ChartTimeframe) => {
+            onTimeframeChange?.(timeframe);
+          }}
         />
       </div>
       <LightWeightCharts
         height={height}
-        assetType={assetType}
-        currency={currency}
-        candles={candles}
-        volumes={volumes}
-        areaData={areaData}
-        show={{ volume: showVolume, ma: showMA }}
-        showOHLC={true} // OHLC 정보 표시
-        priceFormat={{
-          type: 'price',
-          precision,
-          minMove: Number((1 / Math.pow(10, precision)).toFixed(precision)),
-        }}
-        colors={{ backgroundColor: 'transparent' }}
+        timeframe={timeframe}
+        data={items}
         className={className}
+        onVisibleLogicalRangeChange={handleVisibleLogicalRangeChange}
       />
     </div>
   );

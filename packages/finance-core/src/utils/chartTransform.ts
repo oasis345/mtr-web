@@ -95,7 +95,7 @@ export const transformCandlesToVolume = (
     .map(c => ({
       time: formatTimeByTimeframe(c.timestamp, timeframe),
       value: c.volume,
-      color: c.close >= c.open ? '#22c55e' : '#ef4444',
+      color: c.close >= c.open ? '#3b82f6' : '#ef4444',
     }))
     .filter(d => {
       const k = toTs(d.time);

@@ -2,7 +2,7 @@ import { Candle, Currency } from '@mtr/finance-core';
 import { BaseGrid, BaseTab } from '@mtr/ui/client';
 import { createDailyColumns } from '../grid/dailyColumns';
 import { useMemo, useRef, useEffect } from 'react';
-import { GridApi } from 'ag-grid-community';
+import { GetRowIdParams, GridApi } from 'ag-grid-community';
 import { InfiniteController } from '../types';
 import { _ } from '@mtr/utils';
 
@@ -57,8 +57,8 @@ export const DailyMarketPrice = ({ currency, controller }: DailyMarketPriceProps
       <BaseGrid
         data={items}
         columns={dynamicColumns}
-        getRowId={params => params.data.timestamp + params.data.symbol}
         options={{
+          getRowId: (params: GetRowIdParams<Candle>) => params.data.timestamp + params.data.symbol,
           onGridReady: params => {
             gridApiRef.current = params.api;
           },

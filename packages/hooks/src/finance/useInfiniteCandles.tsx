@@ -1,11 +1,16 @@
 // 클라이언트 측 useInfiniteCandles.ts
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { MarketDataType, CandleQueryParams, CandleResponse } from '@mtr/finance-core';
+import {
+  MarketDataType,
+  CandleQueryParams,
+  CandleResponse,
+  getLimitByTimeframe,
+} from '@mtr/finance-core';
 
 type Fetcher = (p: any) => Promise<CandleResponse>;
 
 export const useInfiniteCandles = (params: CandleQueryParams, fetcher: Fetcher) => {
-  const limit = params.limit ?? 100;
+  const limit = params.limit ?? getLimitByTimeframe(params.timeframe);
 
   return useInfiniteQuery({
     queryKey: [params.assetType, params.dataType, params.timeframe, params.symbols],
@@ -30,11 +35,6 @@ export const useInfiniteCandles = (params: CandleQueryParams, fetcher: Fetcher) 
       // lastPage는 { candles, nextDateTime } 객체
       // nextDateTime이 null이면 undefined를 반환하여 '마지막 페이지'임을 알림
       return lastPage.nextDateTime ?? undefined;
-    },
-
-    // 4. (선택) select: 모든 페이지의 candles 배열을 하나로 합침
-    select: data => {
-      return data.pages.flatMap(page => page.candles);
     },
 
     refetchOnMount: false,

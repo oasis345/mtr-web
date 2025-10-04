@@ -15,12 +15,14 @@ import { useAssets, useCandles, useCurrency, useInfiniteCandles } from '@mtr/hoo
 import {
   AssetType,
   Candle,
+  ChartData,
   ChartLongTimeframe,
   ChartTimeframe,
   convertCurrency,
   Currency,
   formatPrice,
   MarketDataType,
+  transformToChartData,
 } from '@mtr/finance-core';
 import { BaseTab, LoadingIndicator, LoadingSkeleton } from '@mtr/ui/client';
 import { dayjs } from '@mtr/utils';
@@ -35,7 +37,7 @@ export default function AssetPage({
 }) {
   const { errorService, financialService } = useAppServices();
   const { assetType, symbol } = use(params);
-  const [timeframe, setTimeframe] = useState<ChartTimeframe>(ChartLongTimeframe.ONE_MONTH);
+  const [timeframe, setTimeframe] = useState<ChartTimeframe>(ChartLongTimeframe.ONE_WEEK);
 
   const candleParams = useMemo(
     () => ({
@@ -67,23 +69,32 @@ export default function AssetPage({
     assetType as AssetType,
   );
 
-  const {
-    data: chartData,
-    isLoading: isLoadingChart,
-    isError: isErrorChart,
-    error: errorChart,
-  } = useCandles({
-    params: {
+  // const {
+  //   data: chartData,
+  //   isLoading: isLoadingChart,
+  //   isError: isErrorChart,
+  //   error: errorChart,
+  // } = useCandles({
+  //   params: {
+  //     assetType: assetType as AssetType,
+  //     symbols: [symbol],
+  //     dataType: MarketDataType.CANDLES,
+  //     timeframe,
+  //   },
+  //   fetcher: financialService.getCandles,
+  // });
+
+  const timeFrameChartInfiniteQuery = useInfiniteCandles(
+    {
       assetType: assetType as AssetType,
       symbols: [symbol],
       dataType: MarketDataType.CANDLES,
       timeframe,
     },
-    fetcher: financialService.getCandles,
-  });
+    financialService.getCandles,
+  );
 
-  // useInfiniteQuery 훅 호출
-  const infiniteQuery = useInfiniteCandles(
+  const dailyChartInfiniteQuery = useInfiniteCandles(
     {
       assetType: assetType as AssetType,
       symbols: [symbol],
@@ -94,18 +105,27 @@ export default function AssetPage({
     financialService.getCandles,
   );
 
-  const controller: InfiniteController<Candle> = {
-    items: infiniteQuery.data ?? [],
-    loadNext: () => infiniteQuery.fetchNextPage(),
-    hasNext: !!infiniteQuery.hasNextPage,
-    isLoadingNext: infiniteQuery.isFetchingNextPage,
+  const timeFrameController: InfiniteController<ChartData> = {
+    items: transformToChartData(
+      timeFrameChartInfiniteQuery.data?.pages.flatMap(page => page.candles) ?? [],
+      timeframe,
+    ),
+    loadNext: () => timeFrameChartInfiniteQuery.fetchNextPage(),
+    hasNext: !!timeFrameChartInfiniteQuery.hasNextPage,
+    isLoadingNext: timeFrameChartInfiniteQuery.isFetchingNextPage,
+  };
+
+  const dailyController: InfiniteController<Candle> = {
+    items: dailyChartInfiniteQuery.data?.pages.flatMap(page => page.candles) ?? [],
+    loadNext: () => dailyChartInfiniteQuery.fetchNextPage(),
+    hasNext: !!dailyChartInfiniteQuery.hasNextPage,
+    isLoadingNext: dailyChartInfiniteQuery.isFetchingNextPage,
   };
 
   useEffect(() => {
     if (isErrorAsset) errorService.notify(errorAsset);
-    if (isErrorChart) errorService.notify(errorChart);
-    if (infiniteQuery.isError) errorService.notify(infiniteQuery.error);
-  }, [isErrorAsset, isErrorChart, infiniteQuery.isError]);
+    if (dailyChartInfiniteQuery.isError) errorService.notify(dailyChartInfiniteQuery.error);
+  }, [isErrorAsset, dailyChartInfiniteQuery.isError]);
 
   return (
     <PageLayout variant="sidebar">
@@ -128,12 +148,11 @@ export default function AssetPage({
           <Section.Content>
             <ChartToolbar />
             <AssetChart
-              candles={chartData?.candles}
-              volumes={chartData?.volumes}
+              timeFrameController={timeFrameController}
               precision={4}
-              defaultTimeframe={timeframe}
               assetType={assetType as AssetType}
               currency={assetData?.currency}
+              timeframe={timeframe}
               onTimeframeChange={(timeframe: ChartTimeframe) => setTimeframe(timeframe)}
             />
           </Section.Content>
@@ -142,7 +161,7 @@ export default function AssetPage({
         <Section variant="card" borderless>
           <Section.Header>일별 실시간 시세</Section.Header>
           <Section.Content>
-            <DailyMarketPrice currency={currency} controller={controller} />
+            <DailyMarketPrice currency={currency} controller={dailyController} />
           </Section.Content>
         </Section>
       </PageLayout.Main>
