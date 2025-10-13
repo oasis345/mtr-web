@@ -46,18 +46,16 @@ export function MarketPageClient({ initialData }: { initialData: MarketData[] })
           const visibleSymbols = pageSymbols.current;
           if (visibleSymbols.size === 0) return;
 
-          const priceBySymbol = new Map(updates.map(u => [u.symbol, u.price]));
-
           setData(prev => {
             let changed = false;
             const next = prev.map(row => {
               if (!visibleSymbols.has(row.symbol)) return row;
 
-              const nextPrice = priceBySymbol.get(row.symbol);
-              if (nextPrice == null || nextPrice === row.price) return row;
+              const nextData = updates.find(u => u.symbol === row.symbol);
+              if (!nextData || nextData.price === row.price) return row;
 
               changed = true;
-              return { ...row, price: nextPrice }; // ✅ 가격만 업데이트
+              return { ...row, ...nextData }; // ✅ 가격만 업데이트
             });
 
             return changed ? next : prev; // 변경 없으면 리렌더 방지

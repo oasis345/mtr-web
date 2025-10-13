@@ -75,7 +75,6 @@ const getBaseColumns = (opts: ColumnOpts): ColDef<MarketData>[] => {
       headerName: '등락률',
       flex: 1,
       sortable: true,
-      enableCellChangeFlash: true,
       valueFormatter: p => percentFormatter(p.value),
       cellStyle: p => {
         const v = p.value as number | null | undefined;
