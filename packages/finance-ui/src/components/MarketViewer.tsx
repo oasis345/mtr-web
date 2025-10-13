@@ -112,8 +112,8 @@ export const MarketViewer = ({
           rowClass: 'cursor-pointer',
           rowSelection: 'single',
           getRowId: params => (params.data as MarketData).symbol,
-          cellFlashDuration: 600,
-          cellFadeDuration: 300,
+          cellFlashDuration: 700,
+          cellFadeDuration: 400,
 
           onRowClicked: params => {
             onRowClicked?.(params.data as MarketData);

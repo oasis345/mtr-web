@@ -27,7 +27,9 @@ export function MarketPageClient({ initialData }: { initialData: MarketData[] })
   const dataTypeParam = searchParams.get('dataType');
   const currentDataType = isMarketDataType(dataTypeParam)
     ? dataTypeParam
-    : MarketDataType.MOST_ACTIVE;
+    : currentAsset === AssetType.CRYPTO
+      ? MarketDataType.TOP_TRADED
+      : MarketDataType.MOST_ACTIVE;
 
   useEffect(() => {
     setData(initialData);

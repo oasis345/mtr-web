@@ -15,7 +15,6 @@ export const AppHeader = ({ logo, nav, className }: AppHeaderProps) => {
   return (
     <div className={cn(headerVariants(), className)}>
       <Link href="/">{logo}</Link>
-      <nav>{nav}</nav>
       <ThemeToggle />
     </div>
   );

@@ -10,7 +10,7 @@ import {
 type Fetcher = (p: any) => Promise<CandleResponse>;
 
 export const useInfiniteCandles = (params: CandleQueryParams, fetcher: Fetcher) => {
-  const limit = params.limit ?? getLimitByTimeframe(params.timeframe);
+  const limit = params.limit ?? getLimitByTimeframe(params.assetType, params.timeframe);
 
   return useInfiniteQuery({
     queryKey: [params.assetType, params.dataType, params.timeframe, params.symbols],

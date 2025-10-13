@@ -1,11 +1,13 @@
-import { ChartLongTimeframe, ChartShortTimeframe, ChartTimeframe } from '../types';
+import { AssetType, ChartLongTimeframe, ChartShortTimeframe, ChartTimeframe } from '../types';
 
 /**
  * 각 차트 타임프레임에 따라 API 요청 시 사용할 기본 limit(데이터 개수)을 반환합니다.
  * @param timeframe - 차트 타임프레임 (e.g., '1T', '1D', '1M')
  * @returns {number} 해당 타임프레임에 권장되는 데이터 개수
  */
-export const getLimitByTimeframe = (timeframe: ChartTimeframe): number => {
+export const getLimitByTimeframe = (assetType: AssetType, timeframe: ChartTimeframe): number => {
+  if (assetType === AssetType.CRYPTO) return 200;
+
   switch (timeframe) {
     // 단기 (Intraday): 최근 몇 시간의 데이터를 보여주기에 충분한 양
     case ChartShortTimeframe.ONE_MINUTE:

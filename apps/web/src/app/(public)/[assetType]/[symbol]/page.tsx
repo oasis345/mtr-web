@@ -100,7 +100,7 @@ export default function AssetPage({
       symbols: [symbol],
       dataType: MarketDataType.CANDLES,
       timeframe: ChartLongTimeframe.ONE_DAY,
-      limit: 100,
+      limit: 200,
     },
     financialService.getCandles,
   );
@@ -124,8 +124,7 @@ export default function AssetPage({
 
   useEffect(() => {
     if (isErrorAsset) errorService.notify(errorAsset);
-    if (dailyChartInfiniteQuery.isError) errorService.notify(dailyChartInfiniteQuery.error);
-  }, [isErrorAsset, dailyChartInfiniteQuery.isError]);
+  }, [isErrorAsset]);
 
   return (
     <PageLayout variant="sidebar">

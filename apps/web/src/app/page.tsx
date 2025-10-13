@@ -22,7 +22,6 @@ export default async function RootPage({
     const response = await httpClient.get<MarketData[]>(FINANCIAL_ROUTES.FINANCIAL.MARKET, {
       assetType: validAssetType,
       dataType: asset === AssetType.STOCKS ? dataType : 'topTraded',
-      limit: asset === AssetType.STOCKS ? 50 : 200,
     });
 
     data = response.statusCode === 200 ? response.data : [];

@@ -59,8 +59,12 @@ export const DailyMarketPrice = ({ currency, controller }: DailyMarketPriceProps
         columns={dynamicColumns}
         options={{
           getRowId: (params: GetRowIdParams<Candle>) => params.data.timestamp + params.data.symbol,
+          paginationPageSizeSelector: false,
+          alwaysShowVerticalScroll: false,
+          suppressHorizontalScroll: false,
           onGridReady: params => {
             gridApiRef.current = params.api;
+            params.api.sizeColumnsToFit();
           },
           onBodyScroll: onBodyScroll,
         }}

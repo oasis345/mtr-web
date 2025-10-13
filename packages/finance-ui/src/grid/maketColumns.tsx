@@ -51,6 +51,7 @@ const getBaseColumns = (opts: ColumnOpts): ColDef<MarketData>[] => {
     {
       field: 'price',
       headerName: '현재가',
+      enableCellChangeFlash: true,
       // ...
       valueFormatter: (params: ValueFormatterParams<MarketData, number>) => {
         const { data, value } = params;
