@@ -5,11 +5,16 @@ import {
   ChartLongTimeframe,
   Currency,
 } from '@mtr/finance-core';
-import { MarketDataTypeTab, MarketTab } from '../types';
+import { MarketDataTypeTab, MarketPriceTab, MarketTab } from '../types';
 
 export const MARKET_ASSETS_MAP: MarketTab[] = [
   { label: '주식', value: AssetType.STOCKS },
   { label: '코인', value: AssetType.CRYPTO },
+];
+
+export const MARKET_PRICE_TABS_MAP: MarketPriceTab[] = [
+  { label: '실시간', value: 'realTime' },
+  { label: '일별', value: 'daily' },
 ];
 
 export const MARKET_DATA_MAP: MarketDataTypeTab[] = [
@@ -18,10 +23,10 @@ export const MARKET_DATA_MAP: MarketDataTypeTab[] = [
   { label: '하락종목', value: MarketDataType.LOSERS },
 ];
 
-export const MARKET_SYMBOL_DATA_MAP: MarketDataTypeTab[] = [
-  { label: '티커', value: MarketDataType.SYMBOL },
-  { label: '사용자 종목', value: MarketDataType.USER_SYMBOLS },
-];
+// export const MARKET_SYMBOL_DATA_MAP: MarketDataTypeTab[] = [
+//   { label: '티커', value: MarketDataType.SYMBOL },
+//   { label: '사용자 종목', value: MarketDataType.USER_SYMBOLS },
+// ];
 
 export const CHART_SHORT_TIMEFRAMES_MAP: { label: string; value: ChartShortTimeframe }[] = [
   { label: '1분', value: ChartShortTimeframe.ONE_MINUTE },

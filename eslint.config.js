@@ -22,7 +22,6 @@ export default tseslint.config(
       '**/build/',
       '**/.turbo/',
       '**/coverage/',
-      'chartsample/',
     ],
   },
 
@@ -43,6 +42,9 @@ export default tseslint.config(
         project: true, // true로 설정하여 자동 탐지 활성화
         tsconfigRootDir: __dirname, // 모노레포 루트 디렉토리를 기준으로 찾음
       },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint.plugin,
     },
     rules: {
       // 엄격한 타입 체크 규칙들을 완전히 비활성화
@@ -71,7 +73,7 @@ export default tseslint.config(
   // compat.extends는 레거시 설정을 Flat Config로 변환해줍니다.
   ...compat.extends('next/core-web-vitals').map(config => ({
     ...config,
-    files: ['apps/web/**/*.{js,jsx,ts,tsx}'],
+    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
   })),
 
   // 5. Prettier와 충돌 방지 (가장 마지막에 위치)

@@ -1,4 +1,4 @@
-import { AssetType, Currency, MarketData, formatPriceByCurrency } from '@mtr/finance-core';
+import { AssetType, Currency, formatPriceByCurrency, MarketData } from '@mtr/finance-core';
 import { useMemo, useState } from 'react';
 
 export const useCurrency = (exchangeRate: number, assetData: MarketData, assetType: AssetType) => {
@@ -11,7 +11,7 @@ export const useCurrency = (exchangeRate: number, assetData: MarketData, assetTy
       exchangeRate: 1300,
       assetType: assetType,
     });
-  }, [assetData?.price, currency, currency, exchangeRate, assetType]);
+  }, [assetData?.price, currency, exchangeRate, assetType]);
 
   return { currency, setCurrency, formattedPrice };
 };

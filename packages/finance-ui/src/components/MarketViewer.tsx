@@ -111,7 +111,7 @@ export const MarketViewer = ({
           suppressCellFocus: true,
           rowClass: 'cursor-pointer',
           rowSelection: 'single',
-          getRowId: params => (params.data as MarketData).symbol,
+          getRowId: params => params.data.symbol + params.data.assetType,
           cellFlashDuration: 700,
           cellFadeDuration: 400,
 

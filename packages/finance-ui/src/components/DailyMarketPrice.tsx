@@ -1,16 +1,17 @@
 import { Candle, Currency } from '@mtr/finance-core';
-import { BaseGrid, BaseTab } from '@mtr/ui/client';
-import { createDailyColumns } from '../grid/dailyColumns';
-import { useMemo, useRef, useEffect } from 'react';
-import { GetRowIdParams, GridApi } from 'ag-grid-community';
-import { InfiniteController } from '../types';
+import { BaseGrid } from '@mtr/ui/client';
 import { _ } from '@mtr/utils';
+import { GetRowIdParams, GridApi } from 'ag-grid-community';
+import { useEffect, useMemo, useRef } from 'react';
+import { createDailyColumns } from '../grid/dailyColumns';
+import { InfiniteController } from '../types';
 
 type DailyMarketPriceProps = {
   currency: Currency;
   controller: InfiniteController<Candle>;
 };
 
+// 탭 관련 로직이 제거된 순수한 데이터 그리드 컴포넌트
 export const DailyMarketPrice = ({ currency, controller }: DailyMarketPriceProps) => {
   const { items, loadNext, hasNext, isLoadingNext } = controller;
   const gridApiRef = useRef<GridApi | null>(null);
@@ -31,7 +32,7 @@ export const DailyMarketPrice = ({ currency, controller }: DailyMarketPriceProps
         if (totalRows > 0 && lastDisplayedRow >= totalRows - 10) {
           void loadNext();
         }
-      }, 300), // 300ms 디바운스
+      }, 300),
     [hasNext, isLoadingNext, loadNext],
   );
 
@@ -39,36 +40,27 @@ export const DailyMarketPrice = ({ currency, controller }: DailyMarketPriceProps
     debouncedFetch();
   };
 
-  // 컴포넌트 언마운트 시 디바운스 타이머 정리 (메모리 누수 방지)
   useEffect(() => {
     return () => {
       debouncedFetch.cancel();
     };
   }, [debouncedFetch]);
 
-  const tabData = [
-    { label: '실시간', value: 'realTime' },
-    { label: '일별', value: 'day' },
-  ];
-
   return (
-    <div className="flex flex-col w-full">
-      <BaseTab data={tabData} defaultValue="day" onValueChange={() => {}} variant="underline" />
-      <BaseGrid
-        data={items}
-        columns={dynamicColumns}
-        options={{
-          getRowId: (params: GetRowIdParams<Candle>) => params.data.timestamp + params.data.symbol,
-          paginationPageSizeSelector: false,
-          alwaysShowVerticalScroll: false,
-          suppressHorizontalScroll: false,
-          onGridReady: params => {
-            gridApiRef.current = params.api;
-            params.api.sizeColumnsToFit();
-          },
-          onBodyScroll: onBodyScroll,
-        }}
-      />
-    </div>
+    <BaseGrid
+      data={items}
+      columns={dynamicColumns}
+      options={{
+        getRowId: (params: GetRowIdParams<Candle>) => params.data.timestamp + params.data.symbol,
+        paginationPageSizeSelector: false,
+        alwaysShowVerticalScroll: false,
+        suppressHorizontalScroll: false,
+        onGridReady: params => {
+          gridApiRef.current = params.api;
+          // params.api.sizeColumnsToFit();
+        },
+        onBodyScroll: onBodyScroll,
+      }}
+    />
   );
 };

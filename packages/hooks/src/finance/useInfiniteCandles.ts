@@ -1,19 +1,28 @@
 // 클라이언트 측 useInfiniteCandles.ts
-import { useInfiniteQuery } from '@tanstack/react-query';
 import {
-  MarketDataType,
   CandleQueryParams,
   CandleResponse,
   getLimitByTimeframe,
+  getTTLbyTimeframe,
+  MarketDataType,
 } from '@mtr/finance-core';
+import { useInfiniteQuery, UseInfiniteQueryResult } from '@tanstack/react-query'; // UseInfiniteQueryResult 임포트 추가
 
-type Fetcher = (p: any) => Promise<CandleResponse>;
+interface UseInfiniteCandlesOptions {
+  params: CandleQueryParams;
+  fetcher: (params: CandleQueryParams) => Promise<CandleResponse>;
+}
 
-export const useInfiniteCandles = (params: CandleQueryParams, fetcher: Fetcher) => {
+// 훅의 반환 타입에 queryKey를 추가합니다.
+export const useInfiniteCandles = ({
+  params,
+  fetcher,
+}: UseInfiniteCandlesOptions): UseInfiniteQueryResult<CandleResponse, Error> & { queryKey: (string | string[])[] } => {
   const limit = params.limit ?? getLimitByTimeframe(params.assetType, params.timeframe);
-
-  return useInfiniteQuery({
-    queryKey: [params.assetType, params.dataType, params.timeframe, params.symbols],
+  const cacheConfig = getTTLbyTimeframe(params.timeframe);
+  const queryKey = [params.assetType, params.dataType, params.timeframe, params.symbols]; // 훅 내부에서 queryKey를 생성
+  const response = useInfiniteQuery<CandleResponse, Error, CandleResponse, (string | string[])[], string | undefined>({
+    queryKey: queryKey,
 
     // 1. 첫 페이지 파라미터는 undefined로 설정
     initialPageParam: undefined,
@@ -36,10 +45,13 @@ export const useInfiniteCandles = (params: CandleQueryParams, fetcher: Fetcher) 
       // nextDateTime이 null이면 undefined를 반환하여 '마지막 페이지'임을 알림
       return lastPage.nextDateTime ?? undefined;
     },
-
+    staleTime: cacheConfig.staleTime,
+    gcTime: cacheConfig.gcTime,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     enabled: !!params.timeframe,
   });
+
+  return { ...response, queryKey };
 };

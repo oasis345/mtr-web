@@ -10,7 +10,8 @@ export type TabItem = {
 
 export interface BaseTabProps extends VariantProps<typeof tabVariants> {
   data: TabItem[];
-  defaultValue: string;
+  value?: string;
+  defaultValue?: string;
   onValueChange: (value: string) => void;
   className?: string;
 }
@@ -60,6 +61,7 @@ export const tabsListVariants = cva('flex items-center justify-center w-full', {
 export const BaseTab = ({
   data,
   defaultValue,
+  value,
   onValueChange,
   variant = 'default',
   size = 'default',
@@ -67,6 +69,7 @@ export const BaseTab = ({
 }: BaseTabProps) => {
   return (
     <Tabs
+      value={value}
       defaultValue={defaultValue}
       className={cn('w-full', className)}
       onValueChange={onValueChange}

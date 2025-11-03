@@ -7,6 +7,7 @@ import {
   FinancialService,
   MarketData,
   MarketDataType,
+  Trade,
 } from '@mtr/finance-core';
 
 export const createFinancialService = (httpClient: HttpClient): FinancialService => {
@@ -32,8 +33,16 @@ export const createFinancialService = (httpClient: HttpClient): FinancialService
     return data;
   };
 
+  const getTrades = async (params: AssetQueryParams): Promise<Trade[]> => {
+    const response = await httpClient.get<Trade[]>(FINANCIAL_ROUTES.FINANCIAL.TRADES, params);
+    const { data } = response;
+    if (!data) throw new Error(response.message);
+    return data;
+  };
+
   return {
     getAssets,
     getCandles,
+    getTrades,
   };
 };

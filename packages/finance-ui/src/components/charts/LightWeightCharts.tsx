@@ -1,27 +1,19 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { ChartData, ChartShortTimeframe, ChartTimeframe } from '@mtr/finance-core';
+import { dayjs } from '@mtr/utils';
 import {
-  createChart,
+  CandlestickSeries,
   ColorType,
+  createChart,
+  HistogramSeries,
   type IChartApi,
   type ISeriesApi,
-  CandlestickSeries,
-  HistogramSeries,
-  MouseEventParams,
   LogicalRange,
-  SeriesDefinition,
-  CrosshairMode,
+  TickMarkType,
 } from 'lightweight-charts';
-import { OHLCInfo } from '../OHLCinfo';
-import {
-  AssetType,
-  Candle,
-  ChartData,
-  ChartShortTimeframe,
-  ChartTimeframe,
-  Currency,
-} from '@mtr/finance-core';
+import { useTheme } from 'next-themes';
+import { useEffect, useMemo, useRef } from 'react';
 
 type LightWeightChartProps = {
   timeframe: ChartTimeframe;
@@ -30,15 +22,8 @@ type LightWeightChartProps = {
   className?: string;
   onVisibleLogicalRangeChange?: (range: LogicalRange | null) => void;
 };
-
-const DefaultColors = {
-  backgroundColor: 'transparent',
-  textColor: '#e5e7eb',
-  gridColor: '#1f2937',
-  upColor: '#ef4444',
-  downColor: '#3b82f6',
-  volumeColor: '#ef4444',
-};
+const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+const browserLocale = Intl.DateTimeFormat().resolvedOptions().locale;
 
 export const LightWeightCharts = ({
   className,
@@ -50,96 +35,131 @@ export const LightWeightCharts = ({
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi>(null);
   const chartSeriesRef = useRef<ISeriesApi<CandlestickSeries>>(null);
-  const volumeContainerRef = useRef<HTMLDivElement>(null);
-  const volumeChartRef = useRef<IChartApi>(null);
   const volumeSeriesRef = useRef<ISeriesApi<HistogramSeries>>(null);
-  const chartHeight = useMemo(() => height * 0.5, [height]);
-  const volumeHeight = useMemo(() => height * 0.5, [height]);
+  const { theme, resolvedTheme } = useTheme();
+  const colors = useMemo(() => {
+    const isDark = theme === 'dark' || resolvedTheme === 'dark';
+    return {
+      backgroundColor: isDark ? '#1A202C' : '#FFFFFF', // 차트 배경색
+      textColor: isDark ? '#FFFFFF' : '#121212', // 텍스트 색상
+      gridColor: isDark ? '#2E323E' : '#E0E0E0', // 그리드 라인 색상 (더 희미하게)
+      upColor: '#2196F3', // 상승 캔들/볼륨 (파란색)
+      downColor: '#EF5350', // 하락 캔들/볼륨 (빨간색)
+      volumeColor: '#2196F3', // 볼륨 기본 색상
+    };
+  }, [theme, resolvedTheme]);
 
   // Create chart
   useEffect(() => {
+    const showTime = Object.values(ChartShortTimeframe).includes(timeframe);
     const chart = createChart(chartContainerRef.current, {
       layout: {
-        background: { type: ColorType.Solid, color: 'transparent' },
-        textColor: '#e5e7eb',
+        background: { type: ColorType.Solid, color: colors.backgroundColor },
+        textColor: colors.textColor,
       },
-      grid: { vertLines: { visible: false }, horzLines: { color: DefaultColors.gridColor } },
-      timeScale: {
-        visible: false,
-        lockVisibleTimeRangeOnResize: true,
+      grid: {
+        vertLines: { visible: false },
+        horzLines: { color: colors.gridColor },
       },
       rightPriceScale: {
-        borderVisible: false,
-        scaleMargins: {
-          top: 0.4,
-          bottom: 0,
-        },
+        scaleMargins: { top: 0.6, bottom: 0 },
         alignLabels: true,
+        borderVisible: true,
+      },
+      timeScale: {
+        lockVisibleTimeRangeOnResize: true,
+        barSpacing: 5,
+        borderVisible: true,
+        timeVisible: showTime,
+        secondsVisible: false,
+        tickMarkFormatter: (time, tickMarkType: TickMarkType) => {
+          const utcDayjsObject = dayjs.unix(time); // <-- 변경된 부분
+          const localTime = utcDayjsObject.tz(browserTimezone).locale(browserLocale);
+
+          switch (tickMarkType) {
+            case TickMarkType.Year:
+              return localTime.format('YYYY');
+            case TickMarkType.Month:
+              return localTime.format('MM');
+            case TickMarkType.DayOfMonth:
+              return localTime.format('DD');
+            case TickMarkType.Time:
+            case TickMarkType.TimeWithSeconds:
+              return localTime.format('HH:mm');
+            default:
+              return localTime.format('HH:mm');
+          }
+        },
+      },
+      localization: {
+        locale: browserLocale,
+        timeFormatter: time => {
+          const showTime = Object.values(ChartShortTimeframe).includes(timeframe as ChartShortTimeframe);
+          const localTime = dayjs.unix(time).tz(browserTimezone).locale(browserLocale);
+
+          if (showTime) {
+            return localTime.format('MM/DD HH:mm');
+          } else {
+            return localTime.format('YYYY-MM-DD');
+          }
+        },
       },
     });
     chartRef.current = chart;
 
     chartSeriesRef.current = chart.addSeries(CandlestickSeries, {
-      upColor: DefaultColors.upColor,
-      downColor: DefaultColors.downColor,
-      wickUpColor: DefaultColors.upColor,
-      wickDownColor: DefaultColors.downColor,
-      borderVisible: false,
+      upColor: colors.upColor,
+      downColor: colors.downColor,
+      wickUpColor: colors.upColor,
+      wickDownColor: colors.downColor,
       priceFormat: { type: 'price' },
     });
 
+    chart.addPane();
     chart.timeScale().subscribeVisibleLogicalRangeChange(range => {
-      volumeChartRef.current.timeScale().setVisibleLogicalRange(range);
-
       if (range && range.from < 10) {
         onVisibleLogicalRangeChange?.(range);
       }
     });
+
+    volumeSeriesRef.current = chartRef.current?.addSeries(HistogramSeries, {
+      color: colors.volumeColor,
+      priceFormat: { type: 'volume' },
+      priceLineVisible: false,
+    });
+
+    volumeSeriesRef.current.moveToPane(1);
 
     return () => {
       chart.remove();
     };
   }, [timeframe]);
 
-  // create volume
+  // Update chart colors when theme changes
   useEffect(() => {
-    const showTime = Object.values(ChartShortTimeframe).includes(timeframe);
-    const volume = createChart(volumeContainerRef.current, {
+    if (!chartRef.current) return;
+
+    // Update main chart colors
+    chartRef.current.applyOptions({
       layout: {
-        background: { type: ColorType.Solid, color: 'transparent' },
-        textColor: '#e5e7eb',
+        background: { type: ColorType.Solid, color: colors.backgroundColor },
+        textColor: colors.textColor,
       },
-      grid: { vertLines: { visible: false }, horzLines: { color: DefaultColors.gridColor } },
-      rightPriceScale: {
-        borderVisible: false,
-        scaleMargins: {
-          top: 0.4,
-          bottom: 0,
-        },
-        alignLabels: true,
-      },
-      timeScale: {
-        borderVisible: true,
-        timeVisible: showTime,
-        secondsVisible: false,
-        lockVisibleTimeRangeOnResize: true,
-      },
-    });
-    volumeChartRef.current = volume;
-    volumeSeriesRef.current = volume.addSeries(HistogramSeries, {
-      color: DefaultColors.volumeColor,
-      priceFormat: { type: 'volume' },
-      priceLineVisible: false,
-    });
-    volume.timeScale().applyOptions({ barSpacing: 10 });
-    volume.timeScale().subscribeVisibleLogicalRangeChange(range => {
-      chartRef.current.timeScale().setVisibleLogicalRange(range);
+      grid: { vertLines: { visible: false }, horzLines: { color: colors.gridColor } },
     });
 
-    return () => {
-      volumeChartRef.current.remove();
-    };
-  }, [timeframe]);
+    // Update series colors
+    chartSeriesRef.current?.applyOptions({
+      upColor: colors.upColor,
+      downColor: colors.downColor,
+      wickUpColor: colors.upColor,
+      wickDownColor: colors.downColor,
+    });
+
+    volumeSeriesRef.current?.applyOptions({
+      color: colors.volumeColor,
+    });
+  }, [colors]);
 
   // Update chart series
   useEffect(() => {
@@ -147,17 +167,12 @@ export const LightWeightCharts = ({
 
     chartSeriesRef.current?.setData(data?.candles);
     volumeSeriesRef.current?.setData(data?.volumes);
-    // const visbleFrom = data?.candles.length - 50;
-    // const visbleTo = data?.candles.length;
-    // chartRef.current.timeScale().setVisibleLogicalRange({ from: visbleFrom, to: visbleTo });
-    // volumeChartRef.current.timeScale().setVisibleLogicalRange({ from: visbleFrom, to: visbleTo });
   }, [data]);
 
   // resize
   useEffect(() => {
     const handleResize = () => {
       chartRef.current.applyOptions({ width: chartContainerRef.current.clientWidth });
-      volumeChartRef.current.applyOptions({ width: volumeContainerRef.current.clientWidth });
     };
     window.addEventListener('resize', handleResize);
 
@@ -166,57 +181,9 @@ export const LightWeightCharts = ({
     };
   }, []);
 
-  // sync crosshair
-  useEffect(() => {
-    if (
-      !chartRef.current ||
-      !volumeChartRef.current ||
-      !data?.candles?.length ||
-      !data?.volumes?.length
-    )
-      return;
-
-    const getCrosshairDataPoint = (series, param) => {
-      if (!param.time) {
-        return null;
-      }
-      const dataPoint = param.seriesData.get(series);
-      return dataPoint || null;
-    };
-
-    const syncCrosshair = (chart, series, dataPoint) => {
-      if (dataPoint) {
-        chart.setCrosshairPosition(dataPoint.value, dataPoint.time, series);
-        return;
-      }
-      chart.clearCrosshairPosition();
-    };
-
-    const chartToVolumeHandler = param => {
-      const point = getCrosshairDataPoint(chartSeriesRef.current, param);
-      syncCrosshair(volumeChartRef.current, volumeSeriesRef.current, point);
-    };
-
-    const volumeToChartHandler = param => {
-      const point = getCrosshairDataPoint(volumeSeriesRef.current, param);
-      syncCrosshair(chartRef.current, chartSeriesRef.current, point);
-    };
-
-    chartRef.current.subscribeCrosshairMove(chartToVolumeHandler);
-    volumeChartRef.current.subscribeCrosshairMove(volumeToChartHandler);
-
-    return () => {
-      chartRef.current.unsubscribeCrosshairMove(chartToVolumeHandler);
-      volumeChartRef.current.unsubscribeCrosshairMove(volumeToChartHandler);
-    };
-
-    console.log('syncCrosshair', data);
-  }, [timeframe, data]);
-
   return (
-    <div className={className ?? 'flex flex-col gap-y-2 w-full'}>
-      <div ref={chartContainerRef} style={{ height: chartHeight }} />
-      <div ref={volumeContainerRef} style={{ height: volumeHeight }} />
+    <div className={className ?? 'flex flex-col  w-full'}>
+      <div ref={chartContainerRef} style={{ height: height }} />
     </div>
   );
 };

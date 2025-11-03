@@ -13,6 +13,7 @@ export enum MarketDataType {
   SYMBOL = 'symbol',
   TOP_TRADED = 'topTraded',
   CANDLES = 'candles',
+  TRADES = 'trades',
 }
 
 export interface MarketQueryParams {
@@ -39,6 +40,17 @@ export interface MarketData {
   logo?: string;
 }
 
+export enum MarketStreamDataType {
+  TICKER = 'ticker',
+  TRADE = 'trade',
+  CANDLE = 'candle',
+}
+
+export interface MarketStreamData<T = Candle | Trade | MarketData> {
+  dataType: MarketStreamDataType;
+  payload: T;
+}
+
 // === 통화 포맷 유틸 ===
 export enum Currency {
   USD = 'USD',
@@ -57,7 +69,6 @@ export interface AssetQueryParams {
 export interface CandleQueryParams extends AssetQueryParams {
   start?: string; // 시작 시간
   end?: string; // 종료 시간
-  nextDateTime?: string; // 다음 시간
 }
 
 export interface CandleResponse {
@@ -108,4 +119,17 @@ export interface Candle {
    * (선택사항) 캔들 기간 동안의 총 거래 체결 건수 (from Alpaca's 'n')
    */
   tradeCount?: number;
+}
+
+export interface Trade {
+  id: string;
+  timestamp: string;
+  price: number;
+  change: number;
+  changePercentage: number;
+  volume: number;
+  symbol: string;
+  assetType: AssetType;
+  currency: Currency;
+  side: 'buy' | 'sell';
 }

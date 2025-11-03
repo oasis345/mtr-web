@@ -1,16 +1,17 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useAppServices } from '@/store';
 import {
+  AssetType,
   isMarketAsset,
   isMarketDataType,
   MarketData,
-  AssetType,
   MarketDataType,
+  MarketStreamData,
 } from '@mtr/finance-core';
-import { MarketViewer, MARKET_ASSETS_MAP, MARKET_DATA_MAP } from '@mtr/finance-ui';
-import { useAppServices } from '@/store';
+import { MARKET_ASSETS_MAP, MARKET_DATA_MAP, MarketViewer } from '@mtr/finance-ui';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Socket } from 'socket.io-client';
 
 export function MarketPageClient({ initialData }: { initialData: MarketData[] }) {
@@ -42,7 +43,8 @@ export function MarketPageClient({ initialData }: { initialData: MarketData[] })
       try {
         // 1. 소켓 생성
         marketSocket = await socketService.createChannel('market');
-        marketSocket.on('market-data', (updates: MarketData[]) => {
+        marketSocket.on('market-data', (streamData: MarketStreamData<MarketData>) => {
+          console.log('Received market data update:', streamData);
           const visibleSymbols = pageSymbols.current;
           if (visibleSymbols.size === 0) return;
 
@@ -51,11 +53,12 @@ export function MarketPageClient({ initialData }: { initialData: MarketData[] })
             const next = prev.map(row => {
               if (!visibleSymbols.has(row.symbol)) return row;
 
-              const nextData = updates.find(u => u.symbol === row.symbol);
-              if (!nextData || nextData.price === row.price) return row;
+              const isNextData =
+                streamData.payload.symbol === row.symbol && streamData.payload.assetType === row.assetType;
+              if (!isNextData || streamData.payload.price === row.price) return row;
 
               changed = true;
-              return { ...row, ...nextData }; // ✅ 가격만 업데이트
+              return { ...row, ...streamData.payload }; // ✅ 가격만 업데이트
             });
 
             return changed ? next : prev; // 변경 없으면 리렌더 방지
@@ -71,6 +74,7 @@ export function MarketPageClient({ initialData }: { initialData: MarketData[] })
           payload: {
             assetType: currentAsset,
             channel: currentDataType,
+            dataTypes: ['ticker'],
           },
         });
       } catch (error) {
@@ -80,19 +84,26 @@ export function MarketPageClient({ initialData }: { initialData: MarketData[] })
 
     void setupAndSubscribe();
 
-    return () => {
-      console.log(`Unsubscribing from: ${currentAsset} - ${currentDataType}`);
-
+    const cleanup = () => {
       if (marketSocket) {
+        console.log(`Unsubscribing from: ${currentAsset} - ${currentDataType}`);
+
         marketSocket.emit('unsubscribe-market', {
           payload: {
             assetType: currentAsset,
             channel: currentDataType,
+            dataTypes: ['ticker'],
           },
         });
       }
     };
-  }, [currentAsset, currentDataType]); // 모든 의존성 포함
+
+    window.addEventListener('beforeunload', cleanup);
+    return () => {
+      window.removeEventListener('beforeunload', cleanup);
+      cleanup();
+    };
+  }, [currentAsset, currentDataType]);
 
   const handleAssetChange = useCallback(
     (asset: string) => {

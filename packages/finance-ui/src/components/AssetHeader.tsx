@@ -1,18 +1,7 @@
-import { percentFormatter, MarketData } from '@mtr/finance-core';
+import { percentFormatter } from '@mtr/finance-core';
 import { OptimizedImage } from '@mtr/ui/client';
 
-export type AssetHeaderProps = Omit<MarketData, 'price'> & {
-  price: string;
-};
-
-export const AssetHeader = ({
-  symbol,
-  name,
-  price,
-  change,
-  changePercentage,
-  logo,
-}: AssetHeaderProps) => {
+export const AssetHeader = ({ symbol, name, price, change, changePercentage, logo }) => {
   const basis = changePercentage ?? change ?? 0;
   const isUp = basis >= 0;
 
@@ -20,11 +9,7 @@ export const AssetHeader = ({
     <div className="flex mb-4 items-center gap-x-2">
       <div className="flex gap-3">
         <div className="flex">
-          <OptimizedImage
-            src={logo}
-            alt={name ?? symbol}
-            className="w-12 h-12 border border-border rounded-sm"
-          />
+          <OptimizedImage src={logo} alt={name ?? symbol} className="w-12 h-12 border border-border rounded-sm" />
         </div>
       </div>
       <div className="flex flex-col">

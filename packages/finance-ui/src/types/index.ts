@@ -12,6 +12,11 @@ export interface MarketDataTypeTab {
   value: MarketDataType;
 }
 
+export type MarketPriceTab = {
+  label: string;
+  value: 'realTime' | 'daily';
+};
+
 export interface MarketDataEvent {
   symbol: string;
   price: number;

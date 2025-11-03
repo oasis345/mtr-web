@@ -1,5 +1,5 @@
+import { AssetQueryParams, MarketData } from '@mtr/finance-core';
 import { useQuery } from '@tanstack/react-query';
-import { AssetQueryParams, MarketData, AssetType, MarketDataType } from '@mtr/finance-core';
 
 export interface UseAssetsParams {
   params: AssetQueryParams;
@@ -7,9 +7,11 @@ export interface UseAssetsParams {
 }
 
 export const useAssets = ({ params, fetcher }: UseAssetsParams) => {
-  return useQuery<MarketData[], Error, MarketData>({
-    queryKey: [params.assetType, params.dataType, params.symbols],
+  const queryKey = [params.assetType, params.dataType, params.symbols];
+  const response = useQuery<MarketData[], Error, MarketData>({
+    queryKey: queryKey,
     queryFn: () => fetcher(params),
-    select: data => data?.[0],
   });
+
+  return { ...response, queryKey };
 };

@@ -1,59 +1,55 @@
 'use client';
 
-import dynamic from 'next/dynamic';
-import { PageLayout, Section } from '@mtr/ui';
-import { Suspense, use, useEffect, useMemo, useState } from 'react';
-import {
-  AssetHeader,
-  ChartToolbar,
-  CURRENCY_MAP,
-  DailyMarketPrice,
-  InfiniteController,
-} from '@mtr/finance-ui';
 import { useAppServices } from '@/store';
-import { useAssets, useCandles, useCurrency, useInfiniteCandles } from '@mtr/hooks';
 import {
   AssetType,
   Candle,
   ChartData,
   ChartLongTimeframe,
+  ChartShortTimeframe,
   ChartTimeframe,
-  convertCurrency,
   Currency,
-  formatPrice,
+  MARKET_SOCKET_EVENT_DATA_UPDATE,
+  MARKET_SOCKET_EVENT_SUBSCRIBE,
+  MARKET_SOCKET_EVENT_UNSUBSCRIBE,
+  MarketData,
   MarketDataType,
+  MarketStreamData,
+  MarketStreamDataType,
+  Trade,
   transformToChartData,
 } from '@mtr/finance-core';
-import { BaseTab, LoadingIndicator, LoadingSkeleton } from '@mtr/ui/client';
-import { dayjs } from '@mtr/utils';
-const AssetChart = dynamic(() => import('@mtr/finance-ui').then(mod => mod.AssetChart), {
-  ssr: false,
-});
 
-export default function AssetPage({
-  params,
-}: {
-  params: Promise<{ assetType: string; symbol: string }>;
-}) {
-  const { errorService, financialService } = useAppServices();
+import {
+  AssetChart,
+  AssetHeader,
+  ChartToolbar,
+  CURRENCY_MAP,
+  DailyMarketPrice,
+  InfiniteController,
+  MARKET_PRICE_TABS_MAP,
+  TradeTable,
+} from '@mtr/finance-ui';
+import { useAssets, useCurrency, useInfiniteCandles, useTrades } from '@mtr/hooks';
+import { PageLayout, Section } from '@mtr/ui';
+import { BaseTab } from '@mtr/ui/client';
+import { useQueryClient } from '@tanstack/react-query';
+import { use, useEffect, useState } from 'react';
+import { Socket } from 'socket.io-client';
+
+export default function AssetPage({ params }: { params: Promise<{ assetType: string; symbol: string }> }) {
+  const queryClient = useQueryClient();
+  const { errorService, financialService, socketService } = useAppServices();
   const { assetType, symbol } = use(params);
-  const [timeframe, setTimeframe] = useState<ChartTimeframe>(ChartLongTimeframe.ONE_WEEK);
-
-  const candleParams = useMemo(
-    () => ({
-      assetType: assetType as AssetType,
-      symbols: [symbol],
-      dataType: MarketDataType.CANDLES,
-      timeframe,
-    }),
-    [assetType, symbol, timeframe],
-  );
+  const [timeframe, setTimeframe] = useState<ChartTimeframe>(ChartShortTimeframe.ONE_MINUTE);
+  const [marketTab, setMarketTab] = useState('daily');
 
   const {
     data: assetData,
     isLoading: isLoadingAsset,
     isError: isErrorAsset,
     error: errorAsset,
+    queryKey: assetQueryKey,
   } = useAssets({
     params: {
       assetType: assetType as AssetType,
@@ -62,69 +58,155 @@ export default function AssetPage({
     },
     fetcher: financialService.getAssets,
   });
+  const currentAsset = assetData?.[0];
+  const { currency, setCurrency, formattedPrice } = useCurrency(1300, currentAsset, assetType as AssetType);
 
-  const { currency, setCurrency, formattedPrice } = useCurrency(
-    1300,
-    assetData,
-    assetType as AssetType,
-  );
-
-  // const {
-  //   data: chartData,
-  //   isLoading: isLoadingChart,
-  //   isError: isErrorChart,
-  //   error: errorChart,
-  // } = useCandles({
-  //   params: {
-  //     assetType: assetType as AssetType,
-  //     symbols: [symbol],
-  //     dataType: MarketDataType.CANDLES,
-  //     timeframe,
-  //   },
-  //   fetcher: financialService.getCandles,
-  // });
-
-  const timeFrameChartInfiniteQuery = useInfiniteCandles(
-    {
+  const {
+    data: timeFrameChartData,
+    fetchNextPage: fetchNextTimeFrameChartData,
+    hasNextPage: hasNextTimeFrameChartData,
+    isFetchingNextPage: isFetchingTimeFrameChartData,
+    isError: isErrorTimeFrameChartData,
+    error: timeFrameChartError,
+  } = useInfiniteCandles({
+    params: {
       assetType: assetType as AssetType,
       symbols: [symbol],
       dataType: MarketDataType.CANDLES,
       timeframe,
     },
-    financialService.getCandles,
-  );
+    fetcher: financialService.getCandles,
+  });
 
-  const dailyChartInfiniteQuery = useInfiniteCandles(
-    {
+  const {
+    data: dailyChartData,
+    fetchNextPage: fetchNextDailyChartData,
+    hasNextPage: hasNextDailyChartData,
+    isFetchingNextPage: isFetchingDailyChartData,
+    isError: isErrorDailyChartData,
+    error: dailyChartError,
+  } = useInfiniteCandles({
+    params: {
       assetType: assetType as AssetType,
       symbols: [symbol],
       dataType: MarketDataType.CANDLES,
       timeframe: ChartLongTimeframe.ONE_DAY,
       limit: 200,
     },
-    financialService.getCandles,
-  );
+    fetcher: financialService.getCandles,
+  });
+
+  const {
+    data: tradesData,
+    queryKey: tradeQueryKey,
+    isError: isTradeError,
+    error: tradeError,
+  } = useTrades({
+    params: {
+      assetType: assetType as AssetType,
+      symbols: [symbol],
+      dataType: MarketDataType.TRADES,
+    },
+    fetcher: financialService.getTrades,
+  });
 
   const timeFrameController: InfiniteController<ChartData> = {
-    items: transformToChartData(
-      timeFrameChartInfiniteQuery.data?.pages.flatMap(page => page.candles) ?? [],
-      timeframe,
-    ),
-    loadNext: () => timeFrameChartInfiniteQuery.fetchNextPage(),
-    hasNext: !!timeFrameChartInfiniteQuery.hasNextPage,
-    isLoadingNext: timeFrameChartInfiniteQuery.isFetchingNextPage,
+    items: transformToChartData(timeFrameChartData?.pages.flatMap(page => page.candles) ?? [], timeframe),
+    loadNext: () => fetchNextTimeFrameChartData(),
+    hasNext: !!hasNextTimeFrameChartData,
+    isLoadingNext: isFetchingTimeFrameChartData,
   };
 
   const dailyController: InfiniteController<Candle> = {
-    items: dailyChartInfiniteQuery.data?.pages.flatMap(page => page.candles) ?? [],
-    loadNext: () => dailyChartInfiniteQuery.fetchNextPage(),
-    hasNext: !!dailyChartInfiniteQuery.hasNextPage,
-    isLoadingNext: dailyChartInfiniteQuery.isFetchingNextPage,
+    items: dailyChartData?.pages.flatMap(page => page.candles) ?? [],
+    loadNext: () => fetchNextDailyChartData(),
+    hasNext: !!hasNextDailyChartData,
+    isLoadingNext: isFetchingDailyChartData,
   };
 
   useEffect(() => {
+    let marketSocket: Socket | null = null;
+
+    const setupMarketSocket = async () => {
+      marketSocket = await socketService.createChannel('market');
+      console.log(timeframe);
+
+      marketSocket.on(MARKET_SOCKET_EVENT_DATA_UPDATE, (updateData: MarketStreamData) => {
+        if (updateData.dataType === MarketStreamDataType.TRADE) {
+          const newTrade = updateData.payload as Trade;
+
+          queryClient.setQueryData<Trade[]>(tradeQueryKey, oldTrades => {
+            const trades = oldTrades || [];
+            const MAX_TRADES_DISPLAYED = 100;
+            return [newTrade, ...trades].slice(0, MAX_TRADES_DISPLAYED);
+          });
+
+          queryClient.setQueryData<MarketData[]>(assetQueryKey, oldAssetDataArray => {
+            const oldAsset = oldAssetDataArray?.[0];
+            if (!oldAsset) return oldAssetDataArray; // 데이터가 없으면 변경 없음
+
+            return [
+              {
+                ...oldAsset,
+                ...newTrade,
+              },
+            ];
+          });
+        }
+
+        if (updateData.dataType === MarketStreamDataType.CANDLE) {
+          const newCandle = updateData.payload as Candle;
+          queryClient.setQueryData<any>(timeFrameChartInfiniteQuery.queryKey, oldChartData => {
+            if (!oldChartData) return;
+            const newChartData = { ...oldChartData };
+            const candles = newChartData.pages[0].candles;
+            const lastCandle = candles[candles.length - 1];
+            console.log(lastCandle.timestamp, newCandle.timestamp);
+            if (lastCandle.timestamp === newCandle.timestamp) {
+              // 이미 같은 시간대의 캔들이 있으면 업데이트
+              candles[candles.length - 1] = newCandle;
+            } else {
+              candles.push(newCandle);
+            }
+            return newChartData;
+          });
+        }
+      });
+
+      marketSocket.emit(MARKET_SOCKET_EVENT_SUBSCRIBE, {
+        payload: {
+          assetType,
+          channel: MarketDataType.SYMBOL,
+          symbol,
+          dataTypes: [MarketStreamDataType.TRADE, MarketStreamDataType.CANDLE],
+          timeframe,
+        },
+      });
+    };
+
+    void setupMarketSocket();
+
+    return () => {
+      if (marketSocket) {
+        marketSocket.emit(MARKET_SOCKET_EVENT_UNSUBSCRIBE, {
+          payload: {
+            assetType,
+            channel: MarketDataType.SYMBOL,
+            symbol,
+            dataTypes: [MarketStreamDataType.TRADE, MarketStreamDataType.CANDLE],
+            timeframe,
+          },
+        });
+      }
+    };
+  }, [assetType, symbol, timeframe]);
+
+  useEffect(() => {
     if (isErrorAsset) errorService.notify(errorAsset);
-  }, [isErrorAsset]);
+    if (isErrorDailyChartData) errorService.notify(dailyChartError);
+    if (isErrorTimeFrameChartData) errorService.notify(timeFrameChartError);
+    if (isTradeError) errorService.notify(tradeError);
+  }, [isErrorAsset, isErrorDailyChartData, isErrorTimeFrameChartData, isTradeError]);
 
   return (
     <PageLayout variant="sidebar">
@@ -133,7 +215,7 @@ export default function AssetPage({
           <Section.Header>
             <div className="flex  items-center gap-2">
               <div className="flex-1 justify-start">
-                <AssetHeader {...assetData} price={formattedPrice} />
+                <AssetHeader {...currentAsset} price={formattedPrice} />
               </div>
               <div className="justify-end">
                 <BaseTab
@@ -150,7 +232,7 @@ export default function AssetPage({
               timeFrameController={timeFrameController}
               precision={4}
               assetType={assetType as AssetType}
-              currency={assetData?.currency}
+              currency={currentAsset?.currency}
               timeframe={timeframe}
               onTimeframeChange={(timeframe: ChartTimeframe) => setTimeframe(timeframe)}
             />
@@ -158,9 +240,18 @@ export default function AssetPage({
         </Section>
 
         <Section variant="card" borderless>
-          <Section.Header>일별 실시간 시세</Section.Header>
+          <Section.Header>
+            일별 실시간 시세
+            <BaseTab
+              data={MARKET_PRICE_TABS_MAP}
+              value={marketTab}
+              onValueChange={val => setMarketTab(val)}
+              variant="underline"
+            />
+          </Section.Header>
           <Section.Content>
-            <DailyMarketPrice currency={currency} controller={dailyController} />
+            {marketTab === 'realTime' && <TradeTable currency={currency} data={tradesData} />}
+            {marketTab === 'daily' && <DailyMarketPrice currency={currency} controller={dailyController} />}
           </Section.Content>
         </Section>
       </PageLayout.Main>
