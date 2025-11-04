@@ -1,5 +1,5 @@
-import { AuthService, SigninRequest, SigninResponse, HttpClient,TokenProvider, TokenData } from '@mtr/network-core';
-import { OauthConfig,  } from './type';
+import { HttpClient, TokenData, TokenProvider } from '@mtr/network-core';
+import { AuthService, OauthConfig, SigninRequest, SigninResponse } from '../types';
 
 // 팩토리 함수에 제네릭 <T> 추가
 export const createAuthService = <T>(
@@ -8,12 +8,12 @@ export const createAuthService = <T>(
   oauthConfig?: OauthConfig,
 ): AuthService<T> => {
   // 제네릭 타입의 AuthService를 반환
-  const signin = async (params: SigninRequest) => {
-    return await httpClient.post<SigninResponse>('/auth/signin', params);
+  const signIn = async (params: SigninRequest) => {
+    return await httpClient.post<SigninResponse>('/auth/signIn', params);
   };
 
-  const signout = async () => {
-    return await httpClient.post('/auth/signout', {});
+  const signOut = async () => {
+    return await httpClient.post('/auth/signOut', {});
   };
 
   const getGoogleLoginUrl = () => {
@@ -29,7 +29,6 @@ export const createAuthService = <T>(
   };
 
   const getTokens = () => {
-    // 받은 tokenProvider의 getTokens를 그대로 사용
     return tokenProvider.getTokens();
   };
 
@@ -38,8 +37,8 @@ export const createAuthService = <T>(
   };
 
   return {
-    signin,
-    signout,
+    signIn,
+    signOut,
     getTokens,
     setTokens,
     getGoogleLoginUrl,

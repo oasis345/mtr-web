@@ -7,8 +7,8 @@ export interface UseTradesParams {
 }
 
 export const useTrades = ({ params, fetcher }: UseTradesParams) => {
-  const queryKey = [params.assetType, params.dataType, params.symbols];
-  const response = useQuery<Trade[], Error, Trade[]>({
+  const queryKey = [params.assetType, params.dataType, params.symbols.join(',')];
+  const response = useQuery<Trade[]>({
     queryKey: queryKey,
     queryFn: () => fetcher(params),
     gcTime: 1_000,

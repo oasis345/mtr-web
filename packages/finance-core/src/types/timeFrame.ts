@@ -22,3 +22,11 @@ export const ALL_TIMEFRAMES: ChartTimeframe[] = [
   ...Object.values(ChartShortTimeframe),
   ...Object.values(ChartLongTimeframe),
 ];
+
+export const isLongTimeframe = (timeframe: ChartTimeframe): timeframe is ChartTimeframe => {
+  return Object.values(ChartLongTimeframe).includes(timeframe as ChartLongTimeframe);
+};
+
+export const isShortTimeframe = (timeframe: ChartTimeframe): timeframe is ChartShortTimeframe => {
+  return Object.values(ChartShortTimeframe).includes(timeframe as ChartShortTimeframe);
+};

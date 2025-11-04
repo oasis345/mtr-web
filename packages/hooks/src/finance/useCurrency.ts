@@ -2,7 +2,7 @@ import { AssetType, Currency, formatPriceByCurrency, MarketData } from '@mtr/fin
 import { useMemo, useState } from 'react';
 
 export const useCurrency = (exchangeRate: number, assetData: MarketData, assetType: AssetType) => {
-  const [currency, setCurrency] = useState<Currency>(Currency.USD);
+  const [currency, setCurrency] = useState<Currency>(Currency.KRW);
   const formattedPrice = useMemo(() => {
     return formatPriceByCurrency({
       price: assetData?.price,

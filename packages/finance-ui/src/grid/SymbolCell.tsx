@@ -1,15 +1,10 @@
 'use client';
 
-import React from 'react';
-import { ICellRendererParams } from 'ag-grid-community';
 import { MarketData } from '@mtr/finance-core';
 import { OptimizedImage } from '@mtr/ui/client'; // 또는 SmartImage
+import React from 'react';
 
-export interface SymbolCellProps extends ICellRendererParams<MarketData> {
-  data: MarketData;
-}
-
-export const SymbolCell: React.FC<SymbolCellProps> = ({ data }) => {
+export const SymbolCell = ({ data }: { data: MarketData }) => {
   if (!data) return null;
 
   const logoFallback = (

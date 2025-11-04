@@ -10,10 +10,8 @@ const professionalDarkTheme = themeQuartz.withParams({
   headerTextColor: '#ffffff',
   headerBackgroundColor: '#2d3748',
   oddRowBackgroundColor: 'rgba(255, 255, 255, 0.02)',
-  evenRowBackgroundColor: '#1a1a1a',
   borderColor: '#4a5568',
   headerColumnResizeHandleColor: '#718096',
-  cellHorizontalBorder: true,
   headerHeight: 48,
   rowHeight: 40,
 });
@@ -25,10 +23,8 @@ const modernLightTheme = themeQuartz.withParams({
   headerTextColor: '#1a202c',
   headerBackgroundColor: '#f7fafc',
   oddRowBackgroundColor: '#f9fafb',
-  evenRowBackgroundColor: '#ffffff',
   borderColor: '#e2e8f0',
   headerColumnResizeHandleColor: '#a0aec0',
-  cellHorizontalBorder: true,
   headerHeight: 48,
   rowHeight: 40,
 });
@@ -40,10 +36,8 @@ const bullMarketTheme = themeQuartz.withParams({
   headerTextColor: '#ffffff',
   headerBackgroundColor: '#1b4332',
   oddRowBackgroundColor: 'rgba(34, 197, 94, 0.05)',
-  evenRowBackgroundColor: '#0f1419',
   borderColor: '#2d5a3d',
   headerColumnResizeHandleColor: '#22c55e',
-  cellHorizontalBorder: true,
   headerHeight: 48,
   rowHeight: 40,
 });
@@ -55,10 +49,8 @@ const bearMarketTheme = themeQuartz.withParams({
   headerTextColor: '#ffffff',
   headerBackgroundColor: '#7f1d1d',
   oddRowBackgroundColor: 'rgba(239, 68, 68, 0.05)',
-  evenRowBackgroundColor: '#1a0b0b',
   borderColor: '#7c2d12',
   headerColumnResizeHandleColor: '#ef4444',
-  cellHorizontalBorder: true,
   headerHeight: 48,
   rowHeight: 40,
 });
@@ -70,10 +62,8 @@ const premiumGoldTheme = themeQuartz.withParams({
   headerTextColor: '#ffffff',
   headerBackgroundColor: '#92400e',
   oddRowBackgroundColor: 'rgba(251, 191, 36, 0.05)',
-  evenRowBackgroundColor: '#1c1917',
   borderColor: '#a16207',
   headerColumnResizeHandleColor: '#fbbf24',
-  cellHorizontalBorder: true,
   headerHeight: 48,
   rowHeight: 40,
 });
@@ -85,10 +75,8 @@ const blueChipTheme = themeQuartz.withParams({
   headerTextColor: '#ffffff',
   headerBackgroundColor: '#1e40af',
   oddRowBackgroundColor: 'rgba(59, 130, 246, 0.05)',
-  evenRowBackgroundColor: '#0f172a',
   borderColor: '#1e3a8a',
   headerColumnResizeHandleColor: '#3b82f6',
-  cellHorizontalBorder: true,
   headerHeight: 48,
   rowHeight: 40,
 });
@@ -100,10 +88,8 @@ const cryptoNeonTheme = themeQuartz.withParams({
   headerTextColor: '#ffffff',
   headerBackgroundColor: '#1a1a2e',
   oddRowBackgroundColor: 'rgba(0, 217, 255, 0.03)',
-  evenRowBackgroundColor: '#0a0a0a',
   borderColor: '#16213e',
   headerColumnResizeHandleColor: '#00d9ff',
-  cellHorizontalBorder: true,
   headerHeight: 48,
   rowHeight: 40,
 });
@@ -115,10 +101,8 @@ const minimalWhiteTheme = themeQuartz.withParams({
   headerTextColor: '#111827',
   headerBackgroundColor: '#ffffff',
   oddRowBackgroundColor: '#f9fafb',
-  evenRowBackgroundColor: '#ffffff',
   borderColor: '#f3f4f6',
   headerColumnResizeHandleColor: '#9ca3af',
-  cellHorizontalBorder: false,
   headerHeight: 44,
   rowHeight: 36,
 });
@@ -167,8 +151,8 @@ export const BaseGrid = ({
         // 추가 그리드 옵션들
         animateRows={true}
         enableCellTextSelection={true}
-        headerHeight={selectedTheme.headerHeight || 48}
-        rowHeight={selectedTheme.rowHeight || 40}
+        headerHeight={48}
+        rowHeight={40}
         {...rest}
         {...options}
       />

@@ -1,4 +1,5 @@
-import { createAuthService,  } from '@mtr/auth-core';
+import { AuthService, createAuthService } from '@mtr/auth-core';
+import { ErrorService } from '@mtr/error-handler';
 import { HttpClient } from '@mtr/network-core';
 import { API_BASE_URL } from '../config';
 import { createServerTokenProvider } from '../tokenProvider';
@@ -11,11 +12,7 @@ export interface ServerAppServices {
 }
 
 const tokenProvider = createServerTokenProvider();
-const httpClient = new HttpClient(
-  API_BASE_URL,
-  { withCredentials: true, timeout: 10000 },
-  tokenProvider,
-);
+const httpClient = new HttpClient(API_BASE_URL, { withCredentials: true, timeout: 10000 }, tokenProvider);
 
 const authService = createAuthService(httpClient, tokenProvider);
 

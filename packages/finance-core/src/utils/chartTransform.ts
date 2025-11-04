@@ -2,7 +2,7 @@ import { dayjs } from '@mtr/utils';
 import { Candle, ChartTimeframe } from '../types';
 
 export type ChartCandle = {
-  time: string | number;
+  time: number;
   open: number;
   high: number;
   low: number;
@@ -11,7 +11,7 @@ export type ChartCandle = {
 
 // LightWeightCharts에서 사용하는 볼륨 형태
 export type ChartVolume = {
-  time: string | number;
+  time: number;
   value: number;
   color?: string;
 };
@@ -22,7 +22,7 @@ export type ChartData = {
   volumes: ChartVolume[];
 };
 
-export const formatTimeByTimeframe = (timestamp: string, timeframe: ChartTimeframe): number => {
+export const formatTimeByTimeframe = (timestamp: string, timeframe: ChartTimeframe) => {
   // UTC timestamp 문자열을 명시적으로 UTC로 파싱합니다.
   const date = dayjs.utc(timestamp);
   return date.unix(); // UTC 기준의 유닉스 타임스탬프(초)를 반환합니다.

@@ -1,6 +1,6 @@
 import { Currency, Trade } from '@mtr/finance-core';
 import { BaseGrid } from '@mtr/ui/client';
-import { GetRowIdParams, GridApi } from 'ag-grid-community';
+import { GridApi } from 'ag-grid-community';
 import { useMemo, useRef } from 'react';
 import { createTradeColumns } from '../grid/tradeColumns';
 
@@ -16,11 +16,15 @@ export const TradeTable = ({ currency, data }: { currency: Currency; data: Trade
         data={data}
         columns={dynamicColumns}
         options={{
-          getRowId: (params: GetRowIdParams<Trade>) => params.data.id + params.data.timestamp,
+          getRowId: (params: any) => {
+            const { id, timestamp, volume } = params.data;
+            const rowId = volume.toFixed(10) + id + String(timestamp);
+            return rowId;
+          },
           paginationPageSizeSelector: false,
           alwaysShowVerticalScroll: false,
           suppressHorizontalScroll: false,
-          onGridReady: params => {
+          onGridReady: (params: any) => {
             gridApiRef.current = params.api;
             params.api.sizeColumnsToFit();
           },

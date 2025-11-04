@@ -8,15 +8,15 @@ const SigninPage = () => {
   const router = useRouter();
 
   return (
-    <PageLayout
-      main={
+    <PageLayout>
+      <PageLayout.Main>
         <LoginForm
           onSuccess={() => {
             router.push('/user');
           }}
         />
-      }
-    ></PageLayout>
+      </PageLayout.Main>
+    </PageLayout>
   );
 };
 

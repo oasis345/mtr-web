@@ -1,12 +1,12 @@
 'use client';
+import { Currency, MarketData } from '@mtr/finance-core';
 import { BaseGrid, BaseTab } from '@mtr/ui/client';
+import { _ } from '@mtr/utils';
+import { GridApi } from 'ag-grid-community';
 import { useTheme } from 'next-themes';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createMarketColumns } from '../grid';
-import { _ } from '@mtr/utils';
-import { MarketData, Currency } from '@mtr/finance-core';
 import { MarketViewerProps } from '../types';
-import { GridApi } from 'ag-grid-community';
 
 export const MarketViewer = ({
   assetTabs,
@@ -111,7 +111,7 @@ export const MarketViewer = ({
           suppressCellFocus: true,
           rowClass: 'cursor-pointer',
           rowSelection: 'single',
-          getRowId: params => params.data.symbol + params.data.assetType,
+          getRowId: (params: any) => params.data.symbol + params.data.assetType,
           cellFlashDuration: 700,
           cellFadeDuration: 400,
 
@@ -119,7 +119,7 @@ export const MarketViewer = ({
             onRowClicked?.(params.data as MarketData);
           },
 
-          onGridReady: params => {
+          onGridReady: (params: any) => {
             gridApiRef.current = params.api;
             params.api.sizeColumnsToFit();
             const symbols = getCurrentPageSymbols(0);

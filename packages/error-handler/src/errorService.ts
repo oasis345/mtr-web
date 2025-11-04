@@ -1,12 +1,12 @@
 import { AxiosError, isAxiosError } from 'axios';
 import {
-  BaseError,
-  NetworkError,
   ApiError,
-  UnknownError,
-  isError,
-  isBaseError,
+  BaseError,
   type ErrorEnvironment,
+  isBaseError,
+  isError,
+  NetworkError,
+  UnknownError,
 } from './baseError';
 
 // 특정 에러 핸들러 로직은 외부(apps/web)에서 주입받는다.
@@ -25,8 +25,7 @@ export const createDefaultHandlers = (environment: ErrorEnvironment): ErrorHandl
     handle: (error: AxiosError) => {
       const data = error.response?.data as any;
       const status = error.response?.status;
-      const msg =
-        data?.message ?? data?.error ?? error.message ?? '요청 처리 중 오류가 발생했습니다.';
+      const msg = data?.message ?? data?.error ?? error.message ?? '요청 처리 중 오류가 발생했습니다.';
       return new ApiError(msg, {
         status,
         cause: error,
@@ -42,11 +41,10 @@ export const createDefaultHandlers = (environment: ErrorEnvironment): ErrorHandl
 
   // 2) Fetch API 네트워크 계열
   {
-    canHandle: (error): error is TypeError =>
-      error instanceof TypeError && error.message.includes('fetch'),
-    handle: error =>
+    canHandle: (error): error is TypeError => error instanceof TypeError && error.message.includes('fetch'),
+    handle: (error: Error) =>
       new NetworkError('서버와의 연결에 실패했습니다.', {
-        cause: error as Error,
+        cause: error,
         context: { environment },
       }),
   },
@@ -54,7 +52,7 @@ export const createDefaultHandlers = (environment: ErrorEnvironment): ErrorHandl
   // 3) AbortError
   {
     canHandle: (error): error is Error => isError(error) && error.name === 'AbortError',
-    handle: error =>
+    handle: (error: Error) =>
       new BaseError('요청이 취소되었습니다.', {
         cause: error,
         code: 'REQUEST_ABORTED',
@@ -65,7 +63,7 @@ export const createDefaultHandlers = (environment: ErrorEnvironment): ErrorHandl
   // 4) Response (fetch) 상태 코드 기반
   {
     canHandle: (error): error is Response => error instanceof Response && !error.ok,
-    handle: error =>
+    handle: (error: Response) =>
       new ApiError(`서버 요청 실패: ${error.status} ${error.statusText}`, {
         status: error.status,
         context: { url: error.url, environment },
@@ -74,8 +72,8 @@ export const createDefaultHandlers = (environment: ErrorEnvironment): ErrorHandl
 
   // 5) 일반 Error
   {
-    canHandle: (error): error is Error => isError(error),
-    handle: error => new UnknownError(error.message, { cause: error, context: { environment } }),
+    canHandle: (error: Error): error is Error => isError(error),
+    handle: (error: Error) => new UnknownError(error.message, { cause: error, context: { environment } }),
   },
 
   // 6) 마지막에 BaseError (이미 정규화된 경우 그대로 통과)
@@ -120,8 +118,8 @@ export const normalizeError = (error: unknown, handlers: ErrorHandler[] = []): B
  */
 export type ErrorService = {
   normalize: (error: unknown) => BaseError;
-  notify?: (error: BaseError) => void;
-  log?: (error: BaseError) => void;
+  notify?: (error: Error) => void;
+  log?: (error: Error) => void;
 };
 
 /**

@@ -1,7 +1,11 @@
-import { percentFormatter } from '@mtr/finance-core';
+import { MarketData, percentFormatter } from '@mtr/finance-core';
 import { OptimizedImage } from '@mtr/ui/client';
 
-export const AssetHeader = ({ symbol, name, price, change, changePercentage, logo }) => {
+interface AssetHeaderProps extends Omit<MarketData, 'price'> {
+  price: string;
+}
+export const AssetHeader = (params: AssetHeaderProps) => {
+  const { logo, name, symbol, price, change, changePercentage } = params;
   const basis = changePercentage ?? change ?? 0;
   const isUp = basis >= 0;
 

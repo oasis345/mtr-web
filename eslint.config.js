@@ -15,14 +15,7 @@ const compat = new FlatCompat({
 export default tseslint.config(
   // 1. 전역적으로 무시할 파일 패턴
   {
-    ignores: [
-      '**/node_modules/',
-      '**/.next/',
-      '**/dist/',
-      '**/build/',
-      '**/.turbo/',
-      '**/coverage/',
-    ],
+    ignores: ['**/node_modules/', '**/.next/', '**/dist/', '**/build/', '**/.turbo/', '**/coverage/'],
   },
 
   // 2. 타입 정보가 "필요 없는" 기본 규칙 설정
@@ -66,6 +59,7 @@ export default tseslint.config(
           },
         },
       ],
+      'react-hooks/exhaustive-deps': 'off',
     },
   },
 

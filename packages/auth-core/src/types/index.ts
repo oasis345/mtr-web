@@ -1,4 +1,4 @@
-import { ApiResponsePromise } from '@mtr/network-core';
+import { ApiResponsePromise, TokenData } from '@mtr/network-core';
 
 export interface AuthUser {
   id: string;
@@ -13,9 +13,9 @@ export interface AuthState {
 }
 
 // getTokens의 반환 타입을 제네릭 T로 변경
-export type AuthService<T = Promise<TokenData | null> | TokenData | null> = {
-  signin: (params: SigninRequest) => ApiResponsePromise<SigninResponse>;
-  signout: () => ApiResponsePromise<unknown>;
+export type AuthService<T = Promise<TokenData>> = {
+  signIn: (params: SigninRequest) => ApiResponsePromise<SigninResponse>;
+  signOut: () => ApiResponsePromise<unknown>;
   getGoogleLoginUrl: () => string;
   getTokens: () => T;
   setTokens?: (tokens: TokenData) => void;

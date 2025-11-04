@@ -1,6 +1,6 @@
 'use client';
 
-import { ChartData, ChartShortTimeframe, ChartTimeframe } from '@mtr/finance-core';
+import { ChartData, ChartShortTimeframe, ChartTimeframe, isShortTimeframe } from '@mtr/finance-core';
 import { dayjs } from '@mtr/utils';
 import {
   CandlestickSeries,
@@ -17,7 +17,7 @@ import { useEffect, useMemo, useRef } from 'react';
 
 type LightWeightChartProps = {
   timeframe: ChartTimeframe;
-  data: ChartData[];
+  data: ChartData;
   height?: number;
   className?: string;
   onVisibleLogicalRangeChange?: (range: LogicalRange | null) => void;
@@ -34,8 +34,8 @@ export const LightWeightCharts = ({
 }: LightWeightChartProps) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi>(null);
-  const chartSeriesRef = useRef<ISeriesApi<CandlestickSeries>>(null);
-  const volumeSeriesRef = useRef<ISeriesApi<HistogramSeries>>(null);
+  const chartSeriesRef = useRef<ISeriesApi<'Candlestick'>>(null);
+  const volumeSeriesRef = useRef<ISeriesApi<'Histogram'>>(null);
   const { theme, resolvedTheme } = useTheme();
   const colors = useMemo(() => {
     const isDark = theme === 'dark' || resolvedTheme === 'dark';
@@ -51,7 +51,7 @@ export const LightWeightCharts = ({
 
   // Create chart
   useEffect(() => {
-    const showTime = Object.values(ChartShortTimeframe).includes(timeframe);
+    const showTime = isShortTimeframe(timeframe);
     const chart = createChart(chartContainerRef.current, {
       layout: {
         background: { type: ColorType.Solid, color: colors.backgroundColor },
@@ -72,7 +72,7 @@ export const LightWeightCharts = ({
         borderVisible: true,
         timeVisible: showTime,
         secondsVisible: false,
-        tickMarkFormatter: (time, tickMarkType: TickMarkType) => {
+        tickMarkFormatter: (time: number, tickMarkType: TickMarkType) => {
           const utcDayjsObject = dayjs.unix(time); // <-- 변경된 부분
           const localTime = utcDayjsObject.tz(browserTimezone).locale(browserLocale);
 
@@ -93,7 +93,7 @@ export const LightWeightCharts = ({
       },
       localization: {
         locale: browserLocale,
-        timeFormatter: time => {
+        timeFormatter: (time: number) => {
           const showTime = Object.values(ChartShortTimeframe).includes(timeframe as ChartShortTimeframe);
           const localTime = dayjs.unix(time).tz(browserTimezone).locale(browserLocale);
 
@@ -135,7 +135,6 @@ export const LightWeightCharts = ({
     };
   }, [timeframe]);
 
-  // Update chart colors when theme changes
   useEffect(() => {
     if (!chartRef.current) return;
 
@@ -165,8 +164,8 @@ export const LightWeightCharts = ({
   useEffect(() => {
     if (!data || !chartRef.current) return;
 
-    chartSeriesRef.current?.setData(data?.candles);
-    volumeSeriesRef.current?.setData(data?.volumes);
+    chartSeriesRef.current?.setData(data?.candles as any);
+    volumeSeriesRef.current?.setData(data?.volumes as any);
   }, [data]);
 
   // resize

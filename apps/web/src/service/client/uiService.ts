@@ -1,6 +1,7 @@
-import { type ToastOptions, Toast } from '@mtr/ui/client';
-import { UiService, NotificationOptions  } from '@mtr/ui';
+import { type NotificationOptions, UiService } from '@mtr/ui';
+import { Toast, type ToastOptions } from '@mtr/ui/client';
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 type WebNotificationOptions = NotificationOptions & {
   props?: ToastOptions;
 };
@@ -19,7 +20,6 @@ export const createUiService = (): UiService => {
 
     method(message, { duration, ...props });
   };
-
 
   return { notify, theme };
 };

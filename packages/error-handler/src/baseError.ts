@@ -11,7 +11,7 @@ export interface BaseErrorOptions {
 /**
  * 에러 환경 구분
  */
-export type ErrorEnvironment = 'client' | 'server' | 'edge';
+export type ErrorEnvironment = 'client' | 'server';
 
 /**
  * 애플리케이션의 모든 커스텀 에러의 기반이 되는 클래스입니다.
@@ -37,12 +37,6 @@ export class BaseError extends Error {
     this.environment = this.detectEnvironment();
 
     Object.setPrototypeOf(this, new.target.prototype);
-  }
-
-  private detectEnvironment(): ErrorEnvironment {
-    if (typeof window !== 'undefined') return 'client';
-    if (typeof EdgeRuntime !== 'undefined') return 'edge';
-    return 'server';
   }
 
   /**
@@ -71,9 +65,12 @@ export class BaseError extends Error {
     }
 
     // 프로덕션에서는 민감한 정보가 포함될 수 있는 메시지를 필터링
-    return this.status && this.status >= 500
-      ? '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
-      : this.message;
+    return this.status && this.status >= 500 ? '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' : this.message;
+  }
+
+  private detectEnvironment(): ErrorEnvironment {
+    if (typeof window !== 'undefined') return 'client';
+    return 'server';
   }
 }
 

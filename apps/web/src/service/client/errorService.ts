@@ -1,11 +1,5 @@
-import {
-  BaseError,
-  BaseErrorOptions,
-  normalizeError,
-  logError,
-  type ErrorHandler,
-  type UiService,
-} from '@mtr/error-handler';
+import { BaseError, BaseErrorOptions, type ErrorHandler, logError, normalizeError } from '@mtr/error-handler';
+import { UiService } from '@mtr/ui';
 
 /**
  * 클라이언트 전용 에러 클래스
@@ -29,7 +23,7 @@ const clientErrorHandlers: ErrorHandler[] = [
   // 브라우저 API 에러 처리
   {
     canHandle: (error): error is DOMException => error instanceof DOMException,
-    handle: error =>
+    handle: (error: Error) =>
       new WebClientError(`브라우저 API 오류: ${error.message}`, {
         cause: error,
         code: 'DOM_EXCEPTION',

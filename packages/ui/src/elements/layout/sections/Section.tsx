@@ -1,13 +1,7 @@
-import React, { ReactNode, Children, isValidElement } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import React, { Children, isValidElement, ReactNode } from 'react';
 import { cn } from '../../../lib/utils';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from '../../../shadcn/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../../shadcn/components/ui/card';
 
 export const sectionVariants = cva('', {
   variants: {
@@ -34,18 +28,18 @@ export const sectionVariants = cva('', {
 });
 
 // --- Compound Components ---
-const Header = ({ children }: { children: ReactNode }) => <>{children}</>;
+const Header = ({ children }: { children: ReactNode }): ReactNode => <>{children}</>;
 Header.displayName = 'Section.Header';
 
-const Content = ({ children }: { children: ReactNode }) => <>{children}</>;
+const Content = ({ children }: { children: ReactNode }): ReactNode => <>{children}</>;
 Content.displayName = 'Section.Content';
 
-const Footer = ({ children }: { children: ReactNode }) => <>{children}</>;
+const Footer = ({ children }: { children: ReactNode }): ReactNode => <>{children}</>;
 Footer.displayName = 'Section.Footer';
 
 // --- Main Section Component ---
-interface SectionProps extends VariantProps<typeof sectionVariants> {
-  children: ReactNode;
+export interface SectionProps extends VariantProps<typeof sectionVariants> {
+  children: React.ReactNode;
   className?: string;
   borderless?: boolean; // borderless prop 다시 추가
 }
@@ -64,12 +58,13 @@ export const Section = ({
 
   Children.forEach(children, child => {
     if (isValidElement(child)) {
-      if (child.type === Header) header = child.props.children;
-      if (child.type === Content) content = child.props.children;
-      if (child.type === Footer) footer = child.props.children;
+      const childProps: any = child.props;
+      if (child.type === Header) header = childProps.children;
+      if (child.type === Content) content = childProps.children;
+      if (child.type === Footer) footer = childProps.children;
     }
   });
-  
+
   if (!content && !header && !footer) {
     content = children;
   }
@@ -80,9 +75,11 @@ export const Section = ({
   if (variant === 'card') {
     return (
       <Wrapper className={cn(baseClasses, className)}>
-        <Card className={cn(
-          borderless ? 'border-0' : 'dark:border' // borderless가 true면 항상 테두리 없음
-        )}>
+        <Card
+          className={cn(
+            borderless ? 'border-0' : 'dark:border', // borderless가 true면 항상 테두리 없음
+          )}
+        >
           {header && (
             <CardHeader>
               <CardTitle>{header}</CardTitle>

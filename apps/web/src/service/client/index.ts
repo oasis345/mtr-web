@@ -1,16 +1,15 @@
-import { HttpClient, SocketService } from '@mtr/network-core';
-import { createAuthService } from '@mtr/auth-core';
-import { createUiService } from './uiService';
-import { createClientTokenProvider } from '../tokenProvider';
-import { CLIENT_BASE_URL, GOOGLE_CLIENT_ID, GOOGLE_REDIRECT_URI } from '../config';
-import { createErrorService } from './errorService';
-import { createFinancialService, FinancialService } from '@mtr/finance-core';
-import { AuthService } from '@mtr/auth-core';
+import { AuthService, createAuthService } from '@mtr/auth-core';
 import { ErrorService } from '@mtr/error-handler';
+import { createFinancialService, FinancialService } from '@mtr/finance-core';
+import { HttpClient, SocketService, TokenData } from '@mtr/network-core';
 import { UiService } from '@mtr/ui';
+import { CLIENT_BASE_URL, GOOGLE_CLIENT_ID, GOOGLE_REDIRECT_URI } from '../config';
+import { createClientTokenProvider } from '../tokenProvider';
+import { createErrorService } from './errorService';
+import { createUiService } from './uiService';
 
 export interface ClientAppServices {
-  authService: AuthService;
+  authService: AuthService<TokenData>;
   errorService: ErrorService;
   httpClient: HttpClient;
   uiService: UiService;
@@ -20,13 +19,9 @@ export interface ClientAppServices {
 
 export function createClientService(): ClientAppServices {
   const tokenProvider = createClientTokenProvider();
-  const httpClient = new HttpClient(
-    CLIENT_BASE_URL,
-    { withCredentials: true, timeout: 20000 },
-    tokenProvider,
-  );
+  const httpClient = new HttpClient(CLIENT_BASE_URL, { withCredentials: true, timeout: 20000 }, tokenProvider);
 
-  const authService = createAuthService(httpClient, tokenProvider, {
+  const authService = createAuthService<TokenData>(httpClient, tokenProvider, {
     clientId: GOOGLE_CLIENT_ID,
     redirectUri: GOOGLE_REDIRECT_URI,
   });

@@ -7,8 +7,8 @@ export interface UseAssetsParams {
 }
 
 export const useAssets = ({ params, fetcher }: UseAssetsParams) => {
-  const queryKey = [params.assetType, params.dataType, params.symbols];
-  const response = useQuery<MarketData[], Error, MarketData>({
+  const queryKey = [params.assetType, params.dataType, params.symbols.join(',')];
+  const response = useQuery<MarketData[]>({
     queryKey: queryKey,
     queryFn: () => fetcher(params),
   });

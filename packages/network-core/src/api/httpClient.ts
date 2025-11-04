@@ -1,6 +1,6 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
 import { qs } from '@mtr/utils';
-
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
+import { TokenProvider } from '../types';
 
 export interface ApiResponse<T> {
   data: T;
@@ -33,6 +33,41 @@ export class HttpClient {
     });
 
     this.setupInterceptors();
+  }
+
+  async get<T>(url: string, params?: unknown): Promise<ApiResponse<T>> {
+    const response = await this.client.get<ApiResponse<T>>(url, { params });
+    return response.data;
+  }
+
+  async post<T>(url: string, data: unknown): Promise<ApiResponse<T>> {
+    const response = await this.client.post<ApiResponse<T>>(url, data);
+    return response.data;
+  }
+
+  async put<T>(url: string, data: unknown): Promise<ApiResponse<T>> {
+    const response = await this.client.put<ApiResponse<T>>(url, data);
+    return response.data;
+  }
+
+  async patch<T>(url: string, data: unknown): Promise<ApiResponse<T>> {
+    const response = await this.client.patch<ApiResponse<T>>(url, data);
+    return response.data;
+  }
+
+  async delete<T>(url: string): Promise<ApiResponse<T>> {
+    const response = await this.client.delete<ApiResponse<T>>(url);
+    return response.data;
+  }
+
+  async request<T>(config: AxiosRequestConfig): Promise<ApiResponse<T>> {
+    const response = await this.client.request<ApiResponse<T>>(config);
+    return response.data;
+  }
+
+  async getToken() {
+    const tokens = await this.tokenProvider?.getTokens();
+    return tokens?.accessToken || null;
   }
 
   private setupInterceptors() {
@@ -91,40 +126,5 @@ export class HttpClient {
     //     }
     //   },
     // );
-  }
-
-  async get<T>(url: string, params?: unknown): Promise<ApiResponse<T>> {
-    const response = await this.client.get<ApiResponse<T>>(url, { params });
-    return response.data;
-  }
-
-  async post<T>(url: string, data: unknown): Promise<ApiResponse<T>> {
-    const response = await this.client.post<ApiResponse<T>>(url, data);
-    return response.data;
-  }
-
-  async put<T>(url: string, data: unknown): Promise<ApiResponse<T>> {
-    const response = await this.client.put<ApiResponse<T>>(url, data);
-    return response.data;
-  }
-
-  async patch<T>(url: string, data: unknown): Promise<ApiResponse<T>> {
-    const response = await this.client.patch<ApiResponse<T>>(url, data);
-    return response.data;
-  }
-
-  async delete<T>(url: string): Promise<ApiResponse<T>> {
-    const response = await this.client.delete<ApiResponse<T>>(url);
-    return response.data;
-  }
-
-  async request<T>(config: AxiosRequestConfig): Promise<ApiResponse<T>> {
-    const response = await this.client.request<ApiResponse<T>>(config);
-    return response.data;
-  }
-
-  async getToken() {
-    const tokens = await this.tokenProvider?.getTokens();
-    return tokens?.accessToken || null;
   }
 }

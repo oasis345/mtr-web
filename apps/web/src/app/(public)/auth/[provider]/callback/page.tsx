@@ -1,16 +1,18 @@
 'use client';
 
+import { useAppServices } from '@/store';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { useAppServices } from '@mtr/ui/client';
 
 const GoogleCallbackPage = () => {
-  const { authService, uiService } = useAppServices();
+  const { authService } = useAppServices();
+  const router = useRouter();
   useEffect(() => {
     const tokens = authService.getTokens();
     authService.setTokens(tokens);
 
-    uiService.navigate.push('/');
-  }, [authService, uiService]);
+    router.push('/');
+  }, [authService]);
 
   return (
     <div>

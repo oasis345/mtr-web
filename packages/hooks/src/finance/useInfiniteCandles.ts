@@ -6,7 +6,7 @@ import {
   getTTLbyTimeframe,
   MarketDataType,
 } from '@mtr/finance-core';
-import { useInfiniteQuery, UseInfiniteQueryResult } from '@tanstack/react-query'; // UseInfiniteQueryResult 임포트 추가
+import { InfiniteData, useInfiniteQuery } from '@tanstack/react-query'; // UseInfiniteQueryResult 임포트 추가
 
 interface UseInfiniteCandlesOptions {
   params: CandleQueryParams;
@@ -14,14 +14,11 @@ interface UseInfiniteCandlesOptions {
 }
 
 // 훅의 반환 타입에 queryKey를 추가합니다.
-export const useInfiniteCandles = ({
-  params,
-  fetcher,
-}: UseInfiniteCandlesOptions): UseInfiniteQueryResult<CandleResponse, Error> & { queryKey: (string | string[])[] } => {
+export const useInfiniteCandles = ({ params, fetcher }: UseInfiniteCandlesOptions) => {
   const limit = params.limit ?? getLimitByTimeframe(params.assetType, params.timeframe);
   const cacheConfig = getTTLbyTimeframe(params.timeframe);
-  const queryKey = [params.assetType, params.dataType, params.timeframe, params.symbols]; // 훅 내부에서 queryKey를 생성
-  const response = useInfiniteQuery<CandleResponse, Error, CandleResponse, (string | string[])[], string | undefined>({
+  const queryKey: string[] = [params.assetType, params.dataType, params.timeframe, params.symbols.join(',')]; // 훅 내부에서 queryKey를 생성
+  const response = useInfiniteQuery<CandleResponse, Error, InfiniteData<CandleResponse>, string[], string>({
     queryKey: queryKey,
 
     // 1. 첫 페이지 파라미터는 undefined로 설정

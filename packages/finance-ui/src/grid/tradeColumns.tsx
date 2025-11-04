@@ -1,4 +1,4 @@
-import { Candle, Currency, formatPriceByCurrency, percentFormatter, Trade } from '@mtr/finance-core';
+import { Currency, formatPriceByCurrency, percentFormatter, Trade } from '@mtr/finance-core';
 import { _, dayjs } from '@mtr/utils';
 import { ColDef, ValueFormatterParams } from 'ag-grid-community';
 
@@ -50,4 +50,4 @@ const getBaseColumns = (opts: ColumnOpts): ColDef<Trade>[] => {
   ];
 };
 
-export const createTradeColumns = (opts: ColumnOpts): ColDef<Candle>[] => [...getBaseColumns(opts)];
+export const createTradeColumns = (opts: ColumnOpts): ColDef<Trade>[] => [...getBaseColumns(opts)];

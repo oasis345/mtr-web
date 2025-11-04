@@ -63,12 +63,12 @@ export interface AssetQueryParams {
   symbols?: string[]; // 여러 심볼 조회용
   limit?: number; // 제한
   orderBy?: string; // 정렬 순서
-  timeframe?: ChartTimeframe; // 시간대
 }
 
 export interface CandleQueryParams extends AssetQueryParams {
   start?: string; // 시작 시간
   end?: string; // 종료 시간
+  timeframe?: ChartTimeframe; // 시간대
 }
 
 export interface CandleResponse {
@@ -123,7 +123,7 @@ export interface Candle {
 
 export interface Trade {
   id: string;
-  timestamp: string;
+  timestamp: number;
   price: number;
   change: number;
   changePercentage: number;
@@ -132,4 +132,16 @@ export interface Trade {
   assetType: AssetType;
   currency: Currency;
   side: 'buy' | 'sell';
+}
+
+export function isTrade(streamData: MarketStreamData): streamData is MarketStreamData<Trade> {
+  return streamData.dataType === MarketStreamDataType.TRADE;
+}
+
+export function isCandle(streamData: MarketStreamData): streamData is MarketStreamData<Candle> {
+  return streamData.dataType === MarketStreamDataType.CANDLE;
+}
+
+export function isTicker(streamData: MarketStreamData): streamData is MarketStreamData<MarketData> {
+  return streamData.dataType === MarketStreamDataType.TICKER;
 }

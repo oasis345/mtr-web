@@ -1,14 +1,14 @@
 import { Candle, Currency } from '@mtr/finance-core';
 import { BaseGrid } from '@mtr/ui/client';
 import { _ } from '@mtr/utils';
-import { GetRowIdParams, GridApi } from 'ag-grid-community';
+import { GridApi } from 'ag-grid-community';
 import { useEffect, useMemo, useRef } from 'react';
 import { createDailyColumns } from '../grid/dailyColumns';
 import { InfiniteController } from '../types';
 
 type DailyMarketPriceProps = {
   currency: Currency;
-  controller: InfiniteController<Candle>;
+  controller: InfiniteController<Candle[]>;
 };
 
 // 탭 관련 로직이 제거된 순수한 데이터 그리드 컴포넌트
@@ -51,11 +51,13 @@ export const DailyMarketPrice = ({ currency, controller }: DailyMarketPriceProps
       data={items}
       columns={dynamicColumns}
       options={{
-        getRowId: (params: GetRowIdParams<Candle>) => params.data.timestamp + params.data.symbol,
+        getRowId: (params: any) => {
+          return params.data.timestamp + params.data.symbol;
+        },
         paginationPageSizeSelector: false,
         alwaysShowVerticalScroll: false,
         suppressHorizontalScroll: false,
-        onGridReady: params => {
+        onGridReady: (params: any) => {
           gridApiRef.current = params.api;
           // params.api.sizeColumnsToFit();
         },

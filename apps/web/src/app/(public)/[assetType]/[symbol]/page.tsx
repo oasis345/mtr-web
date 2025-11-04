@@ -4,11 +4,14 @@ import { useAppServices } from '@/store';
 import {
   AssetType,
   Candle,
+  CandleResponse,
   ChartData,
   ChartLongTimeframe,
   ChartShortTimeframe,
   ChartTimeframe,
   Currency,
+  isCandle,
+  isTrade,
   MARKET_SOCKET_EVENT_DATA_UPDATE,
   MARKET_SOCKET_EVENT_SUBSCRIBE,
   MARKET_SOCKET_EVENT_UNSUBSCRIBE,
@@ -33,11 +36,11 @@ import {
 import { useAssets, useCurrency, useInfiniteCandles, useTrades } from '@mtr/hooks';
 import { PageLayout, Section } from '@mtr/ui';
 import { BaseTab } from '@mtr/ui/client';
-import { useQueryClient } from '@tanstack/react-query';
+import { InfiniteData, useQueryClient } from '@tanstack/react-query';
 import { use, useEffect, useState } from 'react';
 import { Socket } from 'socket.io-client';
 
-export default function AssetPage({ params }: { params: Promise<{ assetType: string; symbol: string }> }) {
+export default function AssetPage({ params }: { params: Promise<{ assetType: AssetType; symbol: string }> }) {
   const queryClient = useQueryClient();
   const { errorService, financialService, socketService } = useAppServices();
   const { assetType, symbol } = use(params);
@@ -46,20 +49,19 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: str
 
   const {
     data: assetData,
-    isLoading: isLoadingAsset,
     isError: isErrorAsset,
     error: errorAsset,
     queryKey: assetQueryKey,
   } = useAssets({
     params: {
-      assetType: assetType as AssetType,
+      assetType: assetType,
       symbols: [symbol],
       dataType: MarketDataType.SYMBOL,
     },
     fetcher: financialService.getAssets,
   });
   const currentAsset = assetData?.[0];
-  const { currency, setCurrency, formattedPrice } = useCurrency(1300, currentAsset, assetType as AssetType);
+  const { currency, setCurrency, formattedPrice } = useCurrency(1300, currentAsset, assetType);
 
   const {
     data: timeFrameChartData,
@@ -68,9 +70,10 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: str
     isFetchingNextPage: isFetchingTimeFrameChartData,
     isError: isErrorTimeFrameChartData,
     error: timeFrameChartError,
+    queryKey: timeFrameChartQueryKey,
   } = useInfiniteCandles({
     params: {
-      assetType: assetType as AssetType,
+      assetType: assetType,
       symbols: [symbol],
       dataType: MarketDataType.CANDLES,
       timeframe,
@@ -87,7 +90,7 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: str
     error: dailyChartError,
   } = useInfiniteCandles({
     params: {
-      assetType: assetType as AssetType,
+      assetType: assetType,
       symbols: [symbol],
       dataType: MarketDataType.CANDLES,
       timeframe: ChartLongTimeframe.ONE_DAY,
@@ -103,7 +106,7 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: str
     error: tradeError,
   } = useTrades({
     params: {
-      assetType: assetType as AssetType,
+      assetType: assetType,
       symbols: [symbol],
       dataType: MarketDataType.TRADES,
     },
@@ -117,7 +120,7 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: str
     isLoadingNext: isFetchingTimeFrameChartData,
   };
 
-  const dailyController: InfiniteController<Candle> = {
+  const dailyController: InfiniteController<Candle[]> = {
     items: dailyChartData?.pages.flatMap(page => page.candles) ?? [],
     loadNext: () => fetchNextDailyChartData(),
     hasNext: !!hasNextDailyChartData,
@@ -129,11 +132,10 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: str
 
     const setupMarketSocket = async () => {
       marketSocket = await socketService.createChannel('market');
-      console.log(timeframe);
 
       marketSocket.on(MARKET_SOCKET_EVENT_DATA_UPDATE, (updateData: MarketStreamData) => {
-        if (updateData.dataType === MarketStreamDataType.TRADE) {
-          const newTrade = updateData.payload as Trade;
+        if (isTrade(updateData)) {
+          const newTrade = updateData.payload;
 
           queryClient.setQueryData<Trade[]>(tradeQueryKey, oldTrades => {
             const trades = oldTrades || [];
@@ -141,9 +143,9 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: str
             return [newTrade, ...trades].slice(0, MAX_TRADES_DISPLAYED);
           });
 
-          queryClient.setQueryData<MarketData[]>(assetQueryKey, oldAssetDataArray => {
-            const oldAsset = oldAssetDataArray?.[0];
-            if (!oldAsset) return oldAssetDataArray; // 데이터가 없으면 변경 없음
+          queryClient.setQueryData<MarketData[]>(assetQueryKey, oldAssetData => {
+            const oldAsset = oldAssetData?.[0];
+            if (!oldAsset) return oldAssetData;
 
             return [
               {
@@ -154,16 +156,15 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: str
           });
         }
 
-        if (updateData.dataType === MarketStreamDataType.CANDLE) {
-          const newCandle = updateData.payload as Candle;
-          queryClient.setQueryData<any>(timeFrameChartInfiniteQuery.queryKey, oldChartData => {
+        if (isCandle(updateData)) {
+          const newCandle = updateData.payload;
+          queryClient.setQueryData<InfiniteData<CandleResponse>>(timeFrameChartQueryKey, oldChartData => {
             if (!oldChartData) return;
             const newChartData = { ...oldChartData };
             const candles = newChartData.pages[0].candles;
             const lastCandle = candles[candles.length - 1];
-            console.log(lastCandle.timestamp, newCandle.timestamp);
+
             if (lastCandle.timestamp === newCandle.timestamp) {
-              // 이미 같은 시간대의 캔들이 있으면 업데이트
               candles[candles.length - 1] = newCandle;
             } else {
               candles.push(newCandle);
@@ -231,7 +232,7 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: str
             <AssetChart
               timeFrameController={timeFrameController}
               precision={4}
-              assetType={assetType as AssetType}
+              assetType={assetType}
               currency={currentAsset?.currency}
               timeframe={timeframe}
               onTimeframeChange={(timeframe: ChartTimeframe) => setTimeframe(timeframe)}
