@@ -1,21 +1,18 @@
-import { PageLayout, Section } from '@mtr/ui';
-import { appServices } from '@/service/server';
-import { FINANCIAL_ROUTES, AssetType, MarketData } from '@mtr/finance-core';
 import { MarketPageClient } from '@/components/markets/MarketClient';
+import { appServices } from '@/service/server';
+import { AssetType, FINANCIAL_ROUTES, MarketData, MarketDataType } from '@mtr/finance-core';
+import { PageLayout, Section } from '@mtr/ui';
 
 export default async function RootPage({
   searchParams,
 }: {
-  searchParams: Promise<{ asset?: string; dataType?: string }>;
+  searchParams: Promise<{ asset?: AssetType; dataType?: MarketDataType }>;
 }) {
   const { httpClient, errorService } = appServices;
-  const { asset = 'stocks', dataType = 'mostActive' } = await searchParams;
+  const { asset = 'crypto', dataType = 'topTraded' } = await searchParams;
 
   // assetType 유효성 검사
-  const validAssetType = Object.values(AssetType).includes(asset as AssetType)
-    ? asset
-    : AssetType.STOCKS;
-
+  const validAssetType = Object.values(AssetType).includes(asset as AssetType) ? asset : AssetType.STOCKS;
   let data: MarketData[] = [];
 
   try {

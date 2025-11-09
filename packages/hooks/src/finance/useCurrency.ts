@@ -4,13 +4,16 @@ import { useMemo, useState } from 'react';
 export const useCurrency = (exchangeRate: number, assetData: MarketData, assetType: AssetType) => {
   const [currency, setCurrency] = useState<Currency>(Currency.KRW);
   const formattedPrice = useMemo(() => {
-    return formatPriceByCurrency({
+    if (!assetData || !exchangeRate) return '-';
+    const value = formatPriceByCurrency({
       price: assetData?.price,
       from: assetData?.currency,
       to: currency,
-      exchangeRate: 1300,
+      exchangeRate,
       assetType: assetType,
     });
+
+    return value;
   }, [assetData?.price, currency, exchangeRate, assetType]);
 
   return { currency, setCurrency, formattedPrice };

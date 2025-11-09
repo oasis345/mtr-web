@@ -1,4 +1,3 @@
-import { _ } from '@mtr/utils';
 import { AssetType, Currency } from '../types';
 
 // --- KRW 포매터 ---
@@ -72,6 +71,7 @@ export const convertCurrency = (
     return price * exchangeRate;
   }
 
+  debugger;
   // 지원하지 않는 변환의 경우, 원본 가격을 그대로 반환 (혹은 에러 처리)
   console.warn(`Unsupported currency conversion from ${from} to ${to}`);
   return price;
@@ -111,6 +111,7 @@ export const formatPrice = (
     return standardUsdFormatter.format(price);
   }
 
+  debugger;
   return price.toLocaleString();
 };
 

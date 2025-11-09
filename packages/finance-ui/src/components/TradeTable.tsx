@@ -4,10 +4,18 @@ import { GridApi } from 'ag-grid-community';
 import { useMemo, useRef } from 'react';
 import { createTradeColumns } from '../grid/tradeColumns';
 
-export const TradeTable = ({ currency, data }: { currency: Currency; data: Trade[] }) => {
+export const TradeTable = ({
+  currency,
+  exchangeRate,
+  data,
+}: {
+  currency: Currency;
+  exchangeRate: number;
+  data: Trade[];
+}) => {
   const gridApiRef = useRef<GridApi | null>(null);
   const dynamicColumns = useMemo(() => {
-    return createTradeColumns({ currency, exchangeRate: 1300 });
+    return createTradeColumns({ currency, exchangeRate });
   }, [currency]);
 
   return (

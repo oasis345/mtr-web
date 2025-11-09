@@ -8,15 +8,16 @@ import { InfiniteController } from '../types';
 
 type DailyMarketPriceProps = {
   currency: Currency;
+  exchangeRate: number;
   controller: InfiniteController<Candle[]>;
 };
 
 // 탭 관련 로직이 제거된 순수한 데이터 그리드 컴포넌트
-export const DailyMarketPrice = ({ currency, controller }: DailyMarketPriceProps) => {
+export const DailyMarketPrice = ({ currency, exchangeRate, controller }: DailyMarketPriceProps) => {
   const { items, loadNext, hasNext, isLoadingNext } = controller;
   const gridApiRef = useRef<GridApi | null>(null);
   const dynamicColumns = useMemo(() => {
-    return createDailyColumns({ currency, exchangeRate: 1300 });
+    return createDailyColumns({ currency, exchangeRate });
   }, [currency]);
 
   const debouncedFetch = useMemo(

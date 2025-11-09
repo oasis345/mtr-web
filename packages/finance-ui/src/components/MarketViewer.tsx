@@ -1,10 +1,12 @@
 'use client';
-import { Currency, MarketData } from '@mtr/finance-core';
+import { MarketData } from '@mtr/finance-core';
+import { useCurrency } from '@mtr/hooks';
 import { BaseGrid, BaseTab } from '@mtr/ui/client';
 import { _ } from '@mtr/utils';
 import { GridApi } from 'ag-grid-community';
 import { useTheme } from 'next-themes';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { CurrencyTab } from '../components/CurrencyTab';
 import { createMarketColumns } from '../grid';
 import { MarketViewerProps } from '../types';
 
@@ -22,14 +24,8 @@ export const MarketViewer = ({
   exchangeRate,
 }: MarketViewerProps) => {
   const { theme, resolvedTheme } = useTheme();
-  const [currency, setCurrency] = useState<Currency>(Currency.USD);
+  const { currency, setCurrency } = useCurrency(exchangeRate, data?.[0], selectedAsset);
   const gridApiRef = useRef<GridApi<MarketData> | null>(null);
-
-  const currencyTabs = Object.values(Currency).map(currency => ({
-    label: currency,
-    value: currency,
-  }));
-
   const dynamicColumns = useMemo(
     () =>
       createMarketColumns(data, {
@@ -88,11 +84,7 @@ export const MarketViewer = ({
             )}
           </div>
           <div className="justify-end">
-            <BaseTab
-              data={currencyTabs}
-              defaultValue={Currency.USD}
-              onValueChange={value => setCurrency(value as Currency)}
-            />
+            <CurrencyTab currency={currency} onValueChange={value => setCurrency(value)} />
           </div>
         </div>
       </div>

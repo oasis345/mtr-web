@@ -1,3 +1,4 @@
+'use client';
 import { MarketData, percentFormatter } from '@mtr/finance-core';
 import { OptimizedImage } from '@mtr/ui/client';
 

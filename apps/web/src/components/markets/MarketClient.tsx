@@ -9,7 +9,8 @@ import {
   MarketDataType,
   MarketStreamData,
 } from '@mtr/finance-core';
-import { MARKET_ASSETS_MAP, MARKET_DATA_MAP, MarketViewer } from '@mtr/finance-ui';
+import { MARKET_ASSETS_MAP, MARKET_DATA_MAP, MarketViewer, StockMarketStatusDisplay } from '@mtr/finance-ui';
+import { useExchangeRate, useStockMarketStatus } from '@mtr/hooks';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Socket } from 'socket.io-client';
@@ -17,20 +18,35 @@ import { Socket } from 'socket.io-client';
 export function MarketPageClient({ initialData }: { initialData: MarketData[] }) {
   const [data, setData] = useState(initialData);
   const pageSymbols = useRef<Set<string>>(new Set());
-  const { socketService } = useAppServices();
+  const { socketService, financialService } = useAppServices();
 
   // URL 상태 관리
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const assetParam = searchParams.get('asset');
-  const currentAsset = isMarketAsset(assetParam) ? assetParam : AssetType.STOCKS;
+  const currentAsset = isMarketAsset(assetParam) ? assetParam : AssetType.CRYPTO;
   const dataTypeParam = searchParams.get('dataType');
   const currentDataType = isMarketDataType(dataTypeParam)
     ? dataTypeParam
     : currentAsset === AssetType.CRYPTO
       ? MarketDataType.TOP_TRADED
       : MarketDataType.MOST_ACTIVE;
+
+  const { data: stockMarketStatus } = useStockMarketStatus({
+    country: 'US',
+    fetcher: financialService.getStockMarketStatus,
+  });
+
+  const {
+    data: exchangeRate,
+    isLoading: isLoadingExchangeRate,
+    isError: isErrorExchangeRate,
+    error: exchangeRateError,
+    isSuccess: isSuccessExchangeRate,
+  } = useExchangeRate({
+    fetcher: financialService.getExchangeRates,
+  });
 
   useEffect(() => {
     setData(initialData);
@@ -109,6 +125,11 @@ export function MarketPageClient({ initialData }: { initialData: MarketData[] })
     (asset: string) => {
       const params = new URLSearchParams(searchParams);
       params.set('asset', asset);
+      if (asset === AssetType.STOCKS) {
+        params.set('dataType', MarketDataType.MOST_ACTIVE);
+      } else {
+        params.set('dataType', MarketDataType.TOP_TRADED);
+      }
       router.replace(`${pathname}?${params.toString()}`);
     },
     [pathname, router, searchParams],
@@ -133,18 +154,21 @@ export function MarketPageClient({ initialData }: { initialData: MarketData[] })
   }
 
   return (
-    <MarketViewer
-      data={data}
-      selectedAsset={currentAsset}
-      selectedMarketDataType={currentDataType}
-      assetTabs={MARKET_ASSETS_MAP}
-      dataTypeTabs={MARKET_DATA_MAP}
-      onAssetChange={handleAssetChange}
-      onMarketDataTypeChange={handleMarketDataTypeChange}
-      onPageChanged={handlePageChanged}
-      onRowClicked={handleRowClicked}
-      showDataTypeTabs={currentAsset === AssetType.STOCKS}
-      exchangeRate={1382}
-    />
+    <div className="flex flex-col gap-4">
+      {currentAsset === 'stocks' && <StockMarketStatusDisplay status={stockMarketStatus} />}
+      <MarketViewer
+        data={data}
+        selectedAsset={currentAsset}
+        selectedMarketDataType={currentDataType}
+        assetTabs={MARKET_ASSETS_MAP}
+        dataTypeTabs={MARKET_DATA_MAP}
+        onAssetChange={handleAssetChange}
+        onMarketDataTypeChange={handleMarketDataTypeChange}
+        onPageChanged={handlePageChanged}
+        onRowClicked={handleRowClicked}
+        showDataTypeTabs={currentAsset === AssetType.STOCKS}
+        exchangeRate={exchangeRate}
+      />
+    </div>
   );
 }

@@ -10,7 +10,7 @@ export enum MarketDataType {
   MOST_ACTIVE = 'mostActive',
   GAINERS = 'gainers',
   LOSERS = 'losers',
-  SYMBOL = 'symbol',
+  SYMBOLS = 'symbols',
   TOP_TRADED = 'topTraded',
   CANDLES = 'candles',
   TRADES = 'trades',
@@ -55,6 +55,19 @@ export interface MarketStreamData<T = Candle | Trade | MarketData> {
 export enum Currency {
   USD = 'USD',
   KRW = 'KRW',
+}
+
+export enum StockMarketStatus {
+  'REGULAR' = '정규 거래시간',
+  'PRE' = '해외 프리마켓',
+  'AFTER' = '해외 애프터마켓',
+  'CLOSE' = '정규 휴무 시간',
+}
+
+export interface ExchangeRate {
+  usd: number;
+  krw: number;
+  timestamp: string;
 }
 
 export interface AssetQueryParams {

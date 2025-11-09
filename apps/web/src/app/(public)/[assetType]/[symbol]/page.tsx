@@ -27,13 +27,13 @@ import {
   AssetChart,
   AssetHeader,
   ChartToolbar,
-  CURRENCY_MAP,
+  CurrencyTab,
   DailyMarketPrice,
   InfiniteController,
   MARKET_PRICE_TABS_MAP,
   TradeTable,
 } from '@mtr/finance-ui';
-import { useAssets, useCurrency, useInfiniteCandles, useTrades } from '@mtr/hooks';
+import { useAssets, useCurrency, useExchangeRate, useInfiniteCandles, useTrades } from '@mtr/hooks';
 import { PageLayout, Section } from '@mtr/ui';
 import { BaseTab } from '@mtr/ui/client';
 import { InfiniteData, useQueryClient } from '@tanstack/react-query';
@@ -48,20 +48,32 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: Ass
   const [marketTab, setMarketTab] = useState('daily');
 
   const {
+    data: exchangeRate,
+    isLoading: isLoadingExchangeRate,
+    isError: isErrorExchangeRate,
+    error: exchangeRateError,
+    isSuccess: isSuccessExchangeRate,
+  } = useExchangeRate({
+    fetcher: financialService.getExchangeRates,
+  });
+
+  const {
     data: assetData,
     isError: isErrorAsset,
-    error: errorAsset,
+    isLoading: isLoadingAsset,
+    error: assetError,
     queryKey: assetQueryKey,
   } = useAssets({
     params: {
       assetType: assetType,
       symbols: [symbol],
-      dataType: MarketDataType.SYMBOL,
+      dataType: MarketDataType.SYMBOLS,
     },
     fetcher: financialService.getAssets,
   });
+
   const currentAsset = assetData?.[0];
-  const { currency, setCurrency, formattedPrice } = useCurrency(1300, currentAsset, assetType);
+  const { currency, setCurrency, formattedPrice } = useCurrency(exchangeRate, currentAsset, assetType);
 
   const {
     data: timeFrameChartData,
@@ -177,8 +189,8 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: Ass
       marketSocket.emit(MARKET_SOCKET_EVENT_SUBSCRIBE, {
         payload: {
           assetType,
-          channel: MarketDataType.SYMBOL,
-          symbol,
+          channel: MarketDataType.SYMBOLS,
+          symbols: [symbol],
           dataTypes: [MarketStreamDataType.TRADE, MarketStreamDataType.CANDLE],
           timeframe,
         },
@@ -192,8 +204,8 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: Ass
         marketSocket.emit(MARKET_SOCKET_EVENT_UNSUBSCRIBE, {
           payload: {
             assetType,
-            channel: MarketDataType.SYMBOL,
-            symbol,
+            channel: MarketDataType.SYMBOLS,
+            symbols: [symbol],
             dataTypes: [MarketStreamDataType.TRADE, MarketStreamDataType.CANDLE],
             timeframe,
           },
@@ -203,12 +215,14 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: Ass
   }, [assetType, symbol, timeframe]);
 
   useEffect(() => {
-    if (isErrorAsset) errorService.notify(errorAsset);
+    if (isErrorExchangeRate) errorService.notify(exchangeRateError);
+    if (isErrorAsset) errorService.notify(assetError);
     if (isErrorDailyChartData) errorService.notify(dailyChartError);
     if (isErrorTimeFrameChartData) errorService.notify(timeFrameChartError);
     if (isTradeError) errorService.notify(tradeError);
-  }, [isErrorAsset, isErrorDailyChartData, isErrorTimeFrameChartData, isTradeError]);
+  }, [isErrorAsset, isErrorDailyChartData, isErrorTimeFrameChartData, isTradeError, isErrorExchangeRate]);
 
+  if (isLoadingExchangeRate || isLoadingAsset) return <div>Loading...</div>;
   return (
     <PageLayout variant="sidebar">
       <PageLayout.Main>
@@ -219,11 +233,7 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: Ass
                 <AssetHeader {...currentAsset} price={formattedPrice} />
               </div>
               <div className="justify-end">
-                <BaseTab
-                  data={CURRENCY_MAP}
-                  defaultValue={currency}
-                  onValueChange={value => setCurrency(value as Currency)}
-                />
+                <CurrencyTab currency={currency} onValueChange={(value: Currency) => setCurrency(value)} />
               </div>
             </div>
           </Section.Header>
@@ -251,8 +261,14 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: Ass
             />
           </Section.Header>
           <Section.Content>
-            {marketTab === 'realTime' && <TradeTable currency={currency} data={tradesData} />}
-            {marketTab === 'daily' && <DailyMarketPrice currency={currency} controller={dailyController} />}
+            <>
+              {marketTab === 'realTime' && (
+                <TradeTable currency={currency} exchangeRate={exchangeRate} data={tradesData} />
+              )}
+              {marketTab === 'daily' && (
+                <DailyMarketPrice currency={currency} exchangeRate={exchangeRate} controller={dailyController} />
+              )}
+            </>
           </Section.Content>
         </Section>
       </PageLayout.Main>
