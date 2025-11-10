@@ -1,4 +1,4 @@
-import { AssetType, MarketData, MarketDataType } from '@mtr/finance-core';
+import { AssetType, MarketDataType, TickerData } from '@mtr/finance-core';
 import { ColDef } from 'ag-grid-community';
 
 export interface MarketTab {
@@ -25,8 +25,8 @@ export interface MarketDataEvent {
 }
 
 export interface MarketViewerProps {
-  data: MarketData[];
-  columns?: ColDef<MarketData>[];
+  data: TickerData[];
+  columns?: ColDef<TickerData>[];
   assetTabs: MarketTab[];
   dataTypeTabs: MarketDataTypeTab[];
   selectedAsset?: AssetType;
@@ -35,8 +35,9 @@ export interface MarketViewerProps {
   onAssetChange?: (category: AssetType) => void;
   onMarketDataTypeChange?: (marketDataType: MarketDataType) => void;
   onPageChanged?: (symbols: string[]) => void;
-  onRowClicked?: (data: MarketData) => void;
+  onRowClicked?: (data: TickerData) => void;
   exchangeRate?: number;
+  theme: string;
 }
 
 export type InfiniteController<T> = {

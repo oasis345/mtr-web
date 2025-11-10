@@ -1,7 +1,7 @@
-import { AssetType, Currency, formatPriceByCurrency, MarketData } from '@mtr/finance-core';
+import { AssetType, Currency, formatPriceByCurrency, TickerData } from '@mtr/finance-core';
 import { useMemo, useState } from 'react';
 
-export const useCurrency = (exchangeRate: number, assetData: MarketData, assetType: AssetType) => {
+export const useCurrency = (exchangeRate: number, assetData: TickerData, assetType: AssetType) => {
   const [currency, setCurrency] = useState<Currency>(Currency.KRW);
   const formattedPrice = useMemo(() => {
     if (!assetData || !exchangeRate) return '-';

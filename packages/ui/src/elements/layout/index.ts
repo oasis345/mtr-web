@@ -1,4 +1,4 @@
-// Layout components
+// Layout theme
 export * from './AppLayout';
 export * from './PageLayout';
 export * from './AppHeader';

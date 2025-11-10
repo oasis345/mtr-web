@@ -1,10 +1,10 @@
 'use client';
 
-import { MarketData } from '@mtr/finance-core';
+import { TickerData } from '@mtr/finance-core';
 import { OptimizedImage } from '@mtr/ui/client'; // 또는 SmartImage
 import React from 'react';
 
-export const SymbolCell = ({ data }: { data: MarketData }) => {
+export const SymbolCell = ({ data }: { data: TickerData }) => {
   if (!data) return null;
 
   const logoFallback = (

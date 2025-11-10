@@ -1,8 +1,8 @@
 'use client';
-import { MarketData, percentFormatter } from '@mtr/finance-core';
+import { percentFormatter, TickerData } from '@mtr/finance-core';
 import { OptimizedImage } from '@mtr/ui/client';
 
-interface AssetHeaderProps extends Omit<MarketData, 'price'> {
+interface AssetHeaderProps extends Omit<TickerData, 'price'> {
   price: string;
 }
 export const AssetHeader = (params: AssetHeaderProps) => {

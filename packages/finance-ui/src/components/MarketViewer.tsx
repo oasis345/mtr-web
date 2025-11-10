@@ -1,13 +1,13 @@
 'use client';
-import { MarketData } from '@mtr/finance-core';
+import { TickerData } from '@mtr/finance-core';
 import { useCurrency } from '@mtr/hooks';
 import { BaseGrid, BaseTab } from '@mtr/ui/client';
 import { _ } from '@mtr/utils';
 import { GridApi } from 'ag-grid-community';
-import { useTheme } from 'next-themes';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { CurrencyTab } from '../components/CurrencyTab';
 import { createMarketColumns } from '../grid';
+import { getGridTheme } from '../grid/theme';
 import { MarketViewerProps } from '../types';
 
 export const MarketViewer = ({
@@ -22,33 +22,26 @@ export const MarketViewer = ({
   onRowClicked,
   showDataTypeTabs = true,
   exchangeRate,
+  theme,
 }: MarketViewerProps) => {
-  const { theme, resolvedTheme } = useTheme();
   const { currency, setCurrency } = useCurrency(exchangeRate, data?.[0], selectedAsset);
-  const gridApiRef = useRef<GridApi<MarketData> | null>(null);
+  const gridApiRef = useRef<GridApi<TickerData> | null>(null);
   const dynamicColumns = useMemo(
     () =>
-      createMarketColumns(data, {
-        currency,
-        exchangeRate,
-      }),
+      createMarketColumns(
+        data,
+        {
+          currency,
+          exchangeRate,
+        },
+        selectedMarketDataType,
+      ),
     [data, currency, selectedAsset, exchangeRate],
   );
 
   useEffect(() => {
     gridApiRef.current?.refreshCells({ force: true, columns: ['price'] });
   }, [currency, exchangeRate]);
-
-  const getGridTheme = () => {
-    const currentTheme = resolvedTheme || theme;
-    switch (currentTheme) {
-      case 'light':
-        return 'MODERN_LIGHT';
-      case 'dark':
-      default:
-        return 'PROFESSIONAL_DARK';
-    }
-  };
 
   const getCurrentPageSymbols = useCallback(
     (currentPage: number, pageSize: number = 10) => {
@@ -92,11 +85,11 @@ export const MarketViewer = ({
       <BaseGrid
         data={data}
         columns={dynamicColumns}
-        theme={getGridTheme()}
-        height={490}
+        theme={getGridTheme(theme)}
+        height={890}
         options={{
           pagination: true,
-          paginationPageSize: 10,
+          paginationPageSize: 20,
           paginationPageSizeSelector: false,
           alwaysShowVerticalScroll: false,
           suppressHorizontalScroll: false,
@@ -108,7 +101,7 @@ export const MarketViewer = ({
           cellFadeDuration: 400,
 
           onRowClicked: params => {
-            onRowClicked?.(params.data as MarketData);
+            onRowClicked?.(params.data as TickerData);
           },
 
           onGridReady: (params: any) => {

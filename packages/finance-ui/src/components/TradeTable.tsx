@@ -2,16 +2,19 @@ import { Currency, Trade } from '@mtr/finance-core';
 import { BaseGrid } from '@mtr/ui/client';
 import { GridApi } from 'ag-grid-community';
 import { useMemo, useRef } from 'react';
+import { getGridTheme } from '../grid/theme';
 import { createTradeColumns } from '../grid/tradeColumns';
 
 export const TradeTable = ({
   currency,
   exchangeRate,
   data,
+  theme,
 }: {
   currency: Currency;
   exchangeRate: number;
   data: Trade[];
+  theme: string;
 }) => {
   const gridApiRef = useRef<GridApi | null>(null);
   const dynamicColumns = useMemo(() => {
@@ -23,6 +26,7 @@ export const TradeTable = ({
       <BaseGrid
         data={data}
         columns={dynamicColumns}
+        theme={getGridTheme(theme)}
         options={{
           getRowId: (params: any) => {
             const { id, timestamp, volume } = params.data;

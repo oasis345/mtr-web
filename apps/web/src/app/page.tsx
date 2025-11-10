@@ -1,6 +1,6 @@
 import { MarketPageClient } from '@/components/markets/MarketClient';
 import { appServices } from '@/service/server';
-import { AssetType, FINANCIAL_ROUTES, MarketData, MarketDataType } from '@mtr/finance-core';
+import { AssetType, FINANCIAL_ROUTES, MarketDataType, TickerData } from '@mtr/finance-core';
 import { PageLayout, Section } from '@mtr/ui';
 
 export default async function RootPage({
@@ -13,12 +13,12 @@ export default async function RootPage({
 
   // assetType 유효성 검사
   const validAssetType = Object.values(AssetType).includes(asset as AssetType) ? asset : AssetType.STOCKS;
-  let data: MarketData[] = [];
+  let data: TickerData[] = [];
 
   try {
-    const response = await httpClient.get<MarketData[]>(FINANCIAL_ROUTES.FINANCIAL.MARKET, {
+    const response = await httpClient.get<TickerData[]>(FINANCIAL_ROUTES.FINANCIAL.MARKET, {
       assetType: validAssetType,
-      dataType: asset === AssetType.STOCKS ? dataType : 'topTraded',
+      dataType,
     });
 
     data = response.statusCode === 200 ? response.data : [];

@@ -15,10 +15,10 @@ import {
   MARKET_SOCKET_EVENT_DATA_UPDATE,
   MARKET_SOCKET_EVENT_SUBSCRIBE,
   MARKET_SOCKET_EVENT_UNSUBSCRIBE,
-  MarketData,
   MarketDataType,
   MarketStreamData,
   MarketStreamDataType,
+  TickerData,
   Trade,
   transformToChartData,
 } from '@mtr/finance-core';
@@ -33,12 +33,13 @@ import {
   MARKET_PRICE_TABS_MAP,
   TradeTable,
 } from '@mtr/finance-ui';
-import { useAssets, useCurrency, useExchangeRate, useInfiniteCandles, useTrades } from '@mtr/hooks';
+import { useCurrency, useExchangeRate, useInfiniteCandles, useMarket, useTrades } from '@mtr/hooks';
 import { PageLayout, Section } from '@mtr/ui';
 import { BaseTab } from '@mtr/ui/client';
 import { InfiniteData, useQueryClient } from '@tanstack/react-query';
+import { useTheme } from 'next-themes';
 import { use, useEffect, useState } from 'react';
-import { Socket } from 'socket.io-client';
+import type { Socket } from 'socket.io-client';
 
 export default function AssetPage({ params }: { params: Promise<{ assetType: AssetType; symbol: string }> }) {
   const queryClient = useQueryClient();
@@ -46,6 +47,7 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: Ass
   const { assetType, symbol } = use(params);
   const [timeframe, setTimeframe] = useState<ChartTimeframe>(ChartShortTimeframe.ONE_MINUTE);
   const [marketTab, setMarketTab] = useState('daily');
+  const { theme } = useTheme();
 
   const {
     data: exchangeRate,
@@ -63,7 +65,7 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: Ass
     isLoading: isLoadingAsset,
     error: assetError,
     queryKey: assetQueryKey,
-  } = useAssets({
+  } = useMarket({
     params: {
       assetType: assetType,
       symbols: [symbol],
@@ -155,7 +157,7 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: Ass
             return [newTrade, ...trades].slice(0, MAX_TRADES_DISPLAYED);
           });
 
-          queryClient.setQueryData<MarketData[]>(assetQueryKey, oldAssetData => {
+          queryClient.setQueryData<TickerData[]>(assetQueryKey, oldAssetData => {
             const oldAsset = oldAssetData?.[0];
             if (!oldAsset) return oldAssetData;
 
@@ -263,10 +265,15 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: Ass
           <Section.Content>
             <>
               {marketTab === 'realTime' && (
-                <TradeTable currency={currency} exchangeRate={exchangeRate} data={tradesData} />
+                <TradeTable currency={currency} exchangeRate={exchangeRate} data={tradesData} theme={theme} />
               )}
               {marketTab === 'daily' && (
-                <DailyMarketPrice currency={currency} exchangeRate={exchangeRate} controller={dailyController} />
+                <DailyMarketPrice
+                  currency={currency}
+                  exchangeRate={exchangeRate}
+                  controller={dailyController}
+                  theme={theme}
+                />
               )}
             </>
           </Section.Content>

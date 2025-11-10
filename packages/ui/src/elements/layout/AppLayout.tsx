@@ -1,10 +1,11 @@
-import React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../../lib/utils';
-import { AppHeader } from './AppHeader';
-import { AppFooter } from './AppFooter';
-import { ThemeProvider } from 'next-themes';
+import React from 'react';
 import { Toaster } from 'sonner';
+import { cn } from '../../lib/utils';
+import { AppFooter } from './AppFooter'; // AppFooter 임포트
+import { AppHeader } from './AppHeader'; // AppHeader 임포트
+
+// ... (기존 appLayoutStyles, mainAreaStyles, headerFooterStyles 등 스타일 정의는 그대로 유지)
 
 const appLayoutStyles = cva('flex flex-col w-full', {
   variants: {
@@ -21,15 +22,13 @@ const appLayoutStyles = cva('flex flex-col w-full', {
     },
     maxWidth: {
       none: '', // 제한 없음
-      // 반응형: 태블릿 1280px, PC 1920px
-      responsive: 'mx-auto px-4 lg:max-w-7xl 2xl:max-w-[1920px]', // lg(1024px+)에서 1280px, 2xl(1536px+)에서 1920px
-      // 고정 크기 (기존 호환성)
-      tablet: 'max-w-7xl mx-auto', // 1280px 고정
-      pc: 'max-w-[1920px] mx-auto', // 1920px 고정
+      responsive: 'mx-auto px-4 lg:max-w-7xl 2xl:max-w-[1920px]',
+      tablet: 'max-w-7xl mx-auto',
+      pc: 'max-w-[1920px] mx-auto',
     },
     padding: {
       none: '',
-      responsive: 'px-4 lg:px-6 2xl:px-8', // 모바일 16px, 태블릿 24px, PC 32px
+      responsive: 'px-4 lg:px-6 2xl:px-8',
       sm: 'px-4',
       md: 'px-6',
       lg: 'px-8',
@@ -45,13 +44,12 @@ const appLayoutStyles = cva('flex flex-col w-full', {
   defaultVariants: {
     height: 'screen',
     spacing: 'none',
-    maxWidth: 'responsive', // 반응형을 기본값으로
+    maxWidth: 'responsive',
     padding: 'none',
     border: 'none',
   },
 });
 
-// 메인 영역 스타일
 const mainAreaStyles = cva('w-full', {
   variants: {
     grow: {
@@ -60,7 +58,7 @@ const mainAreaStyles = cva('w-full', {
     },
     spacing: {
       none: '',
-      responsive: 'py-4 lg:py-6 2xl:py-8', // 모바일 16px, 태블릿 24px, PC 32px
+      responsive: 'py-4 lg:py-6 2xl:py-8',
       sm: 'py-2',
       md: 'py-4',
       lg: 'py-6',
@@ -80,7 +78,6 @@ const mainAreaStyles = cva('w-full', {
   },
 });
 
-// 헤더/푸터 스타일
 const headerFooterStyles = cva('w-full', {
   variants: {
     border: {
@@ -95,60 +92,89 @@ const headerFooterStyles = cva('w-full', {
 });
 
 export interface AppLayoutProps extends VariantProps<typeof appLayoutStyles> {
-  nav: React.ReactNode;
-  logo: React.ReactNode;
-  main?: React.ReactNode;
-  mainSpacing?: VariantProps<typeof mainAreaStyles>['spacing'];
-  mainBorder?: VariantProps<typeof mainAreaStyles>['border'];
-  headerBorder?: VariantProps<typeof headerFooterStyles>['border'];
-  footerBorder?: VariantProps<typeof headerFooterStyles>['border'];
+  children: React.ReactNode;
   appClasses?: string;
-  mainClasses?: string;
-  headerClasses?: string;
-  footerClasses?: string;
 }
 
-export const AppLayout = ({
-  nav,
-  logo,
-  main,
+const AppLayoutRoot = ({
   height = 'screen',
   spacing = 'none',
   maxWidth = 'responsive',
   padding = 'none',
   border = 'none',
-  mainSpacing = 'none',
-  mainBorder = 'none',
-  headerBorder = 'none',
-  footerBorder = 'none',
   appClasses,
-  mainClasses,
-  headerClasses,
-  footerClasses,
+  children,
 }: AppLayoutProps) => {
   const defaultLayoutClasses = appLayoutStyles({ height, spacing, maxWidth, padding, border });
-  const defaultMainClasses = mainAreaStyles({
-    grow: true,
-    spacing: mainSpacing,
-    border: mainBorder,
-  });
-  const defaultHeaderClasses = headerFooterStyles({ border: headerBorder });
-  const defaultFooterClasses = headerFooterStyles({ border: footerBorder });
+
+  const header = React.Children.toArray(children).find(
+    child => React.isValidElement(child) && (child.type as any).displayName === 'AppLayoutHeader',
+  );
+  const main = React.Children.toArray(children).find(
+    child => React.isValidElement(child) && (child.type as any).displayName === 'AppLayoutMain',
+  );
+  const footer = React.Children.toArray(children).find(
+    child => React.isValidElement(child) && (child.type as any).displayName === 'AppLayoutFooter',
+  );
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      <div className={cn(defaultLayoutClasses, appClasses)}>
-        <header className={cn(defaultHeaderClasses, headerClasses)}>
-          <AppHeader nav={nav} logo={logo} />
-        </header>
-
-        <main className={cn(defaultMainClasses, mainClasses)}>{main}</main>
-
-        <footer className={cn(defaultFooterClasses, footerClasses)}>
-          <AppFooter />
-        </footer>
-      </div>
+    <div className={cn(defaultLayoutClasses, appClasses)}>
+      {header}
+      {main}
+      {footer}
       <Toaster position="top-center" />
-    </ThemeProvider>
+    </div>
   );
 };
+
+// AppLayout.Header 컴포넌트 정의
+interface AppLayoutHeaderProps extends VariantProps<typeof headerFooterStyles> {
+  children: React.ReactNode; // 이제 AppLayout.Header의 children으로 AppHeader의 내용이 직접 들어옵니다.
+  headerClasses?: string;
+  // nav, logo prop은 AppLayout.Header에서 더 이상 직접 받지 않습니다.
+}
+const Header = ({ border = 'none', headerClasses, children }: AppLayoutHeaderProps) => {
+  const defaultHeaderClasses = headerFooterStyles({ border });
+  return (
+    <header className={cn(defaultHeaderClasses, headerClasses)}>
+      <AppHeader>{children}</AppHeader> {/* AppHeader에 children을 전달합니다. */}
+    </header>
+  );
+};
+Header.displayName = 'AppLayoutHeader';
+
+// AppLayout.Main 컴포넌트 정의
+interface AppLayoutMainProps extends VariantProps<typeof mainAreaStyles> {
+  children: React.ReactNode;
+  mainClasses?: string;
+}
+const Main = ({ grow = true, spacing = 'none', border = 'none', mainClasses, children }: AppLayoutMainProps) => {
+  const defaultMainClasses = mainAreaStyles({
+    grow,
+    spacing,
+    border,
+  });
+  return <main className={cn(defaultMainClasses, mainClasses)}>{children}</main>;
+};
+Main.displayName = 'AppLayoutMain';
+
+// AppLayout.Footer 컴포넌트 정의
+interface AppLayoutFooterProps extends VariantProps<typeof headerFooterStyles> {
+  children: React.ReactNode;
+  footerClasses?: string;
+}
+const Footer = ({ border = 'none', footerClasses, children }: AppLayoutFooterProps) => {
+  const defaultFooterClasses = headerFooterStyles({ border });
+  return (
+    <footer className={cn(defaultFooterClasses, footerClasses)}>
+      {children || <AppFooter />} {/* AppFooter를 직접 렌더링하거나 children으로 받을 수 있습니다. */}
+    </footer>
+  );
+};
+Footer.displayName = 'AppLayoutFooter';
+
+export const AppLayout = Object.assign(AppLayoutRoot, {
+  Header: Header,
+  Main: Main,
+  Footer: Footer,
+});

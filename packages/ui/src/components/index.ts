@@ -8,3 +8,4 @@ export * from './tabs';
 export * from './combobox';
 export * from './loading';
 export * from './image';
+export * from './theme';

@@ -4,16 +4,18 @@ import { _ } from '@mtr/utils';
 import { GridApi } from 'ag-grid-community';
 import { useEffect, useMemo, useRef } from 'react';
 import { createDailyColumns } from '../grid/dailyColumns';
+import { getGridTheme } from '../grid/theme';
 import { InfiniteController } from '../types';
 
 type DailyMarketPriceProps = {
   currency: Currency;
   exchangeRate: number;
   controller: InfiniteController<Candle[]>;
+  theme: string;
 };
 
 // 탭 관련 로직이 제거된 순수한 데이터 그리드 컴포넌트
-export const DailyMarketPrice = ({ currency, exchangeRate, controller }: DailyMarketPriceProps) => {
+export const DailyMarketPrice = ({ currency, exchangeRate, controller, theme }: DailyMarketPriceProps) => {
   const { items, loadNext, hasNext, isLoadingNext } = controller;
   const gridApiRef = useRef<GridApi | null>(null);
   const dynamicColumns = useMemo(() => {
@@ -51,6 +53,7 @@ export const DailyMarketPrice = ({ currency, exchangeRate, controller }: DailyMa
     <BaseGrid
       data={items}
       columns={dynamicColumns}
+      theme={getGridTheme(theme)}
       options={{
         getRowId: (params: any) => {
           return params.data.timestamp + params.data.symbol;

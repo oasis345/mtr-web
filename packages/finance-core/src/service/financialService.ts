@@ -5,15 +5,15 @@ import {
   ExchangeRate,
   FINANCIAL_ROUTES,
   FinancialService,
-  MarketData,
   StockMarketStatus,
+  TickerData,
   Trade,
 } from '@mtr/finance-core';
 import { HttpClient } from '@mtr/network-core';
 
 export const createFinancialService = (httpClient: HttpClient): FinancialService => {
-  const getAssets = async (params: AssetQueryParams): Promise<MarketData[]> => {
-    const response = await httpClient.get<MarketData[]>(FINANCIAL_ROUTES.FINANCIAL.MARKET, params);
+  const getMarketData = async (params: AssetQueryParams): Promise<TickerData[]> => {
+    const response = await httpClient.get<TickerData[]>(FINANCIAL_ROUTES.FINANCIAL.MARKET, params);
     const { data } = response;
     if (!data) throw new Error(response.message);
     return data;
@@ -52,7 +52,7 @@ export const createFinancialService = (httpClient: HttpClient): FinancialService
   };
 
   return {
-    getAssets,
+    getAssets: getMarketData,
     getCandles,
     getTrades,
     getExchangeRates,

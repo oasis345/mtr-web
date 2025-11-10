@@ -1,14 +1,14 @@
-import { AssetQueryParams, MarketData } from '@mtr/finance-core';
+import { AssetQueryParams, TickerData } from '@mtr/finance-core';
 import { useQuery } from '@tanstack/react-query';
 
 export interface UseAssetsParams {
   params: AssetQueryParams;
-  fetcher: (params: AssetQueryParams) => Promise<MarketData[]>;
+  fetcher: (params: AssetQueryParams) => Promise<TickerData[]>;
 }
 
-export const useAssets = ({ params, fetcher }: UseAssetsParams) => {
+export const useMarket = ({ params, fetcher }: UseAssetsParams) => {
   const queryKey = [params.assetType, params.dataType, params.symbols.join(',')];
-  const response = useQuery<MarketData[]>({
+  const response = useQuery<TickerData[]>({
     queryKey: queryKey,
     queryFn: () => fetcher(params),
   });

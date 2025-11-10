@@ -23,7 +23,7 @@ export const StockMarketStatusDisplay = ({ status }: StockMarketStatusDisplayPro
   const displayValue = StockMarketStatus[status]; // 키를 사용하여 값을 가져옴
 
   return (
-    <span className="flex items-center gap-2 text-white">
+    <span className="flex items-center gap-2">
       <span className={`w-2 h-2 rounded-full ${dotColorClass}`}></span>
       <span>{displayValue}</span>
     </span>

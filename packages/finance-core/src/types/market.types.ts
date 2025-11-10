@@ -24,29 +24,13 @@ export interface MarketQueryParams {
   orderBy?: string; // 정렬 순서
 }
 
-export interface MarketData {
-  id: string;
-  symbol: string;
-  name: string;
-  price: number;
-  change: number;
-  changePercentage: number;
-  volume: number;
-  marketCap: number;
-  timestamp: number;
-  previousClose: number;
-  assetType: AssetType;
-  currency: Currency;
-  logo?: string;
-}
-
 export enum MarketStreamDataType {
   TICKER = 'ticker',
   TRADE = 'trade',
   CANDLE = 'candle',
 }
 
-export interface MarketStreamData<T = Candle | Trade | MarketData> {
+export interface MarketStreamData<T = Candle | Trade | TickerData> {
   dataType: MarketStreamDataType;
   payload: T;
 }
@@ -89,62 +73,61 @@ export interface CandleResponse {
   nextDateTime: string;
 }
 
-export interface Candle {
-  currency: Currency;
+export interface Asset {
   assetType: AssetType;
-  changePercentage?: number;
-  /**
-   * 종목을 식별하는 심볼 (e.g., 'TSLA', 'BTC/KRW')
-   */
   symbol: string;
-
-  /**
-   * 캔들이 시작된 시점의 가격 (from Alpaca's 'o')
-   */
-  open: number;
-
-  /**
-   * 캔들 기간 동안의 최고가 (from Alpaca's 'h')
-   */
-  high: number;
-
-  /**
-   * 캔들 기간 동안의 최저가 (from Alpaca's 'l')
-   */
-  low: number;
-
-  /**
-   * 캔들이 마감된 시점의 가격 (from Alpaca's 'c')
-   */
-  close: number;
-
-  /**
-   * 캔들 기간 동안의 총 거래량 (from Alpaca's 'v')
-   */
-  volume: number;
-
-  /**
-   * 캔들의 타임스탬프 (ISO 8601 형식의 문자열) (from Alpaca's 't')
-   */
-  timestamp: string;
-
-  /**
-   * (선택사항) 캔들 기간 동안의 총 거래 체결 건수 (from Alpaca's 'n')
-   */
-  tradeCount?: number;
+  name?: string;
+  exchange?: string;
+  currency?: Currency;
+  logo?: string;
 }
 
-export interface Trade {
+export type BaseTickerData = {
+  price: number;
+  change: number;
+  changePercentage: number;
+  volume?: number;
+  timestamp?: number;
+  previousClose?: number;
+  accTradeVolume?: number;
+  accTradePrice?: number;
+};
+export type TickerData<T extends Asset = Asset> = T & BaseTickerData;
+
+export interface Candle extends Asset {
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+  timestamp: string;
+  tradeCount?: number;
+  change?: number;
+  changePercentage?: number;
+  candleAccTradePrice?: number;
+  candleAccTradeVolume?: number;
+}
+
+export interface Trade extends Asset {
   id: string;
   timestamp: number;
   price: number;
   change: number;
   changePercentage: number;
   volume: number;
-  symbol: string;
-  assetType: AssetType;
-  currency: Currency;
   side: 'buy' | 'sell';
+}
+
+export interface Quote extends Asset {
+  ask: number;
+  askSize: number;
+  askPrice: number;
+  askTotalSize: number;
+  bid: number;
+  bidSize: number;
+  bidPrice: number;
+  bidTotalSize: number;
+  timestamp: number;
 }
 
 export function isTrade(streamData: MarketStreamData): streamData is MarketStreamData<Trade> {
@@ -155,6 +138,6 @@ export function isCandle(streamData: MarketStreamData): streamData is MarketStre
   return streamData.dataType === MarketStreamDataType.CANDLE;
 }
 
-export function isTicker(streamData: MarketStreamData): streamData is MarketStreamData<MarketData> {
+export function isTicker(streamData: MarketStreamData): streamData is MarketStreamData<TickerData> {
   return streamData.dataType === MarketStreamDataType.TICKER;
 }

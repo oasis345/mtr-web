@@ -5,20 +5,22 @@ import {
   AssetType,
   isMarketAsset,
   isMarketDataType,
-  MarketData,
   MarketDataType,
   MarketStreamData,
+  TickerData,
 } from '@mtr/finance-core';
 import { MARKET_ASSETS_MAP, MARKET_DATA_MAP, MarketViewer, StockMarketStatusDisplay } from '@mtr/finance-ui';
 import { useExchangeRate, useStockMarketStatus } from '@mtr/hooks';
+import { useTheme } from 'next-themes';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Socket } from 'socket.io-client';
 
-export function MarketPageClient({ initialData }: { initialData: MarketData[] }) {
+export function MarketPageClient({ initialData }: { initialData: TickerData[] }) {
   const [data, setData] = useState(initialData);
   const pageSymbols = useRef<Set<string>>(new Set());
   const { socketService, financialService } = useAppServices();
+  const { theme } = useTheme();
 
   // URL 상태 관리
   const router = useRouter();
@@ -27,11 +29,7 @@ export function MarketPageClient({ initialData }: { initialData: MarketData[] })
   const assetParam = searchParams.get('asset');
   const currentAsset = isMarketAsset(assetParam) ? assetParam : AssetType.CRYPTO;
   const dataTypeParam = searchParams.get('dataType');
-  const currentDataType = isMarketDataType(dataTypeParam)
-    ? dataTypeParam
-    : currentAsset === AssetType.CRYPTO
-      ? MarketDataType.TOP_TRADED
-      : MarketDataType.MOST_ACTIVE;
+  const currentDataType = isMarketDataType(dataTypeParam) ? dataTypeParam : MarketDataType.MOST_ACTIVE;
 
   const { data: stockMarketStatus } = useStockMarketStatus({
     country: 'US',
@@ -59,20 +57,19 @@ export function MarketPageClient({ initialData }: { initialData: MarketData[] })
       try {
         // 1. 소켓 생성
         marketSocket = await socketService.createChannel('market');
-        marketSocket.on('market-data', (streamData: MarketStreamData<MarketData>) => {
-          console.log('Received market data update:', streamData);
-          const visibleSymbols = pageSymbols.current;
-          if (visibleSymbols.size === 0) return;
-
+        marketSocket.on('market-data', (streamData: MarketStreamData<TickerData>) => {
+          console.log('Received market data:', streamData);
           setData(prev => {
             let changed = false;
+            debugger;
             const next = prev.map(row => {
-              if (!visibleSymbols.has(row.symbol)) return row;
-
-              const isNextData =
-                streamData.payload.symbol === row.symbol && streamData.payload.assetType === row.assetType;
+              const rowSymbol = row.exchange ? row.exchange + row.symbol : row.symbol;
+              const { symbol, price, assetType } = streamData.payload;
+              const isEqualSymbol = rowSymbol === symbol;
+              const isNextData = isEqualSymbol && assetType === row.assetType;
               if (!isNextData || streamData.payload.price === row.price) return row;
 
+              debugger;
               changed = true;
               return { ...row, ...streamData.payload }; // ✅ 가격만 업데이트
             });
@@ -125,11 +122,6 @@ export function MarketPageClient({ initialData }: { initialData: MarketData[] })
     (asset: string) => {
       const params = new URLSearchParams(searchParams);
       params.set('asset', asset);
-      if (asset === AssetType.STOCKS) {
-        params.set('dataType', MarketDataType.MOST_ACTIVE);
-      } else {
-        params.set('dataType', MarketDataType.TOP_TRADED);
-      }
       router.replace(`${pathname}?${params.toString()}`);
     },
     [pathname, router, searchParams],
@@ -148,7 +140,7 @@ export function MarketPageClient({ initialData }: { initialData: MarketData[] })
     pageSymbols.current = new Set(symbols);
   }, []);
 
-  function handleRowClicked(data: MarketData): void {
+  function handleRowClicked(data: TickerData): void {
     const { assetType, symbol } = data;
     router.push(`/${assetType}/${symbol.toLowerCase()}`);
   }
@@ -166,8 +158,8 @@ export function MarketPageClient({ initialData }: { initialData: MarketData[] })
         onMarketDataTypeChange={handleMarketDataTypeChange}
         onPageChanged={handlePageChanged}
         onRowClicked={handleRowClicked}
-        showDataTypeTabs={currentAsset === AssetType.STOCKS}
         exchangeRate={exchangeRate}
+        theme={theme}
       />
     </div>
   );

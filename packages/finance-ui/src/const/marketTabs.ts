@@ -1,10 +1,4 @@
-import {
-  AssetType,
-  MarketDataType,
-  ChartShortTimeframe,
-  ChartLongTimeframe,
-  Currency,
-} from '@mtr/finance-core';
+import { AssetType, ChartLongTimeframe, ChartShortTimeframe, Currency, MarketDataType } from '@mtr/finance-core';
 import { MarketDataTypeTab, MarketPriceTab, MarketTab } from '../types';
 
 export const MARKET_ASSETS_MAP: MarketTab[] = [
@@ -18,9 +12,10 @@ export const MARKET_PRICE_TABS_MAP: MarketPriceTab[] = [
 ];
 
 export const MARKET_DATA_MAP: MarketDataTypeTab[] = [
-  { label: '인기종목', value: MarketDataType.MOST_ACTIVE },
-  { label: '상승종목', value: MarketDataType.GAINERS },
-  { label: '하락종목', value: MarketDataType.LOSERS },
+  { label: '거래량', value: MarketDataType.MOST_ACTIVE },
+  { label: '거래대금', value: MarketDataType.TOP_TRADED },
+  { label: '급상승', value: MarketDataType.GAINERS },
+  { label: '급하락', value: MarketDataType.LOSERS },
 ];
 
 // export const MARKET_SYMBOL_DATA_MAP: MarketDataTypeTab[] = [
@@ -44,9 +39,7 @@ export const CHART_LONG_TIMEFRAMES_MAP: { label: string; value: ChartLongTimefra
   { label: '1년', value: ChartLongTimeframe.ONE_YEAR },
 ];
 
-export const CURRENCY_MAP: { label: string; value: Currency }[] = Object.values(Currency).map(
-  currency => ({
-    label: currency,
-    value: currency,
-  }),
-);
+export const CURRENCY_MAP: { label: string; value: Currency }[] = Object.values(Currency).map(currency => ({
+  label: currency,
+  value: currency,
+}));

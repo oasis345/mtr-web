@@ -7,12 +7,6 @@ export type NotificationOptions = {
   duration?: number;
 };
 
-export type NavigationOptions = {
-  push: (path: string) => void;
-  replace: (path: string) => void;
-  back: () => void;
-};
-
 export interface UiService {
   theme: Theme;
   notify: (options: NotificationOptions) => void;
