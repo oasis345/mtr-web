@@ -8,7 +8,7 @@ export interface UseStockMarketStatusParams {
 
 export const useStockMarketStatus = ({ country, fetcher }: UseStockMarketStatusParams) => {
   const response = useQuery<keyof typeof StockMarketStatus>({
-    queryKey: [country],
+    queryKey: ['marketStatus', country],
     queryFn: () => fetcher(country),
     gcTime: 0,
     staleTime: 0,

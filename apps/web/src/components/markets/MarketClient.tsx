@@ -5,22 +5,26 @@ import {
   AssetType,
   isMarketAsset,
   isMarketDataType,
+  MARKET_SOCKET_EVENT_DATA_UPDATE,
+  MARKET_SOCKET_EVENT_SUBSCRIBE,
+  MARKET_SOCKET_EVENT_UNSUBSCRIBE,
   MarketDataType,
   MarketStreamData,
   TickerData,
 } from '@mtr/finance-core';
 import { MARKET_ASSETS_MAP, MARKET_DATA_MAP, MarketViewer, StockMarketStatusDisplay } from '@mtr/finance-ui';
-import { useExchangeRate, useStockMarketStatus } from '@mtr/hooks';
+import { useExchangeRate, useMarketData, useStockMarketStatus } from '@mtr/hooks';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTheme } from 'next-themes';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { Socket } from 'socket.io-client';
 
-export function MarketPageClient({ initialData }: { initialData: TickerData[] }) {
-  const [data, setData] = useState(initialData);
+export function MarketPageClient() {
   const pageSymbols = useRef<Set<string>>(new Set());
   const { socketService, financialService } = useAppServices();
   const { theme } = useTheme();
+  const queryClient = useQueryClient();
 
   // URL 상태 관리
   const router = useRouter();
@@ -29,8 +33,17 @@ export function MarketPageClient({ initialData }: { initialData: TickerData[] })
   const assetParam = searchParams.get('asset');
   const currentAsset = isMarketAsset(assetParam) ? assetParam : AssetType.CRYPTO;
   const dataTypeParam = searchParams.get('dataType');
-  const currentDataType = isMarketDataType(dataTypeParam) ? dataTypeParam : MarketDataType.MOST_ACTIVE;
+  const currentDataType = isMarketDataType(dataTypeParam) ? dataTypeParam : MarketDataType.TOP_TRADED;
 
+  const { data: marketData, isLoading: isLoadingMarketData } = useMarketData({
+    params: {
+      assetType: currentAsset,
+      dataType: currentDataType,
+    },
+    fetcher: financialService.getMarketData,
+    pollingInterval: 10000,
+    staleTime: 10000,
+  });
   const { data: stockMarketStatus } = useStockMarketStatus({
     country: 'US',
     fetcher: financialService.getStockMarketStatus,
@@ -47,34 +60,28 @@ export function MarketPageClient({ initialData }: { initialData: TickerData[] })
   });
 
   useEffect(() => {
-    setData(initialData);
-  }, [initialData]);
-
-  useEffect(() => {
     let marketSocket: Socket | null = null;
 
     const setupAndSubscribe = async () => {
       try {
         // 1. 소켓 생성
         marketSocket = await socketService.createChannel('market');
-        marketSocket.on('market-data', (streamData: MarketStreamData<TickerData>) => {
-          console.log('Received market data:', streamData);
-          setData(prev => {
+        marketSocket.on(MARKET_SOCKET_EVENT_DATA_UPDATE, (streamData: MarketStreamData<TickerData>) => {
+          queryClient.setQueryData<TickerData[]>(['marketData', currentAsset, currentDataType], prev => {
+            if (!prev) return [];
             let changed = false;
-            debugger;
             const next = prev.map(row => {
               const rowSymbol = row.exchange ? row.exchange + row.symbol : row.symbol;
               const { symbol, price, assetType } = streamData.payload;
               const isEqualSymbol = rowSymbol === symbol;
               const isNextData = isEqualSymbol && assetType === row.assetType;
-              if (!isNextData || streamData.payload.price === row.price) return row;
+              if (!isNextData || price === row.price) return row;
 
-              debugger;
               changed = true;
-              return { ...row, ...streamData.payload }; // ✅ 가격만 업데이트
+              return { ...row, ...streamData.payload };
             });
 
-            return changed ? next : prev; // 변경 없으면 리렌더 방지
+            return changed ? next : prev;
           });
         });
 
@@ -83,7 +90,7 @@ export function MarketPageClient({ initialData }: { initialData: TickerData[] })
         });
 
         // 3. 구독 설정
-        marketSocket.emit('subscribe-market', {
+        marketSocket.emit(MARKET_SOCKET_EVENT_SUBSCRIBE, {
           payload: {
             assetType: currentAsset,
             channel: currentDataType,
@@ -101,7 +108,7 @@ export function MarketPageClient({ initialData }: { initialData: TickerData[] })
       if (marketSocket) {
         console.log(`Unsubscribing from: ${currentAsset} - ${currentDataType}`);
 
-        marketSocket.emit('unsubscribe-market', {
+        marketSocket.emit(MARKET_SOCKET_EVENT_UNSUBSCRIBE, {
           payload: {
             assetType: currentAsset,
             channel: currentDataType,
@@ -145,21 +152,23 @@ export function MarketPageClient({ initialData }: { initialData: TickerData[] })
     router.push(`/${assetType}/${symbol.toLowerCase()}`);
   }
 
+  if (isLoadingMarketData || isLoadingExchangeRate) return <div>Loading...</div>;
+
   return (
     <div className="flex flex-col gap-4">
       {currentAsset === 'stocks' && <StockMarketStatusDisplay status={stockMarketStatus} />}
       <MarketViewer
-        data={data}
+        data={marketData}
         selectedAsset={currentAsset}
         selectedMarketDataType={currentDataType}
         assetTabs={MARKET_ASSETS_MAP}
         dataTypeTabs={MARKET_DATA_MAP}
+        exchangeRate={exchangeRate}
+        theme={theme}
         onAssetChange={handleAssetChange}
         onMarketDataTypeChange={handleMarketDataTypeChange}
         onPageChanged={handlePageChanged}
         onRowClicked={handleRowClicked}
-        exchangeRate={exchangeRate}
-        theme={theme}
       />
     </div>
   );

@@ -1,4 +1,4 @@
-export * from './useMarket';
+export * from './useMarketData';
 export * from './useCandles';
 export * from './useCurrency';
 export * from './useInfiniteCandles';

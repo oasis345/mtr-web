@@ -33,7 +33,7 @@ import {
   MARKET_PRICE_TABS_MAP,
   TradeTable,
 } from '@mtr/finance-ui';
-import { useCurrency, useExchangeRate, useInfiniteCandles, useMarket, useTrades } from '@mtr/hooks';
+import { useCurrency, useExchangeRate, useInfiniteCandles, useMarketData, useTrades } from '@mtr/hooks';
 import { PageLayout, Section } from '@mtr/ui';
 import { BaseTab } from '@mtr/ui/client';
 import { InfiniteData, useQueryClient } from '@tanstack/react-query';
@@ -65,13 +65,13 @@ export default function AssetPage({ params }: { params: Promise<{ assetType: Ass
     isLoading: isLoadingAsset,
     error: assetError,
     queryKey: assetQueryKey,
-  } = useMarket({
+  } = useMarketData({
     params: {
       assetType: assetType,
       symbols: [symbol],
       dataType: MarketDataType.SYMBOLS,
     },
-    fetcher: financialService.getAssets,
+    fetcher: financialService.getMarketData,
   });
 
   const currentAsset = assetData?.[0];

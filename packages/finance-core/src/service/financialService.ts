@@ -52,7 +52,7 @@ export const createFinancialService = (httpClient: HttpClient): FinancialService
   };
 
   return {
-    getAssets: getMarketData,
+    getMarketData: getMarketData,
     getCandles,
     getTrades,
     getExchangeRates,

@@ -11,8 +11,7 @@ export const useExchangeRate = ({ fetcher }: UseExchangeRateParams) => {
     queryKey: ['exchangeRate'],
     queryFn: fetcher,
     refetchInterval: 10000,
-    gcTime: 0,
-    staleTime: 0,
+    staleTime: 10000,
     select: (data: ExchangeRate) => {
       return data.krw;
     },
