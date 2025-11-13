@@ -15,7 +15,7 @@ import {
 import { MARKET_ASSETS_MAP, MARKET_DATA_MAP, MarketViewer, StockMarketStatusDisplay } from '@mtr/finance-ui';
 import { useExchangeRate, useMarketData, useStockMarketStatus } from '@mtr/hooks';
 import { useQueryClient } from '@tanstack/react-query';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@mtr/ui/client';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef } from 'react';
 import { Socket } from 'socket.io-client';

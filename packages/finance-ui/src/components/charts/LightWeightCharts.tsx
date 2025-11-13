@@ -12,7 +12,7 @@ import {
   LogicalRange,
   TickMarkType,
 } from 'lightweight-charts';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@mtr/ui/client';
 import { useEffect, useMemo, useRef } from 'react';
 
 type LightWeightChartProps = {

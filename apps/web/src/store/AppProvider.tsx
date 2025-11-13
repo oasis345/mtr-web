@@ -5,6 +5,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'; // 1. Devto
 import { useState } from 'react';
 import { ServiceProvider } from 'src/store/ServiceProvider';
 import { createQueryClient } from './queryClient';
+import { ThemeProvider } from '@mtr/ui/client';
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => createQueryClient());
@@ -12,11 +13,13 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     // 1. QueryClientProvider를 무조건적으로 렌더링합니다.
     <QueryClientProvider client={queryClient}>
-      {/* 2. 서비스 초기화 로직은 별도의 컴포넌트로 분리합니다. */}
-      <ServiceProvider>{children}</ServiceProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        {/* 2. 서비스 초기화 로직은 별도의 컴포넌트로 분리합니다. */}
+        <ServiceProvider>{children}</ServiceProvider>
 
-      {/* 3. Provider 내부에 Devtools를 추가합니다. */}
-      <ReactQueryDevtools initialIsOpen={false} />
+        {/* 3. Provider 내부에 Devtools를 추가합니다. */}
+        <ReactQueryDevtools initialIsOpen={false} />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

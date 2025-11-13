@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
-import _ from 'lodash';
+import { useMemo, useRef } from 'react';
+import { _ } from '@mtr/utils';
 import { type LogicalRange } from 'lightweight-charts';
 import { Combobox } from '@mtr/ui/client';
 import { LightWeightCharts } from './charts';

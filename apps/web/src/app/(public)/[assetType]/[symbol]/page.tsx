@@ -37,7 +37,7 @@ import { useCurrency, useExchangeRate, useInfiniteCandles, useMarketData, useTra
 import { PageLayout, Section } from '@mtr/ui';
 import { BaseTab } from '@mtr/ui/client';
 import { InfiniteData, useQueryClient } from '@tanstack/react-query';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@mtr/ui/client';
 import { use, useEffect, useState } from 'react';
 import type { Socket } from 'socket.io-client';
 

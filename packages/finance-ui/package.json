@@ -16,7 +16,8 @@
     "@mtr/utils": "workspace:*",
     "@mtr/ui": "workspace:*",
     "@mtr/finance-core": "workspace:*",
-    "@mtr/store": "workspace:*"
+    "@mtr/store": "workspace:*",
+    "lightweight-charts": "^5.0.8"
   },
   "devDependencies": {
     "@types/react": "^19",

@@ -1,6 +1,6 @@
 'use client';
 
-import { useTheme } from 'next-themes';
+import { useTheme } from '@mtr/ui/client';
 import { Toaster as Sonner } from 'sonner';
 
 export type ToasterProps = React.ComponentProps<typeof Sonner>;

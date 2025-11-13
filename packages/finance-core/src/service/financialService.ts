@@ -1,14 +1,14 @@
 import {
-  AssetQueryParams,
-  CandleQueryParams,
-  CandleResponse,
-  ExchangeRate,
-  FINANCIAL_ROUTES,
   FinancialService,
-  StockMarketStatus,
   TickerData,
   Trade,
-} from '@mtr/finance-core';
+  CandleResponse,
+  ExchangeRate,
+  StockMarketStatus,
+  AssetQueryParams,
+  CandleQueryParams,
+} from '../types';
+import { FINANCIAL_ROUTES } from '../api/routes';
 import { HttpClient } from '@mtr/network-core';
 
 export const createFinancialService = (httpClient: HttpClient): FinancialService => {
@@ -52,7 +52,7 @@ export const createFinancialService = (httpClient: HttpClient): FinancialService
   };
 
   return {
-    getMarketData: getMarketData,
+    getMarketData,
     getCandles,
     getTrades,
     getExchangeRates,
