@@ -1,7 +1,6 @@
-import { BaseError } from '@mtr/error-handler';
 import React from 'react';
 interface GlobalErrorFallbackProps {
-  error: BaseError;
+  error: Error;
   reset: () => void;
   /**
    * 앱별 브랜딩 정보
@@ -66,9 +65,7 @@ export const GlobalErrorFallback: React.FC<GlobalErrorFallbackProps> = ({
               <div className="mt-3 space-y-3 text-sm">
                 <div>
                   <span className="font-medium text-red-700">메시지:</span>
-                  <p className="text-red-600 font-mono bg-red-100 p-2 rounded mt-1 break-all">
-                    {error.message}
-                  </p>
+                  <p className="text-red-600 font-mono bg-red-100 p-2 rounded mt-1 break-all">{error.message}</p>
                 </div>
                 {error.stack && (
                   <div>

@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@mtr/network-core": "workspace:*",
+    "@mtr/auth-core": "workspace:*",
     "@mtr/utils": "workspace:*",
     "@mtr/store": "workspace:*",
     "@mtr/hooks": "workspace:*",

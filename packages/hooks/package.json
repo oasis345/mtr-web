@@ -14,7 +14,8 @@
   "dependencies": {
     "@mtr/utils": "workspace:*",
     "@mtr/network-core": "workspace:*",
-    "@mtr/finance-core": "workspace:*"
+    "@mtr/finance-core": "workspace:*",
+    "@mtr/auth-core": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19",
